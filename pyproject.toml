@@ -1,0 +1,14 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "Philipp Seitz", email = "philipp.seitz@tum.de"},
+]
+dependencies = [
+    "qiskit>=0.44.1",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
