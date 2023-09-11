@@ -1,14 +1,22 @@
 [project]
-name = ""
-version = ""
-description = ""
+name = "cutting-scheduler"
+version = "0.1.0"
+description = "A project implementing a minimal scheduler, which is aware of circuit cutting."
 authors = [
     {name = "Philipp Seitz", email = "philipp.seitz@tum.de"},
 ]
 dependencies = [
     "qiskit>=0.44.1",
+    "networkx>=3.1",
+    "qiskit-aer>=0.12.2",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "MIT"}
 
+[project.optional-dependencies]
+development = [
+    "pytest>=7.4.2",
+    "black>=23.9.1",
+    "pylint>=2.17.5",
+]
