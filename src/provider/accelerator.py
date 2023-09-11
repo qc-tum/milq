@@ -44,5 +44,7 @@ class Accelerator:
         Returns:
             Dict[str, int]: _description_
         """
+        # TODO check qubit size
+        # TODO check if transpile here is necessary / needs to be moved somewhere else
         result = self.backend.run(transpile(circuit, self.backend)).result()
         return result.get_counts(0)
