@@ -36,6 +36,15 @@ class Accelerator:
         """
         return self._qubits
 
+    @property
+    def backend(self) -> IBMQBackend:
+        """_summary_
+
+        Returns:
+            IBMQBackend: _description_
+        """
+        return self._backend
+
     def run_and_get_counts(self, circuit: QuantumCircuit) -> Dict[str, int]:
         """_summary_
 
