@@ -4,7 +4,7 @@ from typing import Dict
 
 from qiskit_aer import AerSimulator
 from qiskit import QuantumCircuit, transpile
-from qiskit.providers.fake_provider import FakeBelem, FakeNairobi, FakeQuito
+from qiskit.providers.fake_provider import FakeBelemV2, FakeNairobiV2, FakeQuitoV2
 
 
 class IBMQBackend(Enum):
@@ -14,9 +14,9 @@ class IBMQBackend(Enum):
         Enum (_type_): _description_
     """
 
-    BELEM = FakeBelem
-    NAIROBI = FakeNairobi
-    QUITO = FakeQuito
+    BELEM = FakeBelemV2
+    NAIROBI = FakeNairobiV2
+    QUITO = FakeQuitoV2
 
 
 class Accelerator:
