@@ -9,6 +9,7 @@ dependencies = [
     "qiskit>=0.44.1",
     "networkx>=3.1",
     "qiskit-aer>=0.12.2",
+    "circuit-knitting-toolbox>=0.3.0",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
