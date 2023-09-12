@@ -10,13 +10,15 @@ dependencies = [
     "networkx>=3.1",
     "qiskit-aer>=0.12.2",
     "circuit-knitting-toolbox>=0.3.0",
+    "mqt-qmap>=2.4.0",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "MIT"}
 
-[project.optional-dependencies]
-development = [
+
+[tool.pdm.dev-dependencies]
+dev = [
     "pytest>=7.4.2",
     "black>=23.9.1",
     "pylint>=2.17.5",
