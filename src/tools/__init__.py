@@ -2,6 +2,8 @@
 - Assembling: Build one circuit object to run on the same device
 - Cutting: Make circuits fit if on available space
 - Mapping: Rewrite circuits for hardware connectivity
+- Optimization: Optional Circuit optimizations
 """
 from .assembling import assemble_circuit
 from .cutting import cut_circuit
+from .mapping import map_circuit
