@@ -23,8 +23,9 @@ class Accelerator:
     """_summary_"""
 
     def __init__(self, backend: IBMQBackend) -> None:
-        self.backend = AerSimulator.from_backend(backend.value())
-        self._qubits = len(self.backend.properties().qubits)
+        self.simulator = AerSimulator.from_backend(backend.value())
+        self._backend = backend
+        self._qubits = len(self.simulator.properties().qubits)
 
     @property
     def qubits(self) -> int:
@@ -46,5 +47,5 @@ class Accelerator:
         """
         # TODO check qubit size
         # TODO check if transpile here is necessary / needs to be moved somewhere else
-        result = self.backend.run(transpile(circuit, self.backend)).result()
+        result = self.simulator.run(transpile(circuit, self.simulator)).result()
         return result.get_counts(0)
