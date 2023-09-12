@@ -3,4 +3,5 @@
 - Cutting: Make circuits fit if on available space
 - Mapping: Rewrite circuits for hardware connectivity
 """
+from .assembling import assemble_circuit
 from .cutting import cut_circuit
