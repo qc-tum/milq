@@ -1,28 +1,64 @@
 """Circuit cutting using the CTK library."""
-from typing import List
+from dataclasses import dataclass
+from typing import Dict, List
+from uuid import UUID, uuid4
 
 from circuit_knitting.cutting import (
     partition_problem,
-    execute_experiments,
-    reconstruct_expectation_values,
+    generate_cutting_experiments,
 )
 from qiskit import QuantumCircuit
+from qiskit.quantum_info import PauliList
+import numpy as np
 
 
-def cut_circuit(circuit: QuantumCircuit, partitions: List[int]) -> List[QuantumCircuit]:
+@dataclass
+class Experiment:
+    """Data class for cut results."""
+
+    circuits: List[QuantumCircuit]
+    coeficients: List[float]
+    n_shots: int
+    partition_lable: str
+    result_counts: Dict[str, int] | None
+    uuid: UUID
+
+
+def cut_circuit(
+    circuit: QuantumCircuit,
+    partitions: List[int],
+    observables: (PauliList | None) = None,
+) -> List[Experiment]:
     """_summary_
 
     Args:
         circuit (QuantumCircuit): _description_
-        partitions (str): _description_
+        partitions (List[int]): _description_
+        observables (PauliList  |  None, optional): _description_. Defaults to None.
 
     Returns:
-        List[QuantumCircuit]: _description_
+        List[Experiment]: _description_
     """
-    # TODO find a way to communicate cutting information for reassembly at a later time
+    if observables is None:
+        observables = PauliList("Z" * circuit.num_qubits)
     partitions = _generate_partition_lables(partitions)
-    circuits = partition_problem(circuit, partitions)
-    return list(circuits.subcircuits.values())
+    partitioned_problem = partition_problem(circuit, partitions, observables)
+    experiments, coefficients = generate_cutting_experiments(
+        partitioned_problem.subcircuits,
+        partitioned_problem.subobservables,
+        num_samples=np.inf,
+    )
+    return [
+        Experiment(
+            circuits,
+            [coeff for coeff, _ in coefficients],
+            2**12,  # TODO Calculate somehow
+            partition_lable,
+            None,
+            uuid4(),
+        )
+        for partition_lable, circuits in experiments.items()
+    ]
 
 
 def _generate_partition_lables(partitions: List[int]) -> str:

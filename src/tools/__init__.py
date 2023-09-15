@@ -5,5 +5,5 @@
 - Optimization: Optional Circuit optimizations
 """
 from .assembling import assemble_circuit
-from .cutting import cut_circuit
+from .cutting import cut_circuit, Experiment
 from .mapping import map_circuit
