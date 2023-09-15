@@ -1,6 +1,6 @@
 """Circuit cutting using the CTK library."""
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from uuid import UUID, uuid4
 
 from circuit_knitting.cutting import (
@@ -28,7 +28,7 @@ def cut_circuit(
     circuit: QuantumCircuit,
     partitions: List[int],
     observables: (PauliList | None) = None,
-) -> List[Experiment]:
+) -> Tuple[List[Experiment], UUID]:
     """_summary_
 
     Args:
@@ -48,6 +48,7 @@ def cut_circuit(
         partitioned_problem.subobservables,
         num_samples=np.inf,
     )
+    uuid = uuid4()
     return [
         Experiment(
             circuits,
@@ -55,10 +56,10 @@ def cut_circuit(
             2**12,  # TODO Calculate somehow
             partition_lable,
             None,
-            uuid4(),
+            uuid,
         )
         for partition_lable, circuits in experiments.items()
-    ]
+    ], uuid
 
 
 def _generate_partition_lables(partitions: List[int]) -> str:
