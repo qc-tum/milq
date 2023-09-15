@@ -20,7 +20,7 @@ class Experiment:
     coeficients: List[float]
     n_shots: int
     partition_lable: str
-    result_counts: Dict[str, int] | None
+    result_counts: List[Dict[str, int]] | None
     uuid: UUID
 
 
