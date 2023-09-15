@@ -7,3 +7,4 @@
 from .assembling import assemble_circuit
 from .cutting import cut_circuit, Experiment
 from .mapping import map_circuit
+from .optimizing import optimize_circuit_online
