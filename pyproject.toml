@@ -9,8 +9,9 @@ dependencies = [
     "qiskit>=0.44.1",
     "networkx>=3.1",
     "qiskit-aer>=0.12.2",
-    "circuit-knitting-toolbox>=0.3.0",
+    "circuit-knitting-toolbox>=0.4.0",
     "mqt-qmap>=2.4.0",
+    "numpy>=1.25.2",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
