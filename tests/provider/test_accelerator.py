@@ -7,6 +7,7 @@ from src.provider import Accelerator, IBMQBackend
 
 
 def test_accelerator_run() -> None:
+    """_summary_"""
     backend = IBMQBackend.BELEM
     accelerator = Accelerator(backend)
     circuit = create_ghz(3)
