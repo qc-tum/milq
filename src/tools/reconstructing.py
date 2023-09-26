@@ -4,7 +4,7 @@ from typing import List
 from circuit_knitting.cutting import reconstruct_expectation_values
 from qiskit.primitives.sampler import SamplerResult
 
-from .cutting import Experiment
+from src.common import Experiment
 
 
 def reconstruct_counts(experiment: Experiment) -> None:

@@ -1,30 +1,16 @@
 """Circuit cutting using the CTK library."""
-from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 from uuid import UUID, uuid4
 
 from circuit_knitting.cutting import (
     partition_problem,
     generate_cutting_experiments,
 )
-from circuit_knitting.cutting.qpd import WeightType
-
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import PauliList
 import numpy as np
 
-
-@dataclass
-class Experiment:
-    """Data class for cut results."""
-
-    circuits: List[QuantumCircuit]
-    coefficients: List[Tuple[float, WeightType]]
-    n_shots: int
-    observables: PauliList | Dict[str, PauliList]
-    partition_label: str
-    result_counts: List[Dict[str, int]] | None
-    uuid: UUID
+from src.common import Experiment
 
 
 def cut_circuit(
