@@ -1,10 +1,9 @@
 """_summary_"""
 
-from qiskit import QuantumCircuit, transpile
-from qiskit.transpiler import PassManager
+from qiskit import QuantumCircuit
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
-from src.provider import IBMQBackend
+from src.common import IBMQBackend
 
 
 def optimize_circuit_offline(

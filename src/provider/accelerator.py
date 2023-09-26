@@ -1,22 +1,11 @@
 """Wrapper for IBMs backend simulator."""
-from enum import Enum
 from typing import Dict
 
 from qiskit_aer import AerSimulator
-from qiskit import QuantumCircuit, transpile
-from qiskit.providers.fake_provider import FakeBelemV2, FakeNairobiV2, FakeQuitoV2
+from qiskit import QuantumCircuit
 
-
-class IBMQBackend(Enum):
-    """_summary_
-
-    Args:
-        Enum (_type_): _description_
-    """
-
-    BELEM = FakeBelemV2
-    NAIROBI = FakeNairobiV2
-    QUITO = FakeQuitoV2
+from src.common import IBMQBackend
+from src.tools import optimize_circuit_online
 
 
 class Accelerator:
@@ -55,6 +44,6 @@ class Accelerator:
             Dict[str, int]: _description_
         """
         # TODO check qubit size
-        # TODO check if transpile here is necessary / needs to be moved somewhere else
-        result = self.simulator.run(transpile(circuit, self.simulator)).result()
+        opt_circuit = optimize_circuit_online(circuit, self.simulator)
+        result = self.simulator.run(opt_circuit).result()
         return result.get_counts(0)

@@ -3,7 +3,7 @@ from qiskit import QuantumCircuit
 from qiskit.transpiler import PassManager
 from qiskit.transpiler.passes import SabreLayout, SabreSwap
 
-from src.provider import IBMQBackend
+from src.common import IBMQBackend
 
 
 def map_circuit(circuit: QuantumCircuit, backend: IBMQBackend) -> QuantumCircuit:
