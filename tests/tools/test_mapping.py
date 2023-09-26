@@ -9,6 +9,6 @@ def test_map_circuit() -> None:
     circuit = create_ghz(5)
     backend = IBMQBackend.BELEM
     accelerator = Accelerator(backend)
-    circuit = map_circuit(circuit, accelerator.backend)
+    circuit, _ = map_circuit(circuit, accelerator.backend)
     # TODO better assertion
     assert circuit.num_qubits == 5
