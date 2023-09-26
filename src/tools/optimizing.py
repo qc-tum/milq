@@ -4,6 +4,7 @@ from qiskit import QuantumCircuit
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
 from src.common import IBMQBackend
+from .mapping import map_circuit
 
 
 def optimize_circuit_offline(
@@ -25,10 +26,11 @@ def optimize_circuit_offline(
     pass_manager = generate_preset_pass_manager(
         3, backend.value()
     )  # TODO eventually remove dependency
-    pass_manager.routing = None
-    pass_manager.translation = None
+    pass_manager.layout = None
     pass_manager.optimization = None
+    pass_manager.routing = None
     pass_manager.scheduling = None
+    pass_manager.translation = None
     return pass_manager.run(circuit)
 
 
@@ -49,5 +51,5 @@ def optimize_circuit_online(
     """
     pass_manager = generate_preset_pass_manager(3, backend.value())
     pass_manager.init = None
-    pass_manager.layout = None
+    _, pass_manager.layout = map_circuit(circuit, backend)
     return pass_manager.run(circuit)
