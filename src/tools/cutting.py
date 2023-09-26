@@ -7,6 +7,8 @@ from circuit_knitting.cutting import (
     partition_problem,
     generate_cutting_experiments,
 )
+from circuit_knitting.cutting.qpd import WeightType
+
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import PauliList
 import numpy as np
@@ -17,9 +19,10 @@ class Experiment:
     """Data class for cut results."""
 
     circuits: List[QuantumCircuit]
-    coeficients: List[float]
+    coefficients: List[Tuple[float, WeightType]]
     n_shots: int
-    partition_lable: str
+    observables: PauliList | Dict[str, PauliList]
+    partition_label: str
     result_counts: List[Dict[str, int]] | None
     uuid: UUID
 
@@ -41,7 +44,7 @@ def cut_circuit(
     """
     if observables is None:
         observables = PauliList("Z" * circuit.num_qubits)
-    partitions = _generate_partition_lables(partitions)
+    partitions = _generate_partition_labels(partitions)
     partitioned_problem = partition_problem(circuit, partitions, observables)
     experiments, coefficients = generate_cutting_experiments(
         partitioned_problem.subcircuits,
@@ -52,16 +55,17 @@ def cut_circuit(
     return [
         Experiment(
             circuits,
-            [coeff for coeff, _ in coefficients],
+            coefficients,  # split up by order?
             2**12,  # TODO Calculate somehow
-            partition_lable,
+            partitioned_problem.subobservables[partition_label],
+            partition_label,
             None,
             uuid,
         )
-        for partition_lable, circuits in experiments.items()
+        for partition_label, circuits in experiments.items()
     ], uuid
 
 
-def _generate_partition_lables(partitions: List[int]) -> str:
+def _generate_partition_labels(partitions: List[int]) -> str:
     # TODO find a smart way to communicate partition information
     return "".join(str(i) * value for i, value in enumerate(partitions))
