@@ -14,7 +14,7 @@ def optimize_circuit_offline(
 
     Should only run high-level optimization.
     Needs to do gate decomposition for cutting to work.
-    For now as placeholder init transpile pass from qiskit.
+    For now, as placeholder init transpile pass from qiskit.
 
     Args:
         circuit (QuantumCircuit): _description_
@@ -39,8 +39,8 @@ def optimize_circuit_online(
 ) -> QuantumCircuit:
     """Optimization with hardware information.
 
-    Should only run low-evel optimization.
-    For now as placeholder restricted transpile pass from qiskit.
+    Should only run low-level optimization.
+    For now, as placeholder restricted transpile pass from qiskit.
 
     Args:
         circuit (QuantumCircuit): _description_
