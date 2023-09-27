@@ -44,6 +44,7 @@ class Accelerator:
             Dict[str, int]: _description_
         """
         # TODO check qubit size
-        opt_circuit = optimize_circuit_online(circuit, self._backend)
-        result = self.simulator.run(opt_circuit).result()
+        # opt_circuit = optimize_circuit_online(circuit, self._backend)
+        # TODO For some reason the above line blocks
+        result = self.simulator.run(circuit).result()
         return result.get_counts(0)
