@@ -7,7 +7,7 @@ from src.provider import Accelerator
 from src.tools import cut_circuit, optimize_circuit_offline, reconstruct_expvals
 
 
-def test_reconstrcut_expvals() -> None:
+def test_reconstruct_expvals() -> None:
     """_summary_"""
     backend = IBMQBackend.BELEM
     accelerator = Accelerator(backend)
