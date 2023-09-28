@@ -25,7 +25,7 @@ class CircuitJob:
     """Data class for single cicruit"""
 
     index: int
-    instance: QuantumCircuit
+    instance: QuantumCircuit | None
     coefficient: tuple[float, WeightType]
     n_shots: int
     observable: PauliList  # Should be single pauli
@@ -43,7 +43,7 @@ class CombinedJob:
     indices: list[int] = field(default_factory=list)
     instance: QuantumCircuit | None = None
     coefficients: list[tuple[float, WeightType]] = field(default_factory=list)
-    mapping: list[range] = field(default_factory=list)
+    mapping: list[slice] = field(default_factory=list)
     n_shots: int = 0
     observable: PauliList | None = None
     partition_lables: list[str] = field(default_factory=list)

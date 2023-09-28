@@ -52,7 +52,7 @@ def assemble_job(circuit_jobs: list[CircuitJob]) -> CombinedJob:
         circuits.append(job.instance)
         combined_job.coefficients.append(job.coefficient)
         combined_job.mapping.append(
-            range(qubit_count, qubit_count + job.instance.num_qubits)
+            slice(qubit_count, qubit_count + job.instance.num_qubits)
         )
         qubit_count += job.instance.num_qubits
         observable = observable.expand(job.observable)
