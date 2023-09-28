@@ -61,15 +61,15 @@ def reconstruct_counts_from_job(job: CombinedJob) -> list[CircuitJob]:
         counts = _get_partial_counts(job.result_counts, offset, job.cregs[idx])
         circuit_jobs.append(
             CircuitJob(
-                job.indices[idx],
-                None,
-                job.coefficients[idx],
-                job.n_shots,
-                observable,
-                job.partition_lables[idx],
-                counts,
-                job.uuids[idx],
-                job.cregs[idx],
+                coefficient=job.coefficients[idx],
+                cregs=job.cregs[idx],
+                index=job.indices[idx],
+                instance=None,
+                n_shots=job.n_shots,
+                observable=observable,
+                partition_lable=job.partition_lables[idx],
+                result_counts=counts,
+                uuid=job.uuids[idx],
             )
         )
         offset += job.cregs[idx]
