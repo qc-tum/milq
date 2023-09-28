@@ -1,10 +1,47 @@
 """Result reconstruction using CKT toolbox."""
 from collections import Counter
+from functools import partial
 
 from circuit_knitting.cutting import reconstruct_expectation_values
 from qiskit.primitives.sampler import SamplerResult
 
 from src.common import CircuitJob, CombinedJob, Experiment
+
+
+def reconstruct_experiments_from_circuits(jobs: list[CircuitJob]) -> list[Experiment]:
+    """_summary_
+
+    Args:
+        jobs (list[CircuitJob]): _description_
+
+    Returns:
+        list[Experiment]: _description_
+    """
+    uuids = set(job.uuid for job in jobs)
+    experiments = []
+    for uuid in uuids:
+        uuid_jobs = list(filter(partial(lambda j, u: j.uuid == u, u=uuid), jobs))
+        partitions = set(job.partition_lable for job in uuid_jobs)
+        for partition in partitions:
+            partition_jobs = sorted(
+                filter(
+                    partial(lambda j, p: j.partition_lable == p, p=partition), uuid_jobs
+                ),
+                key=lambda x: x.index,
+            )
+
+            experiments.append(
+                Experiment(
+                    None,
+                    [job.coefficient for job in partition_jobs],
+                    0,
+                    partition_jobs[0].observable,  # TODO fix for multiple
+                    partition,
+                    [job.result_counts for job in partition_jobs],
+                    uuid,
+                )
+            )
+    return experiments
 
 
 def reconstruct_counts_from_job(job: CombinedJob) -> list[CircuitJob]:
