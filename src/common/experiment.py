@@ -11,7 +11,7 @@ from qiskit.quantum_info import PauliList
 class Experiment:
     """Data class for cut results."""
 
-    circuits: list[QuantumCircuit]
+    circuits: list[QuantumCircuit] | None
     coefficients: list[tuple[float, WeightType]]
     n_shots: int
     observables: PauliList | dict[str, PauliList]
