@@ -1,6 +1,5 @@
 """"""
 from multiprocessing import Pool, current_process
-from typing import Dict, List
 
 from qiskit import QuantumCircuit
 
@@ -11,7 +10,7 @@ from .accelerator import Accelerator
 class AcceleratorGroup:
     """_summary_"""
 
-    def __init__(self, accelerators: List[Accelerator]) -> None:
+    def __init__(self, accelerators: list[Accelerator]) -> None:
         self.accelerators = accelerators
         self._qubits = sum(acc.qubits for acc in accelerators)
 
@@ -25,15 +24,15 @@ class AcceleratorGroup:
         return self._qubits
 
     def run_and_get_counts(
-        self, circuits: List[QuantumCircuit]
-    ) -> List[Dict[int, int]]:
+        self, circuits: list[QuantumCircuit]
+    ) -> list[dict[int, int]]:
         """_summary_
 
         Args:
-            circuits (List[QuantumCircuit]): _description_
+            circuits (list[QuantumCircuit]): _description_
 
         Returns:
-            List[Dict[int, int]]: _description_
+            list[dict[int, int]]: _description_
         """
         counts = []
         for circuit, accelerator in zip(circuits, self.accelerators):
@@ -42,14 +41,14 @@ class AcceleratorGroup:
         # TODO do some magic to figure out which counts belong to which circuit
         return counts
 
-    def run_experiments(self, experiments: List[Experiment]) -> List[Experiment]:
+    def run_experiments(self, experiments: list[Experiment]) -> list[Experiment]:
         """_summary_
 
         Args:
-            experiments (List[Experiment]): _description_
+            experiments (list[Experiment]): _description_
 
         Returns:
-           List[Experiment]: _description_
+           list[Experiment]: _description_
         """
         with Pool(processes=len(self.accelerators)) as pool:
             results = []
@@ -61,7 +60,7 @@ class AcceleratorGroup:
         return results
 
 
-def _run_func(accs: List[Accelerator], exp: Experiment) -> Experiment:
+def _run_func(accs: list[Accelerator], exp: Experiment) -> Experiment:
     pool_id = current_process()._identity[0] - 1  # TODO fix somehow
     try:
         exp.result_counts = [

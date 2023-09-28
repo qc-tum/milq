@@ -1,6 +1,4 @@
 """Result reconstruction using CKT toolbox."""
-from typing import List
-
 from circuit_knitting.cutting import reconstruct_expectation_values
 from qiskit.primitives.sampler import SamplerResult
 
@@ -11,14 +9,14 @@ def reconstruct_counts(experiment: Experiment) -> None:
     ...
 
 
-def reconstruct_expvals(experiments: List[Experiment]) -> List[float]:
+def reconstruct_expvals(experiments: list[Experiment]) -> list[float]:
     """_summary_
 
     Args:
-        experiments (List[Experiment]): _description_
+        experiments (list[Experiment]): _description_
 
     Returns:
-        List[float]: _description_
+        list[float]: _description_
     """
     coefficients = experiments[0].coefficients
     subobservables = {

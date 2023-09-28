@@ -1,14 +1,12 @@
 """Assemble a single circuit from multiple independent ones."""
-from typing import List
-
 from qiskit import QuantumCircuit
 
 
-def assemble_circuit(circuits: List[QuantumCircuit]) -> QuantumCircuit:
+def assemble_circuit(circuits: list[QuantumCircuit]) -> QuantumCircuit:
     """_summary_
 
     Args:
-        circuits (List[QuantumCircuit]): _description_
+        circuits (list[QuantumCircuit]): _description_
 
     Returns:
         QuantumCircuit: _description_

@@ -1,6 +1,4 @@
 """Wrapper for IBMs backend simulator."""
-from typing import Dict
-
 from qiskit_aer import AerSimulator
 from qiskit import QuantumCircuit
 
@@ -34,14 +32,14 @@ class Accelerator:
         """
         return self._backend
 
-    def run_and_get_counts(self, circuit: QuantumCircuit) -> Dict[str, int]:
+    def run_and_get_counts(self, circuit: QuantumCircuit) -> dict[str, int]:
         """_summary_
 
         Args:
             circuit (QuantumCircuit): _description_
 
         Returns:
-            Dict[str, int]: _description_
+            dict[str, int]: _description_
         """
         # TODO check qubit size
         # opt_circuit = optimize_circuit_online(circuit, self._backend)

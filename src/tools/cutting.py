@@ -1,5 +1,4 @@
 """Circuit cutting using the CTK library."""
-from typing import List, Tuple
 from uuid import UUID, uuid4
 
 from circuit_knitting.cutting import (
@@ -15,18 +14,18 @@ from src.common import Experiment
 
 def cut_circuit(
     circuit: QuantumCircuit,
-    partitions: List[int],
+    partitions: list[int],
     observables: (PauliList | None) = None,
-) -> Tuple[List[Experiment], UUID]:
+) -> tuple[list[Experiment], UUID]:
     """_summary_
 
     Args:
         circuit (QuantumCircuit): _description_
-        partitions (List[int]): _description_
+        partitions (tist[int]): _description_
         observables (PauliList  |  None, optional): _description_. Defaults to None.
 
     Returns:
-        List[Experiment]: _description_
+        tist[Experiment]: _description_
     """
     if observables is None:
         observables = PauliList("Z" * circuit.num_qubits)
@@ -52,6 +51,6 @@ def cut_circuit(
     ], uuid
 
 
-def _generate_partition_labels(partitions: List[int]) -> str:
+def _generate_partition_labels(partitions: list[int]) -> str:
     # TODO find a smart way to communicate partition information
     return "".join(str(i) * value for i, value in enumerate(partitions))
