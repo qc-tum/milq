@@ -32,6 +32,7 @@ class CircuitJob:
     partition_lable: str
     result_counts: dict[str, int] | None
     uuid: UUID
+    cregs: int
 
 
 @dataclass
@@ -49,6 +50,7 @@ class CombinedJob:
     partition_lables: list[str] = field(default_factory=list)
     result_counts: dict[str, int] | None = None
     uuids: list[UUID] = field(default_factory=list)
+    cregs: list[int] = field(default_factory=list)
 
 
 def create_jobs_from_experiment(experiment: Experiment) -> list[CircuitJob]:
@@ -70,6 +72,7 @@ def create_jobs_from_experiment(experiment: Experiment) -> list[CircuitJob]:
             experiment.partition_label,
             None,
             experiment.uuid,
+            len(circuit.cregs),
         )
         for idx, circuit in enumerate(experiment.circuits)
     ]
