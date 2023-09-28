@@ -62,6 +62,7 @@ def assemble_job(circuit_jobs: list[CircuitJob]) -> CombinedJob:
         observable = observable.expand(job.observable)
         combined_job.partition_lables.append(job.partition_lable)
         combined_job.uuids.append(job.uuid)
+        combined_job.cregs.append(job.cregs)
     combined_job.instance = assemble_circuit(circuits)
     combined_job.observable = observable
     return combined_job
