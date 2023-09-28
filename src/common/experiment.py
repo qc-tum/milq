@@ -1,6 +1,6 @@
 """Data object for Experiments belonging to one cut circuit."""
 from dataclasses import dataclass, field
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from circuit_knitting.cutting.qpd import WeightType
 from qiskit import QuantumCircuit
@@ -26,13 +26,27 @@ class CircuitJob:
 
     index: int
     instance: QuantumCircuit | None
-    coefficient: tuple[float, WeightType]
+    coefficient: tuple[float, WeightType] | None
     n_shots: int
     observable: PauliList  # Should be single pauli
     partition_lable: str
     result_counts: dict[str, int] | None
     uuid: UUID
     cregs: int
+
+
+def job_from_circuit(circuit: QuantumCircuit) -> CircuitJob:
+    return CircuitJob(
+        coefficient=None,
+        cregs=len(circuit.cregs),
+        index=0,
+        instance=circuit,
+        n_shots=1024,
+        observable=PauliList(""),
+        partition_lable="1",
+        result_counts=None,
+        uuid=uuid4(),
+    )
 
 
 @dataclass
@@ -53,7 +67,7 @@ class CombinedJob:
     cregs: list[int] = field(default_factory=list)
 
 
-def create_jobs_from_experiment(experiment: Experiment) -> list[CircuitJob]:
+def jobs_from_experiment(experiment: Experiment) -> list[CircuitJob]:
     """_summary_
 
     Args:

@@ -2,7 +2,7 @@
 from pytest import approx
 
 from src.circuits import create_quantum_only_ghz
-from src.common import create_jobs_from_experiment, IBMQBackend
+from src.common import jobs_from_experiment, IBMQBackend
 from src.provider import Accelerator
 from src.tools import (
     assemble_job,
@@ -39,7 +39,7 @@ def test_reconstruct_counts_from_job() -> None:
     experiments, _ = cut_circuit(circuit, [2, 3])
     jobs = []
     for experiment in experiments:
-        jobs += create_jobs_from_experiment(experiment)
+        jobs += jobs_from_experiment(experiment)
 
     combined_job = assemble_job([jobs[2], jobs[10]])
     combined_job.result_counts = accelerator.run_and_get_counts(combined_job.instance)
@@ -57,7 +57,7 @@ def test_reconstruct_experiments_from_circuits() -> None:
     experiments, _ = cut_circuit(circuit, [2, 3])
     jobs = []
     for experiment in experiments:
-        jobs += create_jobs_from_experiment(experiment)
+        jobs += jobs_from_experiment(experiment)
     job_results = []
     for job_1, job_2 in zip(jobs[:6], jobs[6:]):
         combined_job = assemble_job([job_1, job_2])

@@ -1,6 +1,6 @@
 """"""
 from src.circuits import create_ghz, create_quantum_only_ghz
-from src.common import create_jobs_from_experiment, IBMQBackend
+from src.common import jobs_from_experiment, IBMQBackend
 from src.tools import (
     assemble_circuit,
     assemble_job,
@@ -26,7 +26,7 @@ def test_assemble_and_reconstruct_job() -> None:
     experiments, _ = cut_circuit(circuit, [2, 3])
     jobs = []
     for experiment in experiments:
-        jobs += create_jobs_from_experiment(experiment)
+        jobs += jobs_from_experiment(experiment)
 
     combined_job = assemble_job([jobs[0], jobs[6]])
     assert combined_job.instance.num_qubits == 5
