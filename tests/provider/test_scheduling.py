@@ -6,7 +6,7 @@ from src.provider import Accelerator, Scheduler
 from src.tools import optimize_circuit_offline
 
 
-def test_schedluer() -> None:
+def test_generate_schedule() -> None:
     """_summary_"""
     backend_belem = IBMQBackend.BELEM
     accelerator_belem = Accelerator(backend_belem)
@@ -25,3 +25,19 @@ def test_schedluer() -> None:
     # 4. qpu0 -> 3,2 qubits, qpu1 -> 2,2 qubits
     # 5. qpu0 -> 2,2 qubits, qpu1 -> 2 qubits
     assert len(jobs) == 10
+
+
+def test_run_circuits() -> None:
+    """_summary_"""
+    backend_belem = IBMQBackend.BELEM
+    accelerator_belem = Accelerator(backend_belem)
+    backend_quito = IBMQBackend.QUITO
+    accelerator_quito = Accelerator(backend_quito)
+    scheduler = Scheduler([accelerator_belem, accelerator_quito])
+    circuits = [create_quantum_only_ghz(7), create_ghz(3)]
+    circuits = [
+        optimize_circuit_offline(circuit, backend_belem) for circuit in circuits
+    ]
+    jobs = scheduler.run_circuits(circuits)
+    for job in jobs:
+        assert job.result_counts is not None

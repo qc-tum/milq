@@ -41,6 +41,18 @@ class Scheduler:
         self.accelerator = AcceleratorGroup(accelerators)
         self.uuids = []
 
+    def run_circuits(self, circuits: list[QuantumCircuit]) -> list[CombinedJob]:
+        """_summary_
+
+        Args:
+            circuits (list[QuantumCircuit]): _description_
+
+        Returns:
+            list[CombinedJob]: _description_
+        """
+        jobs = self.generate_schedule(circuits)
+        return self.accelerator.run_jobs(jobs)
+
     def generate_schedule(self, circuits: list[QuantumCircuit]) -> list[ScheduledJob]:
         """_summary_
 
