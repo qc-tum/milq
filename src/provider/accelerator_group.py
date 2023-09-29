@@ -1,4 +1,4 @@
-""""""
+"""A common interface for multiple accelerators."""
 from itertools import zip_longest
 from multiprocessing import Pool, current_process
 
@@ -9,7 +9,9 @@ from .accelerator import Accelerator
 
 
 class AcceleratorGroup:
-    """_summary_"""
+    """
+    Provides a single entrypoints for multiple accelerators.
+    """
 
     def __init__(self, accelerators: list[Accelerator]) -> None:
         self.accelerators = accelerators
@@ -17,32 +19,33 @@ class AcceleratorGroup:
 
     @property
     def qpus(self) -> list[int]:
-        """_summary_
+        """Indicates the number of qubits per qpu.
 
         Returns:
-            list[int]: _description_
+            list[int]: The number of qubits per qpu.
         """
         return self._qpu_qubits
 
     @property
     def qubits(self) -> int:
-        """_summary_
+        """Tolal number of qubits.
 
         Returns:
-            int: _description_
+            int: The total number of qubits.
         """
         return sum(self._qpu_qubits)
 
     def run_and_get_counts(
         self, circuits: list[QuantumCircuit]
     ) -> list[dict[int, int]]:
-        """_summary_
+        """Simple run and get counts simultaneously for all accelerators.
 
+        Only works if the number of circuits is equal to the number of accelerators.
         Args:
-            circuits (list[QuantumCircuit]): _description_
+            circuits (list[QuantumCircuit]): The circuits to run.
 
         Returns:
-            list[dict[int, int]]: _description_
+            list[dict[int, int]]: A list of result counts, preserving order.
         """
         counts = []
         for circuit, accelerator in zip(circuits, self.accelerators):
@@ -52,21 +55,23 @@ class AcceleratorGroup:
         return counts
 
     def run_jobs(self, jobs: list[ScheduledJob]) -> list[CombinedJob]:
-        """_summary_
+        """Runs a list of scheduled jobs on their respective accelerators.
 
+        Creates a tuple of jobs to run at the same time onf different qpus.
+        Jobs are run in parallel.
         Args:
-            jobs (list[ScheduledJob]): _description_
+            jobs (list[ScheduledJob]): The jobs to run.
 
         Returns:
-            list[ScheduledJob]: _description_
+            list[ScheduledJob]: The jobs with results inserted.
         """
         jobs_per_qpu = {
             qpu: [job for job in jobs if job.qpu == qpu]
             for qpu, _ in enumerate(self.qpus)
-        }
+        }  # Sort by qpu
         with Pool(processes=len(self.accelerators)) as pool:
             results = []
-            for job in zip_longest(*jobs_per_qpu.values()):
+            for job in zip_longest(*jobs_per_qpu.values()):  # Run jobs in parallel
                 result = pool.apply_async(_run_job, [self.accelerators, job])
                 results.append(result)
             results = [result.get() for result in results]
@@ -74,13 +79,16 @@ class AcceleratorGroup:
         return results
 
     def run_experiments(self, experiments: list[Experiment]) -> list[Experiment]:
-        """_summary_
+        """Runs all circuits belonging to a list of experiments.
+
+        Just takes the circuits without any consideration.
+        Circuits are run in parallel.
 
         Args:
-            experiments (list[Experiment]): _description_
+            experiments (list[Experiment]): The list of expermimets to run.
 
         Returns:
-           list[Experiment]: _description_
+           list[Experiment]: Experiment with results inserted.
         """
         with Pool(processes=len(self.accelerators)) as pool:
             results = []
@@ -93,19 +101,39 @@ class AcceleratorGroup:
 
 
 def _run_func(accs: list[Accelerator], exp: Experiment) -> Experiment:
+    """Wrapper to run Experiment on a single accelerator.
+
+    Args:
+        accs (list[Accelerator]): The internal accelerators.
+        exp (Experiment): The experiment to run on this accelerator.
+
+    Returns:
+        Experiment: Experiment with results inserted.
+
+    """
     pool_id = current_process()._identity[0] - 1  # TODO fix somehow
     try:
         exp.result_counts = [
             accs[pool_id].run_and_get_counts(circ) for circ in exp.circuits
         ]
-    except Exception as e:
-        print(e)
+    except Exception as exc:
+        # To make result.get() work deterministically
+        print(exc)
     return exp
 
 
 def _run_job(
     accs: list[Accelerator], jobs: tuple[CombinedJob | None]
 ) -> CombinedJob | None:
+    """Selects a job from a tuple of jobs and runs it on the respective accelerator.
+
+    Args:
+        accs (list[Accelerator]): the internal accelerators.
+        jobs (tuple[CombinedJob  |  None]): The jobs which are run in parallel.
+
+    Returns:
+        CombinedJob | None: Returns the job with results inserted or None if no job was submited.
+    """
     pool_id = current_process()._identity[0] - 1  # TODO fix somehow
     job = jobs[pool_id]
     if job is None:
@@ -113,7 +141,6 @@ def _run_job(
     job = job.job
     try:
         job.result_counts = accs[pool_id].run_and_get_counts(job.instance)
-
-    except Exception as e:
-        print(e)
+    except Exception as exc:
+        print(exc)
     return job

@@ -1,4 +1,4 @@
-"""_summary_"""
+"""A scheduler for quantum circuits."""
 from dataclasses import dataclass, field
 
 from qiskit import QuantumCircuit
@@ -27,14 +27,16 @@ class Bin:
     qpu: int = -1
 
 
-# Some thoughts
-# Preprocess such that every circuit is smaller than the max QPU size
-# And each (sub)circuit is assigned to a hardware
-# 1. cut everything thats to large -> Experiments
-# 2. Put everything that's small into experiment
-# 3. combine circuits that fit into small device
 class Scheduler:
-    """_summary_"""
+    """The scheduer is aware of the hardware and schedules circuits accordingly.
+    At the moment, scheduling is done offline.
+    New circuits can't be submitted while the scheduler is running.
+    TODO:   - Raise a flag when an experiment is done (using its UUID)
+            - Consider number of shots / time to run circuit
+            - Consider 1 free qubit remaining when scheduling
+            - Make a continuous run function / sumbit new circuits
+            - Keep track of current schedule and update it
+    """
 
     def __init__(self, accelerators: list[Accelerator]) -> None:
         self.jobs = []
@@ -42,22 +44,31 @@ class Scheduler:
         self.uuids = []
 
     def run_circuits(self, circuits: list[QuantumCircuit]) -> list[CombinedJob]:
-        """_summary_
+        """Genreates a schedule and runs it.
 
         Args:
-            circuits (list[QuantumCircuit]): _description_
+            circuits (list[QuantumCircuit]): Circuits to run.
 
         Returns:
-            list[CombinedJob]: _description_
+            list[CombinedJob]: Jobs with inserted results.
         """
         jobs = self.generate_schedule(circuits)
         return self.accelerator.run_jobs(jobs)
 
     def generate_schedule(self, circuits: list[QuantumCircuit]) -> list[ScheduledJob]:
-        """_summary_
+        """Generater a offlines schedule.
+
+        First cuts the circuits which are to big to run on the biggest qpu.
+        Circuits are cut to fit onto the biggest qpu first.
+        Flattens the resulting experiment and creates indiveual jobs for each circuit.
+        The jobs are scheduled using k-first fit bin packing.
+        As soon as a bin is full, a new bin for each qpu is added.
+        This is based on the assumption that all qpus take the same amount of time to run.
+
 
         Args:
-            circuits (list[ScheduledJob]): _description_
+            circuits (list[ScheduledJob]): A list of Jobs ready to run.
+                The jobs are sorted by index (the timestep when to run) and have qpu information attached.
         """
         jobs = sorted(
             self._convert_to_jobs(circuits),
@@ -73,6 +84,20 @@ class Scheduler:
         return combined_jobs
 
     def _binpacking_to_qpus(self, jobs: list[CircuitJob]) -> list[Bin]:
+        """Schedule jobs onto qpus.
+
+        Each qpu represents a bin.
+        Since all jobs are asumet to take the same amount of time, the are associated
+        with a timestep (index).
+        k-first fit bin means we keep track of all bins that still have space left.
+        Once a qpu is full, we add a new bin for each qpu at the next timestep.
+        We can't run circuits with one qubit, scheduling doesn't take this into account.
+        Args:
+            jobs (list[CircuitJob]): The list of jobs to run.
+
+        Returns:
+            list[Bin]: All bins with at least one jobs.
+        """
         # Use binpacking to combine circuits into qpu sized jobs
         # placeholder for propper scheduling
         # TODO set a flag when an experiment is done
@@ -90,7 +115,7 @@ class Scheduler:
                 if obin.capacity >= job.instance.num_qubits:
                     obin.jobs.append(job)
                     obin.capacity -= job.instance.num_qubits
-                    if obin.capacity == 0:
+                    if obin.capacity <= 1:
                         obin.full = True
                         closed_bins.append(obin)
                         open_bins.remove(obin)
@@ -118,7 +143,7 @@ class Scheduler:
         return closed_bins
 
     def _convert_to_jobs(self, circuits: list[QuantumCircuit]) -> list[CircuitJob]:
-        """Generater jobs from circuits.
+        """Generates jobs from circuits.
 
         Small circuits are converted to jobs directly.
         Big circuits are cut into experiments and turned into jobs.
