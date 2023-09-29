@@ -83,7 +83,8 @@ def jobs_from_experiment(experiment: Experiment) -> list[CircuitJob]:
             index=idx,
             instance=circuit,
             n_shots=experiment.n_shots,
-            observable=experiment.observables,  # TODO this might need to change for proper observables
+            # TODO this might need to change for proper observables
+            observable=experiment.observables,  
             partition_lable=experiment.partition_label,
             result_counts=None,
             uuid=experiment.uuid,
