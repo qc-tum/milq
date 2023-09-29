@@ -5,10 +5,10 @@ from qiskit.providers.fake_provider import FakeBelemV2, FakeNairobiV2, FakeQuito
 
 
 class IBMQBackend(Enum):
-    """_summary_
+    """Wraps three common backends from IBMQ.
 
     Args:
-        Enum (_type_): _description_
+        Enum (_type_): Names of the backends.
     """
 
     BELEM = FakeBelemV2
