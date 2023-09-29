@@ -56,9 +56,14 @@ def reconstruct_counts_from_job(job: CombinedJob) -> list[CircuitJob]:
     circuit_jobs = []
     offset = 0
     for idx, _ in enumerate(job.indices):
+        # Get the observable to be measured for this circuit.
         mapping = job.mapping[idx]
         observable = job.observable[0][mapping]
+
+        # Get the counts for the results of this circuit.
         counts = _get_partial_counts(job.result_counts, offset, job.cregs[idx])
+
+        # Create a new CircuitJob for this circuit.
         circuit_jobs.append(
             CircuitJob(
                 coefficient=job.coefficients[idx],
