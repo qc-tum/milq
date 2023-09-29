@@ -3,7 +3,13 @@ from dataclasses import dataclass, field
 
 from qiskit import QuantumCircuit
 
-from src.common import CircuitJob, CombinedJob, jobs_from_experiment, job_from_circuit
+from src.common import (
+    CircuitJob,
+    CombinedJob,
+    jobs_from_experiment,
+    job_from_circuit,
+    ScheduledJob,
+)
 from src.tools import cut_circuit, assemble_job
 
 from .accelerator import Accelerator
@@ -19,14 +25,6 @@ class Bin:
     index: int = -1
     jobs: list[CircuitJob] = field(default_factory=list)
     qpu: int = -1
-
-
-@dataclass
-class ScheduledJob:
-    """Data class for scheduled job."""
-
-    job: CombinedJob  # Probably don't need CircuitJob
-    qpu: int
 
 
 # Some thoughts

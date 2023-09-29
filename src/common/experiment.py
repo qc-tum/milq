@@ -67,6 +67,14 @@ class CombinedJob:
     uuids: list[UUID] = field(default_factory=list)
 
 
+@dataclass
+class ScheduledJob:
+    """Data class for scheduled job."""
+
+    job: CombinedJob  # Probably don't need CircuitJob
+    qpu: int
+
+
 def jobs_from_experiment(experiment: Experiment) -> list[CircuitJob]:
     """_summary_
 
@@ -84,7 +92,7 @@ def jobs_from_experiment(experiment: Experiment) -> list[CircuitJob]:
             instance=circuit,
             n_shots=experiment.n_shots,
             # TODO this might need to change for proper observables
-            observable=experiment.observables,  
+            observable=experiment.observables,
             partition_lable=experiment.partition_label,
             result_counts=None,
             uuid=experiment.uuid,
