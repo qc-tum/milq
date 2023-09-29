@@ -12,7 +12,16 @@ class AcceleratorGroup:
 
     def __init__(self, accelerators: list[Accelerator]) -> None:
         self.accelerators = accelerators
-        self._qubits = sum(acc.qubits for acc in accelerators)
+        self._qpu_qubits = [acc.qubits for acc in accelerators]
+
+    @property
+    def qpus(self) -> list[int]:
+        """_summary_
+
+        Returns:
+            list[int]: _description_
+        """
+        return self._qpu_qubits
 
     @property
     def qubits(self) -> int:
@@ -21,7 +30,7 @@ class AcceleratorGroup:
         Returns:
             int: _description_
         """
-        return self._qubits
+        return sum(self._qpu_qubits)
 
     def run_and_get_counts(
         self, circuits: list[QuantumCircuit]
