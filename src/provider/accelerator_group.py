@@ -10,11 +10,11 @@ from .accelerator import Accelerator
 
 class AcceleratorGroup:
     """
-    Provides a single entrypoints for multiple accelerators.
+    Provides a single entrypoint for multiple accelerators.
     """
 
     def __init__(self, accelerators: list[Accelerator]) -> None:
-        self.accelerators = accelerators
+        self._accelerators = accelerators
         self._qpu_qubits = [acc.qubits for acc in accelerators]
 
     @property
@@ -25,6 +25,15 @@ class AcceleratorGroup:
             list[int]: The number of qubits per qpu.
         """
         return self._qpu_qubits
+
+    @property
+    def accelerators(self) -> list[Accelerator]:
+        """Get the wrapped accelerators.
+
+        Returns:
+            list[Accelerator]: The internal accelerators.
+        """
+        return self._accelerators
 
     @property
     def qubits(self) -> int:
@@ -48,7 +57,7 @@ class AcceleratorGroup:
             list[dict[int, int]]: A list of result counts, preserving order.
         """
         counts = []
-        for circuit, accelerator in zip(circuits, self.accelerators):
+        for circuit, accelerator in zip(circuits, self._accelerators):
             # TODO in parallel!
             counts.append(accelerator.run_and_get_counts(circuit))
         # TODO do some magic to figure out which counts belong to which circuit
@@ -67,12 +76,12 @@ class AcceleratorGroup:
         """
         jobs_per_qpu = {
             qpu: [job for job in jobs if job.qpu == qpu]
-            for qpu, _ in enumerate(self.qpus)
+            for qpu, _ in enumerate(self.accelerators)
         }  # Sort by qpu
-        with Pool(processes=len(self.accelerators)) as pool:
+        with Pool(processes=len(self._accelerators)) as pool:
             results = []
             for job in zip_longest(*jobs_per_qpu.values()):  # Run jobs in parallel
-                result = pool.apply_async(_run_job, [self.accelerators, job])
+                result = pool.apply_async(_run_job, [self._accelerators, job])
                 results.append(result)
             results = [result.get() for result in results]
         results = [result for result in results if result is not None]
@@ -90,10 +99,10 @@ class AcceleratorGroup:
         Returns:
            list[Experiment]: Experiment with results inserted.
         """
-        with Pool(processes=len(self.accelerators)) as pool:
+        with Pool(processes=len(self._accelerators)) as pool:
             results = []
             for experiment in experiments:
-                result = pool.apply_async(_run_func, [self.accelerators, experiment])
+                result = pool.apply_async(_run_func, [self._accelerators, experiment])
                 results.append(result)
             results = [result.get() for result in results]
 
@@ -140,7 +149,7 @@ def _run_job(
         return None
     job = job.job
     try:
-        job.result_counts = accs[pool_id].run_and_get_counts(job.instance)
+        job.result_counts = accs[pool_id].run_and_get_counts(job.instance, job.n_shots)
     except Exception as exc:
         print(exc)
     return job

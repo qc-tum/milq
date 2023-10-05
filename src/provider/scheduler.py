@@ -68,7 +68,8 @@ class Scheduler:
 
         Args:
             circuits (list[ScheduledJob]): A list of Jobs ready to run.
-                The jobs are sorted by index (the timestep when to run) and have qpu information attached.
+                The jobs are sorted by index (the timestep when to run)
+                and have qpu information attached.
         """
         jobs = sorted(
             self._convert_to_jobs(circuits),
@@ -104,8 +105,8 @@ class Scheduler:
         # TODO consider number of shots
         # Assumption: beens should be equally loaded and take same amoutn of time
         open_bins = [
-            Bin(index=0, capacity=qpu, qpu=idx)
-            for idx, qpu in enumerate(self.accelerator.qpus)
+            Bin(index=0, capacity=qpu.qubits, qpu=idx)
+            for idx, qpu in enumerate(self.accelerator.accelerators)
         ]
         closed_bins = []
         index = 1
@@ -122,8 +123,8 @@ class Scheduler:
                     break
             else:
                 new_bins = [
-                    Bin(index=index, capacity=qpu, qpu=idx)
-                    for idx, qpu in enumerate(self.accelerator.qpus)
+                    Bin(index=index, capacity=qpu.qubits, qpu=idx)
+                    for idx, qpu in enumerate(self.accelerator.accelerators)
                 ]
                 index += 1
                 for nbin in new_bins:
@@ -190,12 +191,13 @@ class Scheduler:
         # TODO: This is a very naive approach, we should do something smarter
         # for example: look at existing partitions and try to fill up the remaining space
         partitions = []
+        qpu_sizes = [acc.qubits for acc in self.accelerator.accelerators]
         for circuit_size in circuit_sizes:
             if circuit_size > self.accelerator.qubits:
-                partition = self.accelerator.qpus
+                partition = qpu_sizes
                 remaining_size = circuit_size - self.accelerator.qubits
                 while remaining_size > self.accelerator.qubits:
-                    partition += self.accelerator.qpus
+                    partition += qpu_sizes
                     remaining_size -= self.accelerator.qubits
                 if remaining_size == 1:
                     partition[-1] = partition[-1] - 1
@@ -203,7 +205,7 @@ class Scheduler:
                 else:
                     partition.append(self._partition_big_to_small(remaining_size))
                 partitions.append(partition)
-            elif circuit_size > max(self.accelerator.qpus):
+            elif circuit_size > max(qpu_sizes):
                 partition = self._partition_big_to_small(circuit_size)
                 partitions.append(partition)
             else:
@@ -220,7 +222,9 @@ class Scheduler:
             list[int]: The partition sizes of the circuit.
         """
         partition = []
-        for qpu in sorted(self.accelerator.qpus, reverse=True):
+        for qpu in sorted(
+            self.accelerator.accelerators, key=lambda a: a.qubits, reverse=True
+        ):
             if size >= qpu:
                 partition.append(qpu)
                 size -= qpu
