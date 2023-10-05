@@ -32,12 +32,15 @@ class Accelerator:
         """
         return self._backend
 
-    def run_and_get_counts(self, circuit: QuantumCircuit) -> dict[str, int]:
+    def run_and_get_counts(
+        self, circuit: QuantumCircuit, n_shots: int = 2**10
+    ) -> dict[str, int]:
         """Run a circuit and get the measurment counts.
 
         The circuit is optimized before running, using the now available backend information.
         Args:
             circuit (QuantumCircuit): The circuit to run.
+            n_shots (int, optional): Number of shots. Defaults to 2**10.
 
         Returns:
             dict[str, int]: Measurment counts.
@@ -45,5 +48,5 @@ class Accelerator:
         # TODO check qubit size
         # opt_circuit = optimize_circuit_online(circuit, self._backend)
         # TODO For some reason the above line blocks
-        result = self.simulator.run(circuit).result()
+        result = self.simulator.run(circuit, shots=n_shots).result()
         return result.get_counts(0)
