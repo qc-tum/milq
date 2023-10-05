@@ -9,10 +9,32 @@ from src.tools import optimize_circuit_online
 class Accelerator:
     """Wraper for a single backend simulator."""
 
-    def __init__(self, backend: IBMQBackend) -> None:
+    def __init__(
+        self, backend: IBMQBackend, shot_time: int = 1, reconfiguration_time: int = 0
+    ) -> None:
         self.simulator = AerSimulator.from_backend(backend.value())
         self._backend = backend
         self._qubits = len(self.simulator.properties().qubits)
+        self._shot_time = shot_time
+        self._reconfiguration_time = reconfiguration_time
+
+    @property
+    def shot_time(self) -> int:
+        """Time factor for each shot.
+
+        Returns:
+            int: The time one shot takes.
+        """
+        return self._shot_time
+
+    @property
+    def reconfiugration_time(self) -> int:
+        """Additional time penalty for reconfiguration.
+
+        Returns:
+            int: The recongiguration time.
+        """
+        return self._reconfiguration_time
 
     @property
     def qubits(self) -> int:
