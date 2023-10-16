@@ -225,9 +225,9 @@ class Scheduler:
         for qpu in sorted(
             self.accelerator.accelerators, key=lambda a: a.qubits, reverse=True
         ):
-            if size >= qpu:
-                partition.append(qpu)
-                size -= qpu
+            if size >= qpu.qubits:
+                partition.append(qpu.qubits)
+                size -= qpu.qubits
             else:
                 partition.append(size)
                 break
