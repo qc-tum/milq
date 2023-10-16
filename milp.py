@@ -13,7 +13,7 @@ def get_process_time(job_i, machine_k) -> int:  # change to float
 
 
 def get_setup_time(job_i, job_j_, machine_k) -> int:  # change to float
-    if job_i == 0:
+    if job_j_ == 0:
         return 0
     return (job_i + job_j_) / 2 + np.random.randint(-2, 3) + machine_k
 
@@ -21,7 +21,8 @@ def get_setup_time(job_i, job_j_, machine_k) -> int:  # change to float
 # Meta Variables
 BIG_M = 1000000
 TIMESTEPS = 2**8
-
+solver_list = pulp.listSolvers(onlyAvailable=True)
+print(solver_list)
 
 # Inputs
 jobs = ["0", "A", "B", "C", "D", "E", "F", "G", "H", "I"]
@@ -167,9 +168,12 @@ for timestep in timesteps:
             <= machine_capacities[machine]
         )
 # (16) - (20) already encoded in vars
-
 problem.writeLP("scheduling.lp")
-problem.solve()
+if len(solver_list) == 2:
+    solver = pulp.getSolver("GUROBI_CMD")
+    problem.solve(solver)
+else:
+    problem.solve()
 print("Status:", pulp.LpStatus[problem.status])
 
 with open("scheduling.json", "w+", encoding="utf-8") as f:
@@ -182,7 +186,7 @@ with open("scheduling.json", "w+", encoding="utf-8") as f:
                 "machine_capacities": machine_capacities,
                 "timesteps": timesteps,
                 "processing_times": processing_times,
-                "setup_times": setup_times,
+                "setup_times": s_times,
             },
             "status": pulp.LpStatus[problem.status],
             "objective": pulp.value(problem.objective),
