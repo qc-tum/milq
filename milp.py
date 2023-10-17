@@ -26,7 +26,7 @@ print(solver_list)
 
 # Inputs
 jobs = ["0", "A", "B", "C", "D", "E", "F", "G", "H", "I"]
-job_capcities = {
+job_capacities = {
     "0": 0,  # dummy job
     "A": 5,
     "B": 5,
@@ -44,7 +44,7 @@ timesteps = list(range(TIMESTEPS))  # Big enough to cover all possible timesteps
 # params
 processing_times = [
     [
-        get_process_time(job_capcities[job], machine_capacities[machine])
+        get_process_time(job_capacities[job], machine_capacities[machine])
         for machine in machines
     ]
     for job in jobs
@@ -53,7 +53,7 @@ setup_times = [
     [
         [
             get_setup_time(
-                job_capcities[job_i], job_capcities[job_j], machine_capacities[machine]
+                job_capacities[job_i], job_capacities[job_j], machine_capacities[machine]
             )
             for machine in machines
         ]
@@ -163,7 +163,7 @@ for timestep in timesteps:
     for machine in machines:
         problem += (
             pulp.lpSum(
-                z_ikt[job][machine][timestep] * job_capcities[job] for job in jobs
+                z_ikt[job][machine][timestep] * job_capacities[job] for job in jobs
             )
             <= machine_capacities[machine]
         )
@@ -182,7 +182,7 @@ with open("scheduling.json", "w+", encoding="utf-8") as f:
             "params": {
                 "jobs": jobs,
                 "machines": machines,
-                "job_capcities": job_capcities,
+                "job_capcities": job_capacities,
                 "machine_capacities": machine_capacities,
                 "timesteps": timesteps,
                 "processing_times": processing_times,
