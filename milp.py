@@ -137,7 +137,7 @@ for job in jobs[1:]:
     for job_j in jobs:
         problem += (
             c_j[job_j]
-            + pulp.lpSum(y_ijk[job_j][job][machine] - 1 for machine in machines) * BIG_M
+            + (pulp.lpSum(y_ijk[job_j][job][machine] for machine in machines) - 1) * BIG_M
             <= s_j[job]
         )
 
