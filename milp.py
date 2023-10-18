@@ -15,12 +15,12 @@ def get_process_time(job_i, machine_k) -> int:  # change to float
 def get_setup_time(job_i, job_j_, machine_k) -> int:  # change to float
     if job_j_ == 0:
         return 0
-    return (job_i + job_j_) / 2 + np.random.randint(-2, 3) + machine_k
+    return (job_i + job_j_) // 2 + np.random.randint(-3, 3) + machine_k
 
 
 # Meta Variables
 BIG_M = 1000000
-TIMESTEPS = 2**8
+TIMESTEPS = 2**7
 solver_list = pulp.listSolvers(onlyAvailable=True)
 print(solver_list)
 
@@ -101,14 +101,31 @@ for job in jobs[1:]:
     problem += pulp.lpSum(x_ik[job][machine] for machine in machines) == 1
 
 # (4) - (6) TODO jobs can have multiple predecessors and successors
+# for job in jobs[1:]:
+#     for machine in machines:
+#         problem += (
+#             pulp.lpSum(y_ijk[job_j][job][machine] for job_j in jobs[:1]) >= x_ik[job][machine]
+#         )
 
+for job_i in jobs:
+    for job_j in jobs:
+        if job_i == job_j:
+            continue
+        for machine in machines:
+            for timestep in timesteps[:-1]:
+                problem += (
+                    z_ikt[job_i][machine][timestep]
+                    + z_ikt[job_j][machine][timestep + 1]
+                    - 1
+                    <= y_ijk[job_i][job_j][machine]
+                )
 
 # completion time for each job (7)
 for job in jobs[1:]:  # maybe needs t_i
     problem += c_j[job] == s_j[job] + pulp.lpSum(
         x_ik[job][machine] * p_times[job][machine] for machine in machines
     ) + pulp.lpSum(
-        y_ijk[job][job_j][machine] * s_times[job][job_j][machine]
+        y_ijk[job_j][job][machine] * s_times[job_j][job][machine]
         for machine in machines
         for job_j in jobs
     )
