@@ -15,7 +15,7 @@ def get_process_time(job_i, machine_k) -> int:  # change to float
 def get_setup_time(job_i, job_j_, machine_k) -> int:  # change to float
     if job_j_ == 0:
         return 0
-    return (job_i + job_j_) // 2 + np.random.randint(-3, 3) + machine_k
+    return (job_i + job_j_) // 2 + np.random.randint(-2, 3) + machine_k
 
 
 # Meta Variables
@@ -52,8 +52,12 @@ processing_times = [
 setup_times = [
     [
         [
-            get_setup_time(
-                job_capacities[job_i], job_capacities[job_j], machine_capacities[machine]
+            50  # BIG!
+            if job_i == job_j or job_i == "0"
+            else get_setup_time(
+                job_capacities[job_i],
+                job_capacities[job_j],
+                machine_capacities[machine],
             )
             for machine in machines
         ]
@@ -101,31 +105,42 @@ for job in jobs[1:]:
     problem += pulp.lpSum(x_ik[job][machine] for machine in machines) == 1
 
 # (4) - (6) TODO jobs can have multiple predecessors and successors
-# for job in jobs[1:]:
-#     for machine in machines:
-#         problem += (
-#             pulp.lpSum(y_ijk[job_j][job][machine] for job_j in jobs[:1]) >= x_ik[job][machine]
-#         )
+for job in jobs[1:]:
+    # problem += (
+    #     pulp.lpSum(
+    #         y_ijk[job][job_j][machine] for machine in machines for job_j in jobs[1:]
+    #     )
+    #     >= 1  # each job has a successor
+    # )
+    problem += (
+        pulp.lpSum(y_ijk[job_j][job][machine] for machine in machines for job_j in jobs)
+        >= 1  # each job has a predecessor
+    )
 
-for job_i in jobs:
-    for job_j in jobs:
-        if job_i == job_j:
-            continue
-        for machine in machines:
-            for timestep in timesteps[:-1]:
-                problem += (
-                    z_ikt[job_i][machine][timestep]
-                    + z_ikt[job_j][machine][timestep + 1]
-                    - 1
-                    <= y_ijk[job_i][job_j][machine]
-                )
+for job in jobs[1:]:
+    for machine in machines:
+        problem += (  # if the job has a predecessor on a machine it also has to run on this machine
+            x_ik[job][machine]
+            >= pulp.lpSum(y_ijk[job_j][job][machine] for job_j in jobs) / BIG_M
+        )
+        problem += (  # if the job has a successor on a machine it also has to run on this machine
+            x_ik[job][machine]
+            >= pulp.lpSum(y_ijk[job][job_j][machine] for job_j in jobs) / BIG_M
+        )
+
+for job in jobs[1:]:
+    for machine in machines:
+        problem += (  # only if job runs at t=0 it can have predecessor 0
+            z_ikt[job][machine][0] == y_ijk["0"][job][machine]
+        )
+
 
 # completion time for each job (7)
 for job in jobs[1:]:  # maybe needs t_i
     problem += c_j[job] == s_j[job] + pulp.lpSum(
         x_ik[job][machine] * p_times[job][machine] for machine in machines
     ) + pulp.lpSum(
-        y_ijk[job_j][job][machine] * s_times[job_j][job][machine]
+        y_ijk[job_j][job][machine] * s_times[job_j][job][machine]  # TODO ??
         for machine in machines
         for job_j in jobs
     )
@@ -137,9 +152,10 @@ for job in jobs[1:]:
     for job_j in jobs:
         problem += (
             c_j[job_j]
-            + (pulp.lpSum(y_ijk[job_j][job][machine] for machine in machines) - 1) * BIG_M
+            + (pulp.lpSum(y_ijk[job_j][job][machine] for machine in machines) - 1)
+            * BIG_M
             <= s_j[job]
-        )
+        )  # TODO?
 
 # (10) we don't need this constraint
 # job is combleted (11) TODO can we relax this?
@@ -161,8 +177,7 @@ for job in jobs[1:]:
 for job in jobs[1:]:
     for timestep in timesteps:
         problem += (
-            pulp.lpSum(z_ikt[job][machine][timestep] for machine in machines)
-            * timestep
+            pulp.lpSum(z_ikt[job][machine][timestep] for machine in machines) * timestep
             <= c_j[job]
         )
 
@@ -180,39 +195,39 @@ for timestep in timesteps:
     for machine in machines:
         problem += (
             pulp.lpSum(
-                z_ikt[job][machine][timestep] * job_capacities[job] for job in jobs
+                z_ikt[job][machine][timestep] * job_capacities[job] for job in jobs[1:]
             )
             <= machine_capacities[machine]
         )
 # (16) - (20) already encoded in vars
 problem.writeLP("scheduling.lp")
-if len(solver_list) == 2:
-    solver = pulp.getSolver("GUROBI_CMD")
-    problem.solve(solver)
-else:
-    problem.solve()
-print("Status:", pulp.LpStatus[problem.status])
+# if len(solver_list) == 2:
+#     solver = pulp.getSolver("GUROBI_CMD")
+#     problem.solve(solver)
+# else:
+#     problem.solve()
+# print("Status:", pulp.LpStatus[problem.status])
 
-with open("scheduling.json", "w+", encoding="utf-8") as f:
-    json.dump(
-        {
-            "params": {
-                "jobs": jobs,
-                "machines": machines,
-                "job_capcities": job_capacities,
-                "machine_capacities": machine_capacities,
-                "timesteps": timesteps,
-                "processing_times": processing_times,
-                "setup_times": s_times,
-            },
-            "status": pulp.LpStatus[problem.status],
-            "objective": pulp.value(problem.objective),
-            "variables": {
-                var.name: var.varValue
-                for var in problem.variables()
-                if var.varValue > 0
-            },
-        },
-        f,
-        indent=4,
-    )
+# with open("scheduling.json", "w+", encoding="utf-8") as f:
+#     json.dump(
+#         {
+#             "params": {
+#                 "jobs": jobs,
+#                 "machines": machines,
+#                 "job_capcities": job_capacities,
+#                 "machine_capacities": machine_capacities,
+#                 "timesteps": timesteps,
+#                 "processing_times": processing_times,
+#                 "setup_times": s_times,
+#             },
+#             "status": pulp.LpStatus[problem.status],
+#             "objective": pulp.value(problem.objective),
+#             "variables": {
+#                 var.name: var.varValue
+#                 for var in problem.variables()
+#                 if var.varValue > 0
+#             },
+#         },
+#         f,
+#         indent=4,
+#     )
