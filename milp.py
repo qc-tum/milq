@@ -20,7 +20,7 @@ def get_setup_time(job_i, job_j_, machine_k) -> int:  # change to float
 
 # Meta Variables
 BIG_M = 1000000
-TIMESTEPS = 2**7
+TIMESTEPS = 2**6
 solver_list = pulp.listSolvers(onlyAvailable=True)
 print(solver_list)
 
@@ -137,7 +137,7 @@ for job in jobs[1:]:
 
 # completion time for each job (7)
 for job in jobs[1:]:  # maybe needs t_i
-    problem += c_j[job] == s_j[job] + pulp.lpSum(
+    problem += c_j[job] >= s_j[job] + pulp.lpSum(
         x_ik[job][machine] * p_times[job][machine] for machine in machines
     ) + pulp.lpSum(
         y_ijk[job_j][job][machine] * s_times[job_j][job][machine]  # TODO ??
@@ -199,6 +199,32 @@ for timestep in timesteps:
             )
             <= machine_capacities[machine]
         )
+
+for timestep in timesteps:
+    print(timestep)
+    for timestep_prime in timesteps:
+        if timestep_prime < timestep:
+            continue
+        for job in jobs[1:]:
+            for job_j in jobs[1:]:
+                for machine in machines:
+                    problem += y_ijk[job][job_j][machine] >= z_ikt[job_j][machine][
+                        timestep_prime
+                    ] - BIG_M * (
+                        3
+                        - z_ikt[job][machine][timestep]
+                        - (1 - z_ikt[job_j][machine][timestep])
+                        - (
+                            1
+                            - pulp.lpSum(
+                                z_ikt[job_l][machine][timestep_hat]
+                                for timestep_hat in range(timestep, timestep_prime)
+                                for job_l in jobs[1:]
+                                if job_l not in [job, job_j]
+                            )
+                        )
+                    )
+
 # (16) - (20) already encoded in vars
 problem.writeLP("scheduling.lp")
 # if len(solver_list) == 2:
