@@ -13,6 +13,7 @@ dependencies = [
     "mqt-qmap>=2.4.0",
     "numpy>=1.25.2",
     "pulp>=2.7.0",
+    "pandas>=2.1.1",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
