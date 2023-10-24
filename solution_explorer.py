@@ -1,6 +1,7 @@
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
+import matplotlib.ticker as ticker
 import pandas as pd
 import argparse
 
@@ -33,17 +34,28 @@ with open(args.solution) as f:
 # Similarily, the start time of a job is the first time step in which it is processed
 # The duration is the number of time steps in which it is processed
 
+
+def list2binstr(l: list[int]) -> str:
+    return "".join(map(str, l))
+
+
 # Create a dataframe with the job schedule
-df = pd.DataFrame(columns=["job", "capacity", "machine", "start", "end", "duration"])
+df = pd.DataFrame(columns=["job", "capacity", "machine", "start", "end", "duration", "zmask"])
 for job in filter(lambda j: j != "0", milp.jobs):
     start = round(values[f"s_j_{job}"])
     end = round(values[f"c_j_{job}"])
     [assigned_machine] = [
-        machine for machine in milp.machines if values[f"x_ik_{job}_{machine}"] > 0.5
+        machine for machine in milp.machines if values[f"x_ik_{job}_{machine}"] >= 0.5
     ]
     capacity = milp.job_capacities[job]
     duration = end - start + 1
-    df.loc[len(df)] = [job, capacity, assigned_machine, start, end, duration]
+    all_zs = [
+        [round(values[f"z_ikt_{job}_{machine}_{t}"]) for t in milp.timesteps]
+        for machine in milp.machines
+    ]
+    [zs] = [z for z in all_zs if sum(z) > 0]
+    zs = list2binstr(zs)
+    df.loc[len(df)] = [job, capacity, assigned_machine, start, end, duration, zs]
 
 print(df)
 
@@ -63,15 +75,43 @@ tick_points.sort()
 
 # Plot the jobs
 # The grid lines are at the start of a time step. Hence, if a job ends in time step 11, the bar ends at 12.
-plt.barh(
-    df["job"],
-    width=df["duration"],
-    left=df["start"],
-    color=df["machine"].map(color_mapping),
-)
-plt.gca().invert_yaxis()
+fig, ax = plt.subplots()
+
+def collect_binary_one_runs(s: str) -> list[tuple[int, int]]:
+    runs = []
+    start = None
+    for i, c in enumerate(s):
+        if c == "1":
+            if start is None:
+                start = i
+            if i == len(s) - 1 or s[i + 1] == "0":
+                runs.append((start, i - start + 1))
+                start = None
+    return runs
+
+
+for i, row in df.iterrows():
+    zruns = collect_binary_one_runs(row["zmask"])
+    padding = 0.1
+    height = 1 - 2 * padding
+    for zrun in zruns:
+        ax.broken_barh(zruns, (i - 0.5 + padding, height), color=color_mapping[row["machine"]])
+    ax.barh(
+        i,
+        row["duration"],
+        left=row["start"],
+        height=height,
+        edgecolor="black",
+        linewidth=2,
+        color="none",
+    )
+
+yticks = list(range(len(df)))
+ax.set_yticks(yticks)
+ax.set_yticklabels(df["job"])
+ax.invert_yaxis()
+ax.xaxis.set_minor_locator(ticker.MultipleLocator(base=1.0))
 plt.xlabel("Time")
-plt.xticks(tick_points, minor=True)
 plt.grid(axis="x", which="major")
 plt.grid(axis="x", which="minor", alpha=0.4)
 plt.legend(handles=patches, labels=color_mapping.keys())
