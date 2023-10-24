@@ -1,4 +1,4 @@
-from matplotlib import mlab
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 import pandas as pd
@@ -34,7 +34,10 @@ for job in filter(lambda j: j != "0", milp.jobs):
 print(df)
 
 # Create patches for the legend
-color_mapping = {"QUITO": "red", "BELEM": "blue"}
+cmap = mpl.colormaps.get_cmap("tab10")
+color_mapping = {
+    m: cmap(i / (len(milp.machines) - 1)) for i, m in enumerate(milp.machines)
+}
 patches = []
 for color in color_mapping.values():
     patches.append(Patch(color=color))
@@ -46,7 +49,12 @@ tick_points.sort()
 
 # Plot the jobs
 # The grid lines are at the start of a time step. Hence, if a job ends in time step 11, the bar ends at 12.
-plt.barh(df["job"], width=df["duration"], left=df["start"], color=df["machine"].map(color_mapping))
+plt.barh(
+    df["job"],
+    width=df["duration"],
+    left=df["start"],
+    color=df["machine"].map(color_mapping),
+)
 plt.gca().invert_yaxis()
 plt.xlabel("Time")
 plt.xticks(tick_points, minor=True)
