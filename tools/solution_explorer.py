@@ -2,13 +2,27 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 import pandas as pd
+import argparse
 
 # Import the problem description
 import milp
 
+# Parse the command line arguments
+parser = argparse.ArgumentParser(
+    description="Visualize a solution to the scheduling problem"
+)
+parser.add_argument(
+    "solution",
+    type=str,
+    help="The solution file to visualize",
+    nargs="?",
+    default="scheduling.sol",
+)
+args = parser.parse_args()
+
 # Read the solution
 values: dict[str, float] = {}
-with open("scheduling.sol") as f:
+with open(args.solution) as f:
     for line in f:
         if line.startswith("#"):
             continue
