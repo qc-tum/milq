@@ -1,12 +1,13 @@
+import argparse
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
-import matplotlib.ticker as ticker
+from matplotlib import ticker
 import pandas as pd
-import argparse
 
 # Import the problem description
-import milp
+import data.milp as milp
 
 # Parse the command line arguments
 parser = argparse.ArgumentParser(
@@ -23,7 +24,7 @@ args = parser.parse_args()
 
 # Read the solution
 values: dict[str, float] = {}
-with open(args.solution) as f:
+with open(args.solution, encoding="utf-8") as f:
     for line in f:
         if line.startswith("#"):
             continue
@@ -115,4 +116,7 @@ plt.xlabel("Time")
 plt.grid(axis="x", which="major")
 plt.grid(axis="x", which="minor", alpha=0.4)
 plt.legend(handles=patches, labels=color_mapping.keys())
-plt.show()
+with open("solution.png", "wb+") as f:
+    plt.savefig(f, format="png")
+
+#plt.show()
