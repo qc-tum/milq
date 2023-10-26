@@ -1,5 +1,5 @@
 [project]
-name = "cutting-scheduler"
+name = "milq"
 version = "0.1.0"
 description = "A project implementing a minimal scheduler, which is aware of circuit cutting."
 authors = [
