@@ -20,6 +20,18 @@ parser.add_argument(
     nargs="?",
     default="scheduling.sol",
 )
+parser.add_argument(
+    "--no-z",
+    help="Do not consider the z variables, just use start and completion times",
+    action="store_true",
+)
+parser.add_argument(
+    "--pdf",
+    type=str,
+    help="Write the plot to a PDF file",
+    nargs="?",
+    metavar="FILE",
+)
 args = parser.parse_args()
 
 # Read the solution
@@ -41,7 +53,9 @@ def list2binstr(l: list[int]) -> str:
 
 
 # Create a dataframe with the job schedule
-df = pd.DataFrame(columns=["job", "capacity", "machine", "start", "end", "duration", "zmask"])
+df = pd.DataFrame(
+    columns=["job", "capacity", "machine", "start", "end", "duration", "zmask"]
+)
 for job in filter(lambda j: j != "0", milp.jobs):
     start = round(values[f"s_j_{job}"])
     end = round(values[f"c_j_{job}"])
@@ -67,7 +81,10 @@ color_mapping = {
 }
 patches = []
 for color in color_mapping.values():
-    patches.append(Patch(color=color))
+    p = Patch(color=color)
+    p.set_edgecolor("black")
+    p.set_linewidth(1)
+    patches.append(p)
 
 # Create tick points (where a job starts or ends)
 tick_points = df["start"].values.tolist() + (df["end"] + 1).values.tolist()
@@ -77,6 +94,7 @@ tick_points.sort()
 # Plot the jobs
 # The grid lines are at the start of a time step. Hence, if a job ends in time step 11, the bar ends at 12.
 fig, ax = plt.subplots()
+
 
 def collect_binary_one_runs(s: str) -> list[tuple[int, int]]:
     runs = []
@@ -92,11 +110,16 @@ def collect_binary_one_runs(s: str) -> list[tuple[int, int]]:
 
 
 for i, row in df.iterrows():
-    zruns = collect_binary_one_runs(row["zmask"])
+    color = color_mapping[row["machine"]]
+    bar_color = color if args.no_z else "none"
     padding = 0.1
     height = 1 - 2 * padding
-    for zrun in zruns:
-        ax.broken_barh(zruns, (i - 0.5 + padding, height), color=color_mapping[row["machine"]])
+    if not args.no_z:
+        zruns = collect_binary_one_runs(row["zmask"])
+        for zrun in zruns:
+            ax.broken_barh(
+                zruns, (i - 0.5 + padding, height), color=color_mapping[row["machine"]]
+            )
     ax.barh(
         i,
         row["duration"],
@@ -104,7 +127,7 @@ for i, row in df.iterrows():
         height=height,
         edgecolor="black",
         linewidth=2,
-        color="none",
+        color=color,
     )
 
 yticks = list(range(len(df)))
@@ -112,11 +135,14 @@ ax.set_yticks(yticks)
 ax.set_yticklabels(df["job"])
 ax.invert_yaxis()
 ax.xaxis.set_minor_locator(ticker.MultipleLocator(base=1.0))
+#plt.rc("font", family="serif")
 plt.xlabel("Time")
 plt.grid(axis="x", which="major")
 plt.grid(axis="x", which="minor", alpha=0.4)
 plt.legend(handles=patches, labels=color_mapping.keys())
-with open("solution.png", "wb+") as f:
-    plt.savefig(f, format="png")
 
-#plt.show()
+if args.pdf:
+    plt.tight_layout()
+    plt.savefig(args.pdf, bbox_inches="tight")
+else:
+    plt.show()
