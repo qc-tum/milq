@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "A project implementing a minimal scheduler, which is aware of circuit cutting."
 authors = [
     {name = "Philipp Seitz", email = "philipp.seitz@tum.de"},
+    {name = "Manuel Geiger", email = "manuel.geiger@tum.de"},
 ]
 dependencies = [
     "qiskit>=0.44.1",
