@@ -27,3 +27,7 @@ dev = [
     "black>=23.9.1",
     "pylint>=2.17.5",
 ]
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
