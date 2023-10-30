@@ -1,6 +1,6 @@
 """Wrapper for IBMs backend simulator."""
+from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
-from qiskit import QuantumCircuit
 
 from src.common import IBMQBackend
 from src.tools import optimize_circuit_online
@@ -17,6 +17,23 @@ class Accelerator:
         self._qubits = len(self.simulator.properties().qubits)
         self._shot_time = shot_time
         self._reconfiguration_time = reconfiguration_time
+
+    def compute_processing_time(self, circuit: QuantumCircuit) -> float:
+        """Computes the processing time for the circuit for a single shot.
+
+        Args:
+            circuit (QuantumCircuit): The circuit to analyze.
+
+        Returns:
+            int: The processing time in seconds.
+        """
+        # TODO: doing a full hardware-aware compilation just to get the processing
+        # time is not efficient. An approximation would be better.
+        transpiled_circuit = transpile(
+            circuit, self._backend.value, scheduling_method="alap"
+        )
+        assert transpiled_circuit.unit == "dt"
+        return transpiled_circuit.duration * self._backend.value.dt
 
     @property
     def shot_time(self) -> int:
