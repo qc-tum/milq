@@ -18,7 +18,7 @@ def map_circuit(
     Returns:
         tuple[QuantumCircuit, PassManager]: _description_
     """
-    target = backend.value().target
+    target = backend.value.target
     mapping_and_routing = PassManager([SabreLayout(target), SabreSwap(target)])
     circuit = mapping_and_routing.run(circuit)
     return circuit, mapping_and_routing

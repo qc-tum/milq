@@ -24,7 +24,7 @@ def optimize_circuit_offline(
         QuantumCircuit: _description_
     """
     pass_manager = generate_preset_pass_manager(
-        3, backend.value()
+        3, backend.value
     )  # TODO eventually remove dependency
     pass_manager.layout = None
     pass_manager.optimization = None
@@ -49,7 +49,7 @@ def optimize_circuit_online(
     Returns:
         QuantumCircuit: _description_
     """
-    pass_manager = generate_preset_pass_manager(3, backend.value())
+    pass_manager = generate_preset_pass_manager(3, backend.value)
     pass_manager.init = None
     _, pass_manager.layout = map_circuit(circuit, backend)
     return pass_manager.run(circuit)

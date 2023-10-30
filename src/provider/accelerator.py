@@ -12,7 +12,7 @@ class Accelerator:
     def __init__(
         self, backend: IBMQBackend, shot_time: int = 1, reconfiguration_time: int = 0
     ) -> None:
-        self.simulator = AerSimulator.from_backend(backend.value())
+        self.simulator = AerSimulator.from_backend(backend.value)
         self._backend = backend
         self._qubits = len(self.simulator.properties().qubits)
         self._shot_time = shot_time
