@@ -17,15 +17,15 @@ def cut_circuit(
     partitions: list[int],
     observables: (PauliList | None) = None,
 ) -> tuple[list[Experiment], UUID]:
-    """_summary_
+    """Cut a circuit into multiple subcircuits.
 
     Args:
-        circuit (QuantumCircuit): _description_
-        partitions (tist[int]): _description_
-        observables (PauliList  |  None, optional): _description_. Defaults to None.
+        circuit (QuantumCircuit): The circuit to cut
+        partitions (list[int]): The partitions to cut the circuit into (given as a list of qubits)
+        observables (PauliList  |  None, optional): The observables for each qubit. Defaults to None (= Z measurements).
 
     Returns:
-        tist[Experiment]: _description_
+        tuple[list[Experiment], UUID]: _description_
     """
     if observables is None:
         observables = PauliList("Z" * circuit.num_qubits)

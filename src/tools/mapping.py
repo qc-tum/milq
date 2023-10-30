@@ -9,11 +9,11 @@ from src.common import IBMQBackend
 def map_circuit(
     circuit: QuantumCircuit, backend: IBMQBackend
 ) -> tuple[QuantumCircuit, PassManager]:
-    """_summary_
+    """Maps a circuit to the layout of the given backend.
 
     Args:
-        circuit (QuantumCircuit): _description_
-        backend (IBMQBackend): _description_
+        circuit (QuantumCircuit): The circuit to map
+        backend (IBMQBackend): The backend to map to
 
     Returns:
         tuple[QuantumCircuit, PassManager]: _description_

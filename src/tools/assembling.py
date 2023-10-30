@@ -6,13 +6,14 @@ from src.common import CircuitJob, CombinedJob
 
 
 def assemble_circuit(circuits: list[QuantumCircuit]) -> QuantumCircuit:
-    """_summary_
+    """Assemble a single circuit from stacking multiple independent circuits on top
+    of each other.
 
     Args:
-        circuits (list[QuantumCircuit]): _description_
+        circuits (list[QuantumCircuit]): The individual circuits
 
     Returns:
-        QuantumCircuit: _description_
+        QuantumCircuit: The combined circuit
     """
     composed_circuit = QuantumCircuit()
     for idx, circuit in enumerate(circuits):
@@ -39,13 +40,13 @@ def assemble_circuit(circuits: list[QuantumCircuit]) -> QuantumCircuit:
 
 
 def assemble_job(circuit_jobs: list[CircuitJob]) -> CombinedJob:
-    """_summary_
+    """Assembles multiple circuit jobs into a single combined job.
 
     Args:
-        circuit_jobs (list[CircuitJob]): _description_
+        circuit_jobs (list[CircuitJob]): The individual circuit jobs
 
     Returns:
-        CombinedJob: _description_
+        CombinedJob: The combined job
     """
     combined_job = CombinedJob(n_shots=circuit_jobs[0].n_shots)
     circuits = []

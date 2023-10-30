@@ -56,11 +56,11 @@ class Scheduler:
         return self.accelerator.run_jobs(jobs)
 
     def generate_schedule(self, circuits: list[QuantumCircuit]) -> list[ScheduledJob]:
-        """Generater a offlines schedule.
+        """Generates an offlines schedule.
 
-        First cuts the circuits which are to big to run on the biggest qpu.
+        First cuts the circuits which are too big to run on the biggest qpu.
         Circuits are cut to fit onto the biggest qpu first.
-        Flattens the resulting experiment and creates indiveual jobs for each circuit.
+        Flattens the resulting experiment and creates individual jobs for each circuit.
         The jobs are scheduled using k-first fit bin packing.
         As soon as a bin is full, a new bin for each qpu is added.
         This is based on the assumption that all qpus take the same amount of time to run.

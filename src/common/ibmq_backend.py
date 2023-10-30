@@ -5,11 +5,7 @@ from qiskit.providers.fake_provider import FakeBelemV2, FakeNairobiV2, FakeQuito
 
 
 class IBMQBackend(Enum):
-    """Wraps three common backends from IBMQ.
-
-    Args:
-        Enum (_type_): Names of the backends.
-    """
+    """Wraps three common backends from IBMQ."""
 
     BELEM = FakeBelemV2
     NAIROBI = FakeNairobiV2

@@ -1,4 +1,4 @@
-"""_summary_"""
+"""Optimizing circuits using the Qiskit transpiler."""
 
 from qiskit import QuantumCircuit
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
