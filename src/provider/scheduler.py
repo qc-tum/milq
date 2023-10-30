@@ -225,13 +225,16 @@ class Scheduler:
         for qpu in sorted(
             self.accelerator.accelerators, key=lambda a: a.qubits, reverse=True
         ):
-            if size >= qpu.qubits:
-                partition.append(qpu.qubits)
-                size -= qpu.qubits
-            else:
-                partition.append(size)
+            take_qubits = min(size, qpu.qubits)
+            if size - take_qubits == 1:
+                # We can't have a partition of size 1
+                # So in this case we take one qubit less to leave a partition of two
+                take_qubits -= 1
+            
+            partition.append(take_qubits)
+            size -= take_qubits
+            if size == 0:
                 break
-        if size == 1:
-            partition[-2] = partition[-2] - 1
-            partition[-1] = 2
+        else:
+            raise ValueError(f"Circuit is too big to fit onto the devices, {size} qubits left after partitioning.")
         return partition
