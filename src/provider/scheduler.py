@@ -44,7 +44,7 @@ class Scheduler:
         self.uuids = []
 
     def run_circuits(self, circuits: list[QuantumCircuit]) -> list[CombinedJob]:
-        """Genreates a schedule and runs it.
+        """Generates a schedule and runs it.
 
         Args:
             circuits (list[QuantumCircuit]): Circuits to run.

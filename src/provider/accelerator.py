@@ -45,7 +45,7 @@ class Accelerator:
         return self._shot_time
 
     @property
-    def reconfiugration_time(self) -> int:
+    def reconfiguration_time(self) -> int:
         """Additional time penalty for reconfiguration.
 
         Returns:
