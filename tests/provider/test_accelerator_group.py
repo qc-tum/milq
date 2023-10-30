@@ -20,7 +20,7 @@ def test_acceleratorgroup_run() -> None:
     with pytest.raises(TranspilerError):
         accelerator.run_and_get_counts(
             [
-                transpile(create_ghz(3), backend_belem.value),
-                transpile(create_ghz(7), backend_quito.value),
+                transpile(create_ghz(3), backend_belem.value()),
+                transpile(create_ghz(7), backend_quito.value()),
             ]
         )

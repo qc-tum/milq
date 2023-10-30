@@ -12,7 +12,7 @@ class Accelerator:
     def __init__(
         self, backend: IBMQBackend, shot_time: int = 1, reconfiguration_time: int = 0
     ) -> None:
-        self.simulator = AerSimulator.from_backend(backend.value)
+        self.simulator = AerSimulator.from_backend(backend.value())
         self._backend = backend
         self._qubits = len(self.simulator.properties().qubits)
         self._shot_time = shot_time
@@ -29,11 +29,12 @@ class Accelerator:
         """
         # TODO: doing a full hardware-aware compilation just to get the processing
         # time is not efficient. An approximation would be better.
+        be = self._backend.value()
         transpiled_circuit = transpile(
-            circuit, self._backend.value, scheduling_method="alap"
+            circuit, be, scheduling_method="alap"
         )
         assert transpiled_circuit.unit == "dt"
-        return transpiled_circuit.duration * self._backend.value.dt
+        return transpiled_circuit.duration * be.dt
 
     @property
     def shot_time(self) -> int:
