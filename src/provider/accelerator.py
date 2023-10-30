@@ -18,6 +18,41 @@ class Accelerator:
         self._shot_time = shot_time
         self._reconfiguration_time = reconfiguration_time
 
+    @staticmethod
+    def _time_conversion(
+        time: float, unit: str, target_unit: str = "us", dt: float | None = None
+    ) -> float:
+        """Converts a time from one unit to another.
+
+        Args:
+            time (float): The time to convert.
+            unit (str): The unit of the time.
+            target_unit (str, optional): The target unit. Defaults to "us".
+            dt (float | None, optional): The duration in seconds of the device-dependent
+            time. Must be set if unit is in dt but target isn't. Defaults to None.
+
+        Returns:
+            float: _description_
+        """
+        if unit == target_unit:
+            return time
+
+        units = ["s", "ms", "us", "ns", "ps"]
+
+        # target_unit must be a SI unit
+        assert target_unit in units
+
+        # Convert dt (device-dependent time) to SI unit
+        if unit == "dt":
+            assert dt is not None
+            time *= dt
+            unit = "s"
+
+        target_shift = units.index(target_unit)
+        current_shift = units.index(unit)
+        required_shift = 3 * (target_shift - current_shift)
+        return time * 10**required_shift
+
     def compute_processing_time(self, circuit: QuantumCircuit) -> float:
         """Computes the processing time for the circuit for a single shot.
 
@@ -25,16 +60,15 @@ class Accelerator:
             circuit (QuantumCircuit): The circuit to analyze.
 
         Returns:
-            int: The processing time in seconds.
+            float: The processing time in µs.
         """
         # TODO: doing a full hardware-aware compilation just to get the processing
         # time is not efficient. An approximation would be better.
         be = self._backend.value()
-        transpiled_circuit = transpile(
-            circuit, be, scheduling_method="alap"
+        transpiled_circuit = transpile(circuit, be, scheduling_method="alap")
+        return Accelerator._time_conversion(
+            transpiled_circuit.duration, transpiled_circuit.unit, dt=be.dt
         )
-        assert transpiled_circuit.unit == "dt"
-        return transpiled_circuit.duration * be.dt
 
     @property
     def shot_time(self) -> int:
