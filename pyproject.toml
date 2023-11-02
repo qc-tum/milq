@@ -15,8 +15,9 @@ dependencies = [
     "numpy>=1.26.0",
     "pulp>=2.7.0",
     "pandas>=2.1.1",
+    "mqt-bench>=1.0.5",
 ]
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.10, <3.12"
 readme = "README.md"
 license = {text = "MIT"}
 classifiers = [
