@@ -1,6 +1,8 @@
 """Methods for generating a schedule for a given provider."""
 from dataclasses import dataclass, field
 
+import pulp
+
 from src.common import CircuitJob, ScheduledJob
 from src.tools import assemble_job
 from .accelerator import Accelerator
@@ -17,8 +19,21 @@ class Bin:
     qpu: int = -1
 
 
+@dataclass
+class LPInstance:
+    """Helper to keep track of LP problem."""
+
+    problem: pulp.LpProblem
+    jobs: list[str]
+    machines: list[str]
+    x_ik: dict[str, dict[str, pulp.LpVariable]]
+    z_ikt: dict[str, dict[str, dict[int, pulp.LpVariable]]]
+    c_j: dict[str, pulp.LpVariable]
+    s_j: dict[str, pulp.LpVariable]
+
+
 def generate_baseline_schedule(
-    jobs: list[CircuitJob], accelerators: list[Accelerator]
+    jobs: list[CircuitJob], accelerators: list[Accelerator], **kwargs
 ) -> list[ScheduledJob]:
     """Schedule jobs onto qpus.
 
@@ -92,4 +107,105 @@ def generate_simple_schedule(
 def generate_extended_schedule(
     jobs: list[CircuitJob], accelerators: list[Accelerator]
 ) -> list[ScheduledJob]:
-    pass  # MILP With setup times
+def _set_up_pase_lp(
+    base_jobs: list[CircuitJob],
+    accelerators: list[Accelerator],
+    big_m: int,
+    timesteps: list[int],
+) -> LPInstance:
+    # Set up input params
+    jobs = ["0"] + [str(job.uuid) for job in base_jobs]
+    job_capacities = {
+        str(job.uuid): job.instance.num_qubits
+        for job in base_jobs
+        if job.instance is not None
+    }
+    job_capacities["0"] = 0
+    machines = [str(qpu.uuid) for qpu in accelerators]
+    machine_capacities = {str(qpu.uuid): qpu.qubits for qpu in accelerators}
+
+    # set up problem variables
+    x_ik = pulp.LpVariable.dicts("x_ik", (jobs, machines), cat="Binary")
+    z_ikt = pulp.LpVariable.dicts("z_ikt", (jobs, machines, timesteps), cat="Binary")
+
+    c_j = pulp.LpVariable.dicts("c_j", (jobs), 0, cat="Continuous")
+    s_j = pulp.LpVariable.dicts("s_j", (jobs), 0, cat="Continuous")
+    c_max = pulp.LpVariable("makespan", 0, cat="Continuous")
+
+    problem = pulp.LpProblem("Scheduling", pulp.LpMinimize)
+    # set up problem constraints
+    problem += pulp.lpSum(c_max)  # (obj)
+    problem += c_j["0"] == 0  # (8)
+    for job in jobs[1:]:
+        problem += c_j[job] <= c_max  # (1)
+        problem += pulp.lpSum(x_ik[job][machine] for machine in machines) == 1  # (3)
+        problem += c_j[job] - s_j[job] + 1 == pulp.lpSum(  # (11)
+            z_ikt[job][machine][timestep]
+            for timestep in timesteps
+            for machine in machines
+        )
+        for machine in machines:
+            problem += (  # (12)
+                pulp.lpSum(z_ikt[job][machine][timestep] for timestep in timesteps)
+                <= x_ik[job][machine] * big_m
+            )
+
+        for timestep in timesteps:
+            problem += (  # (13)
+                pulp.lpSum(z_ikt[job][machine][timestep] for machine in machines)
+                * timestep
+                <= c_j[job]
+            )
+            problem += s_j[job] <= pulp.lpSum(  # (14)
+                z_ikt[job][machine][timestep] for machine in machines
+            ) * timestep + big_m * (
+                1 - pulp.lpSum(z_ikt[job][machine][timestep] for machine in machines)
+            )
+    for timestep in timesteps:
+        for machine in machines:
+            problem += (  # (15)
+                pulp.lpSum(
+                    z_ikt[job][machine][timestep] * job_capacities[job]
+                    for job in jobs[1:]
+                )
+                <= machine_capacities[machine]
+            )
+    return LPInstance(
+        problem=problem,
+        jobs=jobs,
+        machines=machines,
+        x_ik=x_ik,
+        z_ikt=z_ikt,
+        c_j=c_j,
+        s_j=s_j,
+    )
+
+
+def _get_processing_times(
+    base_jobs: list[CircuitJob],
+    accelerators: list[Accelerator],
+) -> list[list[float]]:
+    return [
+        [qpu.compute_processing_time(job.instance) for qpu in accelerators]
+        for job in base_jobs
+        if job.instance is not None
+    ]
+
+
+def _get_setup_times(
+    base_jobs: list[CircuitJob], accelerators: list[Accelerator], default_value: int
+) -> list[list[list[float]]]:
+    return [
+        [
+            [
+                default_value  # BIG!
+                if job_i == job_j
+                else qpu.compute_setup_time(job_i.instance, job_j.instance)
+                for qpu in accelerators
+            ]
+            for job_i in base_jobs
+            if job_i.instance is not None
+        ]
+        for job_j in base_jobs
+        if job_j.instance is not None
+    ]
