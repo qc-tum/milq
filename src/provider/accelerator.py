@@ -1,4 +1,6 @@
 """Wrapper for IBMs backend simulator."""
+from uuid import UUID, uuid4
+
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
 
@@ -17,6 +19,7 @@ class Accelerator:
         self._qubits = len(self.simulator.properties().qubits)
         self._shot_time = shot_time
         self._reconfiguration_time = reconfiguration_time
+        self._uuid = uuid4()
 
     @staticmethod
     def _time_conversion(
@@ -70,6 +73,21 @@ class Accelerator:
             transpiled_circuit.duration, transpiled_circuit.unit, dt=be.dt
         )
 
+    def compute_setup_time(
+        self, circuit_from: QuantumCircuit, circuit_to: QuantumCircuit
+    ) -> float:
+        """Computes the set up time by switching between one circuit to another.
+
+        # TODO curretly only the constant reconfiguration time is returned.
+        Args:
+            circuit_from (QuantumCircuit): Ending circuit.
+            circuit_to (QuantumCircuit): Starting circuit.
+
+        Returns:
+            float: Set up time from circuit_from to circuit_to in µs.
+        """
+        return self._reconfiguration_time
+
     @property
     def shot_time(self) -> int:
         """Time factor for each shot.
@@ -105,6 +123,15 @@ class Accelerator:
             IBMQBackend: The backend.
         """
         return self._backend
+
+    @property
+    def uuid(self) -> UUID:
+        """_summary_
+
+        Returns:
+            UUID: _description_
+        """
+        return self._uuid
 
     def run_and_get_counts(
         self, circuit: QuantumCircuit, n_shots: int = 2**10
