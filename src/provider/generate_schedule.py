@@ -100,9 +100,84 @@ def generate_baseline_schedule(
 
 
 def generate_simple_schedule(
-    jobs: list[CircuitJob], accelerators: list[Accelerator]
+    jobs: list[CircuitJob],
+    accelerators: list[Accelerator],
+    big_m: int = 1000,
+    t_max: int = 2**7,
+    **kwargs,
 ) -> list[ScheduledJob]:
-    pass
+    """Calclulate a schedule for the given jobs and accelerators based on the simple MILP.
+
+    The simple MILP includes the machine dependent setup times.
+    Args:
+        jobs (list[CircuitJob]): The list of jobs to run.
+        accelerators (list[Accelerator]): The list of available accelerators.
+        big_m (int, optional): M hepler for LP. Defaults to 1000.
+        t_max (int, optional): Max number of Timesteps. Defaults to 2**7.
+    Returns:
+        list[ScheduledJob]: A list of Jobs scheduled to accelerators.
+    """
+    lp_instance = _set_up_pase_lp(jobs, accelerators, big_m, list(range(t_max)))
+    # (4) - (7), (9)
+    p_times = pulp.makeDict(
+        [lp_instance.jobs, lp_instance.machines],
+        _get_processing_times(jobs, accelerators),
+        0,
+    )
+    s_times = pulp.makeDict(
+        [lp_instance.jobs, lp_instance.machines],
+        _get_simple_setup_times(jobs, accelerators, kwargs.get("default_value", 50)),
+        0,
+    )
+    y_ijk = pulp.LpVariable.dicts(
+        "y_ijk",
+        (lp_instance.jobs, lp_instance.jobs, lp_instance.machines),
+        cat="Binary",
+    )
+
+    for job in lp_instance.jobs[1:]:
+        lp_instance.problem += (  # (4)
+            pulp.lpSum(
+                y_ijk[job_j][job][machine]
+                for machine in lp_instance.machines
+                for job_j in jobs
+            )
+            >= 1  # each job has a predecessor
+        )
+        lp_instance.problem += lp_instance.c_j[job] >= lp_instance.s_j[  # (7)
+            job
+        ] + pulp.lpSum(
+            lp_instance.x_ik[job][machine]
+            * (p_times[job][machine] + s_times[job][machine])
+            for machine in lp_instance.machines
+        )
+        for machine in lp_instance.machines:
+            lp_instance.problem += (  # predecessor (6)
+                lp_instance.x_ik[job][machine]
+                >= pulp.lpSum(y_ijk[job_j][job][machine] for job_j in jobs) / big_m
+            )
+            lp_instance.problem += (  # successor
+                lp_instance.x_ik[job][machine]
+                >= pulp.lpSum(y_ijk[job][job_j][machine] for job_j in jobs) / big_m
+            )
+            lp_instance.problem += (  # (5)
+                lp_instance.z_ikt[job][machine][0] == y_ijk["0"][job][machine]
+            )
+        for job_j in lp_instance.jobs:
+            lp_instance.problem += (
+                lp_instance.c_j[job_j]
+                + (
+                    pulp.lpSum(
+                        y_ijk[job_j][job][machine] for machine in lp_instance.machines
+                    )
+                    - 1
+                )
+                * big_m
+                <= lp_instance.s_j[job]
+            )
+
+    return _solve_lp(lp_instance)
+
 
 def generate_extended_schedule(
     jobs: list[CircuitJob],
@@ -356,6 +431,19 @@ def _get_setup_times(
         ]
         for job_j in base_jobs
         if job_j.instance is not None
+    ]
+
+
+def _get_simple_setup_times(
+    base_jobs: list[CircuitJob], accelerators: list[Accelerator], default_value: int
+) -> list[list[float]]:
+    return [
+        [
+            qpu.compute_setup_time(job_i.instance, circuit_to=None)
+            for qpu in accelerators
+        ]
+        for job_i in base_jobs
+        if job_i.instance is not None
     ]
 
 
