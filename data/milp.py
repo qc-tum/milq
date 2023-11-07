@@ -240,11 +240,9 @@ def generate_lp() -> pulp.LpProblem:
                 problem += (
                     y_ijk[job][job_j][machine]
                     >= a_ij[job][job_j]
-                    + (
-                        1
-                        - pulp.lpSum(
+                    + (pulp.lpSum(
                             e_ijlk[job][job_j][job_l][machine] for job_l in jobs[1:]
-                        )
+                        ) / BIG_M
                     )
                     + d_ijk[job][job_j][machine]
                     - 2
@@ -273,8 +271,8 @@ def solve_and_print_lp(filename: str, problem: pulp.LpProblem) -> None:
                     "job_capcities": job_capacities,
                     "machine_capacities": machine_capacities,
                     "timesteps": timesteps,
-                    "processing_times": processing_times,
-                    "setup_times": s_times,
+                    # "processing_times": processing_times,
+                    # "setup_times": s_times,
                 },
                 "status": pulp.LpStatus[problem.status],
                 "objective": pulp.value(problem.objective),
@@ -291,4 +289,4 @@ def solve_and_print_lp(filename: str, problem: pulp.LpProblem) -> None:
 
 if __name__ == "__main__":
     problem = generate_lp()
-    solve_and_print_lp("scheduling.json", problem)
+    #solve_and_print_lp("scheduling.json", problem)
