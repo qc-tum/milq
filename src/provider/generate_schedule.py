@@ -435,7 +435,7 @@ def _get_setup_times(
 
 
 def _get_simple_setup_times(
-    base_jobs: list[CircuitJob], accelerators: list[Accelerator], default_value: int
+    base_jobs: list[CircuitJob], accelerators: list[Accelerator]
 ) -> list[list[float]]:
     return [
         [
