@@ -209,3 +209,17 @@ def _get_setup_times(
         for job_j in base_jobs
         if job_j.instance is not None
     ]
+
+
+def _solve_lp(lp_instance: LPInstance) -> list[ScheduledJob]:
+    solver_list = pulp.listSolvers(onlyAvailable=True)
+    if len(solver_list) == 2:
+        solver = pulp.getSolver("GUROBI_CMD")
+        lp_instance.problem.solve(solver)
+    else:
+        lp_instance.problem.solve()
+    return _generate_schedule_from_lp(lp_instance)
+
+
+def _generate_schedule_from_lp(lp_instance: LPInstance) -> list[ScheduledJob]:
+    pass
