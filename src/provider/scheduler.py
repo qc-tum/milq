@@ -1,5 +1,6 @@
 """A scheduler for quantum circuits."""
 from dataclasses import dataclass, field
+from uuid import UUID
 
 from qiskit import QuantumCircuit
 
@@ -39,9 +40,9 @@ class Scheduler:
     """
 
     def __init__(self, accelerators: list[Accelerator]) -> None:
-        self.jobs = []
+        self.jobs: list[CircuitJob] = []
         self.accelerator = AcceleratorGroup(accelerators)
-        self.uuids = []
+        self.uuids: list[UUID] = []
 
     def run_circuits(self, circuits: list[QuantumCircuit]) -> list[CombinedJob]:
         """Generates a schedule and runs it.
@@ -73,7 +74,7 @@ class Scheduler:
         """
         jobs = sorted(
             self._convert_to_jobs(circuits),
-            key=lambda x: x.instance.num_qubits,
+            key=lambda x: x.instance.num_qubits if x.instance is not None else 0,
             reverse=True,
         )
         bins = self._binpacking_to_qpus(jobs)
@@ -111,6 +112,8 @@ class Scheduler:
         closed_bins = []
         index = 1
         for job in jobs:
+            if job.instance is None:
+                continue
             for obin in open_bins:
                 # TODO consider 1 free qubit remaining
                 if obin.capacity >= job.instance.num_qubits:
@@ -203,7 +206,7 @@ class Scheduler:
                     partition[-1] = partition[-1] - 1
                     partition.append(2)
                 else:
-                    partition.append(self._partition_big_to_small(remaining_size))
+                    partition += self._partition_big_to_small(remaining_size)
                 partitions.append(partition)
             elif circuit_size > max(qpu_sizes):
                 partition = self._partition_big_to_small(circuit_size)
@@ -230,11 +233,13 @@ class Scheduler:
                 # We can't have a partition of size 1
                 # So in this case we take one qubit less to leave a partition of two
                 take_qubits -= 1
-            
             partition.append(take_qubits)
             size -= take_qubits
             if size == 0:
                 break
         else:
-            raise ValueError(f"Circuit is too big to fit onto the devices, {size} qubits left after partitioning.")
+            raise ValueError(
+                "Circuit is too big to fit onto the devices,"
+                + f" {size} qubits left after partitioning."
+            )
         return partition
