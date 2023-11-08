@@ -138,15 +138,15 @@ def generate_simple_schedule(
     Returns:
         list[ScheduledJob]: A list of Jobs scheduled to accelerators.
     """
-    lp_instance = _set_up_pase_lp(jobs, accelerators, big_m, list(range(t_max)))
+    lp_instance = _set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
     # (4) - (7), (9)
     p_times = pulp.makeDict(
-        [lp_instance.jobs, lp_instance.machines],
+        [lp_instance.jobs[1:], lp_instance.machines],
         _get_processing_times(jobs, accelerators),
         0,
     )
     s_times = pulp.makeDict(
-        [lp_instance.jobs, lp_instance.machines],
+        [lp_instance.jobs[1:], lp_instance.machines],
         _get_simple_setup_times(jobs, accelerators),
         0,
     )
@@ -161,7 +161,7 @@ def generate_simple_schedule(
             pulp.lpSum(
                 y_ijk[job_j][job][machine]
                 for machine in lp_instance.machines
-                for job_j in jobs
+                for job_j in lp_instance.jobs
             )
             >= 1  # each job has a predecessor
         )
@@ -175,11 +175,13 @@ def generate_simple_schedule(
         for machine in lp_instance.machines:
             lp_instance.problem += (  # predecessor (6)
                 lp_instance.x_ik[job][machine]
-                >= pulp.lpSum(y_ijk[job_j][job][machine] for job_j in jobs) / big_m
+                >= pulp.lpSum(y_ijk[job_j][job][machine] for job_j in lp_instance.jobs)
+                / big_m
             )
             lp_instance.problem += (  # successor
                 lp_instance.x_ik[job][machine]
-                >= pulp.lpSum(y_ijk[job][job_j][machine] for job_j in jobs) / big_m
+                >= pulp.lpSum(y_ijk[job][job_j][machine] for job_j in lp_instance.jobs)
+                / big_m
             )
             lp_instance.problem += (  # (5)
                 lp_instance.z_ikt[job][machine][0] == y_ijk["0"][job][machine]
@@ -219,7 +221,7 @@ def generate_extended_schedule(
     Returns:
         list[ScheduledJob]: A list of Jobs scheduled to accelerators.
     """
-    lp_instance = _set_up_pase_lp(jobs, accelerators, big_m, list(range(t_max)))
+    lp_instance = _set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
 
     # additional parameters
     p_times = pulp.makeDict(
@@ -262,7 +264,7 @@ def generate_extended_schedule(
             pulp.lpSum(
                 y_ijk[job_j][job][machine]
                 for machine in lp_instance.machines
-                for job_j in jobs
+                for job_j in lp_instance.jobs
             )
             >= 1  # each job has a predecessor
         )
@@ -274,16 +276,18 @@ def generate_extended_schedule(
         ) + pulp.lpSum(
             y_ijk[job_j][job][machine] * s_times[job_j][job][machine]
             for machine in lp_instance.machines
-            for job_j in jobs
+            for job_j in lp_instance.jobs
         )
         for machine in lp_instance.machines:
             lp_instance.problem += (  # predecessor (6)
                 lp_instance.x_ik[job][machine]
-                >= pulp.lpSum(y_ijk[job_j][job][machine] for job_j in jobs) / big_m
+                >= pulp.lpSum(y_ijk[job_j][job][machine] for job_j in lp_instance.jobs)
+                / big_m
             )
             lp_instance.problem += (  # successor
                 lp_instance.x_ik[job][machine]
-                >= pulp.lpSum(y_ijk[job][job_j][machine] for job_j in jobs) / big_m
+                >= pulp.lpSum(y_ijk[job][job_j][machine] for job_j in lp_instance.jobs)
+                / big_m
             )
             lp_instance.problem += (  # (5)
                 lp_instance.z_ikt[job][machine][0] == y_ijk["0"][job][machine]
@@ -323,7 +327,7 @@ def generate_extended_schedule(
                     + lp_instance.x_ik[job_j][machine]
                     - 1
                 )
-                for job_l in jobs[1:]:
+                for job_l in lp_instance.jobs[1:]:
                     lp_instance.problem += (
                         e_ijlk[job][job_j][job_l][machine]
                         >= b_ij[job][job_l]
@@ -341,7 +345,8 @@ def generate_extended_schedule(
                     >= a_ij[job][job_j]
                     + (
                         pulp.lpSum(
-                            e_ijlk[job][job_j][job_l][machine] for job_l in jobs[1:]
+                            e_ijlk[job][job_j][job_l][machine]
+                            for job_l in lp_instance.jobs[1:]
                         )
                         / big_m
                     )
@@ -351,7 +356,7 @@ def generate_extended_schedule(
     return _solve_lp(lp_instance, jobs, accelerators)
 
 
-def _set_up_pase_lp(
+def _set_up_base_lp(
     base_jobs: list[CircuitJob],
     accelerators: list[Accelerator],
     big_m: int,
@@ -484,19 +489,18 @@ def _solve_lp(
 def _generate_schedule_from_lp(
     lp_instance: LPInstance, jobs: list[CircuitJob], accelerators: list[Accelerator]
 ) -> list[ScheduledJob]:
-    assigned_jobs = {
-        job: JobResultInfo(name=job) for job in lp_instance.jobs if job != "0"
-    }
+    assigned_jobs = {job: JobResultInfo(name=job) for job in lp_instance.jobs}
     for var in lp_instance.problem.variables():
         if var.name.startswith("x_"):
-            name = var.name.split("_")[1:]
-            assigned_jobs[name[-2]].machine = name[-1]
+            name = var.name.split("_")[2:]
+            assigned_jobs["-".join(name[:5])].machine = "-".join(name[-5:])
         elif var.name.startswith("s_"):
-            name = var.name.split("_")[-1]
+            name = "-".join(var.name.split("_")[2:])
             assigned_jobs[name].start_time = float(var.varValue)
         elif var.name.startswith("c_"):
-            name = var.name.split("_")[-1]
+            name = "-".join(var.name.split("_")[2:])
             assigned_jobs[name].completion_time = float(var.varValue)
+    del assigned_jobs["0"]
     machine_assignments: dict[str, list[JobResultInfo]] = defaultdict(list)
     for job in assigned_jobs.values():
         if job.machine != "":
@@ -504,9 +508,13 @@ def _generate_schedule_from_lp(
 
     closed_bins = []
     for machine, machine_jobs in machine_assignments.items():
-        if machine == "":
+        machine_id = next(
+            (idx for idx, qpu in enumerate(accelerators) if str(qpu.uuid) == machine),
+            None,
+        )
+        if machine_id is None:
             continue
-        closed_bins += _form_bins(machine, machine_jobs, jobs, accelerators)
+        closed_bins += _form_bins(machine_id, machine_jobs, jobs)
     combined_jobs = []
 
     for _bin in sorted(closed_bins, key=lambda x: x.index):
@@ -515,18 +523,12 @@ def _generate_schedule_from_lp(
 
 
 def _form_bins(
-    machine: str,
+    machine_id: int,
     assigned_jobs: list[JobResultInfo],
     jobs: list[CircuitJob],
-    accelerators: list[Accelerator],
 ) -> list[Bin]:
-    bins: list[Bin] = []
-    machine_id = next(
-        (idx for idx, qpu in enumerate(accelerators) if qpu.uuid == machine), None
-    )
     # TODO: adapat number of shots
-    if machine_id is None:
-        return bins
+    bins: list[Bin] = []
     current_time = -1.0
     open_jobs: list[JobResultInfo] = []
     counter = -1
@@ -538,40 +540,47 @@ def _form_bins(
         if job.start_time < 0:
             continue
         if job.start_time == current_time:
-            if cjob := next((j for j in jobs if j.uuid == job.name), None):
-                current_bin.jobs.append(cjob)
-                insort(open_jobs, job, key=lambda x: x.completion_time)
+            _append_if_exists(job, current_bin, jobs, open_jobs=open_jobs)
+            # if cjob := next((j for j in jobs if j.uuid == job.name), None):
+            #     current_bin.jobs.append(cjob)
+            #     insort(open_jobs, job, key=lambda x: x.completion_time)
         elif job.start_time > current_time:
             counter += 1
             _bin = Bin(index=counter, qpu=machine_id)
             if len(open_jobs) == 0:
-                if cjob := next((j for j in jobs if j.uuid == job.name), None):
-                    _bin.jobs.append(cjob)
-                    open_jobs.append(job)
+                _append_if_exists(job, _bin, jobs,open_jobs=open_jobs)
+                # if cjob := next((j for j in jobs if j.uuid == job.name), None):
+                #     _bin.jobs.append(cjob)
+                #     open_jobs.append(job)
 
             elif open_jobs[0].completion_time > job.start_time:
-                if cjob := next((j for j in jobs if j.uuid == job.name), None):
-                    _bin.jobs = current_bin.jobs
-                    _bin.jobs.append(cjob)
-                    insort(open_jobs, job, key=lambda x: x.completion_time)
+                _append_if_exists(job, _bin, jobs,current_bin=current_bin, open_jobs=open_jobs)
+                # if cjob := next((j for j in jobs if j.uuid == job.name), None):
+                #     _bin.jobs = current_bin.jobs
+                #     _bin.jobs.append(cjob)
+                #     insort(open_jobs, job, key=lambda x: x.completion_time)
             else:
                 open_jobs_copy = open_jobs.copy()
                 for open_job in open_jobs_copy:
                     if open_job.completion_time > job.start_time:
-                        if cjob := next((j for j in jobs if j.uuid == job.name), None):
-                            _bin.jobs = current_bin.jobs
-                            _bin.jobs.append(cjob)
-                            insort(open_jobs, job, key=lambda x: x.completion_time)
+                        _append_if_exists(job, _bin, jobs,current_bin=current_bin, open_jobs=open_jobs)
+                        # if cjob := next((j for j in jobs if j.uuid == job.name), None):
+                        #     _bin.jobs = current_bin.jobs
+                        #     _bin.jobs.append(cjob)
+                        #     insort(open_jobs, job, key=lambda x: x.completion_time)
                         break
                     if open_job not in open_jobs:
                         continue
-                     # remove the last job and all that end at the same time
+                    # remove the last job and all that end at the same time
                     _bin.jobs = current_bin.jobs
                     for second_job in open_jobs_copy:
                         if second_job.completion_time == open_job.completion_time:
-                            if cjob := next((j for j in jobs if j.uuid == second_job.name), None):
-                                _bin.jobs.append(cjob)
-                                open_jobs.remove(second_job)
+                            _append_if_exists(second_job, _bin, jobs, open_jobs=open_jobs, do_remove=True)
+                            # if cjob := next(
+                            #     (j for j in jobs if j.uuid == second_job.name), None
+                            # ):
+                            #     _bin.jobs.append(cjob)
+                            #     open_jobs.remove(second_job)
                     current_bin = _bin
                     counter += 1
                     _bin = Bin(index=counter, qpu=machine_id)
@@ -581,3 +590,22 @@ def _form_bins(
         current_bin = _bin
 
     return bins
+
+
+def _append_if_exists(
+    job: JobResultInfo,
+    _bin: Bin,
+    jobs: list[CircuitJob],
+    current_bin: Bin | None = None,
+    open_jobs: list[JobResultInfo] | None = None,
+    do_remove: bool = False,
+) -> None:
+    if cjob := next((j for j in jobs if str(j.uuid) == job.name), None):
+        if current_bin is not None:
+            _bin.jobs = current_bin.jobs
+        _bin.jobs.append(cjob)
+        if open_jobs is not None:
+            if do_remove:
+                open_jobs.remove(job)
+            else:
+                insort(open_jobs, job, key=lambda x: x.completion_time)
