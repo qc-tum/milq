@@ -449,8 +449,9 @@ def _get_simple_setup_times(
 
 def _solve_lp(lp_instance: LPInstance) -> list[ScheduledJob]:
     solver_list = pulp.listSolvers(onlyAvailable=True)
-    if len(solver_list) == 2:
-        solver = pulp.getSolver("GUROBI_CMD")
+    gurobi = "GUROBI_CMD"
+    if gurobi in solver_list:
+        solver = pulp.getSolver(gurobi)
         lp_instance.problem.solve(solver)
     else:
         lp_instance.problem.solve()
