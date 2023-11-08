@@ -74,7 +74,7 @@ class Accelerator:
         )
 
     def compute_setup_time(
-        self, circuit_from: QuantumCircuit, circuit_to: QuantumCircuit
+        self, circuit_from: QuantumCircuit | None, circuit_to: QuantumCircuit | None
     ) -> float:
         """Computes the set up time by switching between one circuit to another.
 
@@ -86,6 +86,10 @@ class Accelerator:
         Returns:
             float: Set up time from circuit_from to circuit_to in µs.
         """
+        if circuit_from is None:
+            return self._reconfiguration_time
+        if circuit_to is None:
+            return self._reconfiguration_time
         return self._reconfiguration_time
 
     @property
