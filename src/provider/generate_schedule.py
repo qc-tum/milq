@@ -1,4 +1,6 @@
 """Methods for generating a schedule for a given provider."""
+from bisect import insort
+from collections import defaultdict
 from dataclasses import dataclass, field
 
 import pulp
@@ -30,6 +32,14 @@ class LPInstance:
     z_ikt: dict[str, dict[str, dict[int, pulp.LpVariable]]]
     c_j: dict[str, pulp.LpVariable]
     s_j: dict[str, pulp.LpVariable]
+
+
+@dataclass
+class JobResultInfo:
+    name: str
+    machine: str = ""
+    start_time: float = -1.0
+    completion_time: float = -1.0
 
 
 def generate_baseline_schedule(
@@ -137,7 +147,7 @@ def generate_simple_schedule(
     )
     s_times = pulp.makeDict(
         [lp_instance.jobs, lp_instance.machines],
-        _get_simple_setup_times(jobs, accelerators, kwargs.get("default_value", 50)),
+        _get_simple_setup_times(jobs, accelerators),
         0,
     )
     y_ijk = pulp.LpVariable.dicts(
@@ -187,7 +197,7 @@ def generate_simple_schedule(
                 <= lp_instance.s_j[job]
             )
 
-    return _solve_lp(lp_instance)
+    return _solve_lp(lp_instance, jobs, accelerators)
 
 
 def generate_extended_schedule(
@@ -338,7 +348,7 @@ def generate_extended_schedule(
                     + d_ijk[job][job_j][machine]
                     - 2
                 )
-    return _solve_lp(lp_instance)
+    return _solve_lp(lp_instance, jobs, accelerators)
 
 
 def _set_up_pase_lp(
@@ -458,7 +468,9 @@ def _get_simple_setup_times(
     ]
 
 
-def _solve_lp(lp_instance: LPInstance) -> list[ScheduledJob]:
+def _solve_lp(
+    lp_instance: LPInstance, jobs: list[CircuitJob], accelerators: list[Accelerator]
+) -> list[ScheduledJob]:
     solver_list = pulp.listSolvers(onlyAvailable=True)
     gurobi = "GUROBI_CMD"
     if gurobi in solver_list:
@@ -466,8 +478,106 @@ def _solve_lp(lp_instance: LPInstance) -> list[ScheduledJob]:
         lp_instance.problem.solve(solver)
     else:
         lp_instance.problem.solve()
-    return _generate_schedule_from_lp(lp_instance)
+    return _generate_schedule_from_lp(lp_instance, jobs, accelerators)
 
 
-def _generate_schedule_from_lp(lp_instance: LPInstance) -> list[ScheduledJob]:
-    pass
+def _generate_schedule_from_lp(
+    lp_instance: LPInstance, jobs: list[CircuitJob], accelerators: list[Accelerator]
+) -> list[ScheduledJob]:
+    assigned_jobs = {
+        job: JobResultInfo(name=job) for job in lp_instance.jobs if job != "0"
+    }
+    for var in lp_instance.problem.variables():
+        if var.name.startswith("x_"):
+            name = var.name.split("_")[1:]
+            assigned_jobs[name[-2]].machine = name[-1]
+        elif var.name.startswith("s_"):
+            name = var.name.split("_")[-1]
+            assigned_jobs[name].start_time = float(var.varValue)
+        elif var.name.startswith("c_"):
+            name = var.name.split("_")[-1]
+            assigned_jobs[name].completion_time = float(var.varValue)
+    machine_assignments: dict[str, list[JobResultInfo]] = defaultdict(list)
+    for job in assigned_jobs.values():
+        if job.machine != "":
+            machine_assignments[job.machine].append(job)
+
+    closed_bins = []
+    for machine, machine_jobs in machine_assignments.items():
+        if machine == "":
+            continue
+        closed_bins += _form_bins(machine, machine_jobs, jobs, accelerators)
+    combined_jobs = []
+
+    for _bin in sorted(closed_bins, key=lambda x: x.index):
+        combined_jobs.append(ScheduledJob(job=assemble_job(_bin.jobs), qpu=_bin.qpu))
+    return combined_jobs
+
+
+def _form_bins(
+    machine: str,
+    assigned_jobs: list[JobResultInfo],
+    jobs: list[CircuitJob],
+    accelerators: list[Accelerator],
+) -> list[Bin]:
+    bins: list[Bin] = []
+    machine_id = next(
+        (idx for idx, qpu in enumerate(accelerators) if qpu.uuid == machine), None
+    )
+    # TODO: adapat number of shots
+    if machine_id is None:
+        return bins
+    current_time = -1.0
+    open_jobs: list[JobResultInfo] = []
+    counter = -1
+    current_bin = Bin(index=counter, qpu=machine_id)
+
+    for job in sorted(
+        assigned_jobs, key=lambda x: x.start_time if x.start_time is not None else 0
+    ):
+        if job.start_time < 0:
+            continue
+        if job.start_time == current_time:
+            if cjob := next((j for j in jobs if j.uuid == job.name), None):
+                current_bin.jobs.append(cjob)
+                insort(open_jobs, job, key=lambda x: x.completion_time)
+        elif job.start_time > current_time:
+            counter += 1
+            _bin = Bin(index=counter, qpu=machine_id)
+            if len(open_jobs) == 0:
+                if cjob := next((j for j in jobs if j.uuid == job.name), None):
+                    _bin.jobs.append(cjob)
+                    open_jobs.append(job)
+
+            elif open_jobs[0].completion_time > job.start_time:
+                if cjob := next((j for j in jobs if j.uuid == job.name), None):
+                    _bin.jobs = current_bin.jobs
+                    _bin.jobs.append(cjob)
+                    insort(open_jobs, job, key=lambda x: x.completion_time)
+            else:
+                open_jobs_copy = open_jobs.copy()
+                for open_job in open_jobs_copy:
+                    if open_job.completion_time > job.start_time:
+                        if cjob := next((j for j in jobs if j.uuid == job.name), None):
+                            _bin.jobs = current_bin.jobs
+                            _bin.jobs.append(cjob)
+                            insort(open_jobs, job, key=lambda x: x.completion_time)
+                        break
+                    if open_job not in open_jobs:
+                        continue
+                     # remove the last job and all that end at the same time
+                    _bin.jobs = current_bin.jobs
+                    for second_job in open_jobs_copy:
+                        if second_job.completion_time == open_job.completion_time:
+                            if cjob := next((j for j in jobs if j.uuid == second_job.name), None):
+                                _bin.jobs.append(cjob)
+                                open_jobs.remove(second_job)
+                    current_bin = _bin
+                    counter += 1
+                    _bin = Bin(index=counter, qpu=machine_id)
+
+        bins.append(_bin)
+        current_time = job.start_time
+        current_bin = _bin
+
+    return bins
