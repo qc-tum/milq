@@ -25,6 +25,32 @@ def test_generate_schedule() -> None:
     # 4. qpu0 -> 3,2 qubits, qpu1 -> 2,2 qubits
     # 5. qpu0 -> 2,2 qubits, qpu1 -> 2 qubits
     assert len(jobs) == 10
+    jobs_per_qpu = {}
+    for job in jobs:
+        jobs_per_qpu.setdefault(job.qpu, []).append(job.job)
+    assert jobs_per_qpu.keys() == {0, 1}
+    jobs_0 = jobs_per_qpu[0]
+    jobs_1 = jobs_per_qpu[1]
+    assert len(jobs_0) == 5
+    assert len(jobs_1) == 5
+    qubits_0 = [
+        [slice(0, 5)],
+        [slice(0, 5)],
+        [slice(0, 5)],
+        [slice(0, 3), slice(3, 5)],
+        [slice(0, 2), slice(2, 4)],
+    ]
+    for job, qubits in zip(jobs_0, qubits_0):
+        assert job.mapping == qubits
+    qubits_1 = [
+        [slice(0, 5)],
+        [slice(0, 5)],
+        [slice(0, 5)],
+        [slice(0, 2), slice(2, 4)],
+        [slice(0, 2)],
+    ]
+    for job, qubits in zip(jobs_1, qubits_1):
+        assert job.mapping == qubits
 
 
 def test_run_circuits() -> None:
