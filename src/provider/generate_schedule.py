@@ -491,7 +491,7 @@ def _generate_schedule_from_lp(
 ) -> list[ScheduledJob]:
     assigned_jobs = {job: JobResultInfo(name=job) for job in lp_instance.jobs}
     for var in lp_instance.problem.variables():
-        if var.name.startswith("x_"):
+        if var.name.startswith("x_") and var.varValue > 0.0:
             name = var.name.split("_")[2:]
             assigned_jobs["-".join(name[:5])].machine = "-".join(name[-5:])
         elif var.name.startswith("s_"):
