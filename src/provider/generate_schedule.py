@@ -64,13 +64,13 @@ def generate_baseline_schedule(
     # TODO set a flag when an experiment is done
     # TODO consider number of shots
     # Assumption: bins should be equally loaded and take same amount of time
-    
+
     def find_fitting_bin(job: CircuitJob, bins: list[Bin]) -> int | None:
-            for idx, b in enumerate(bins):
-                if b.capacity >= job.instance.num_qubits:
-                    return idx
-            return None
-    
+        for idx, b in enumerate(bins):
+            if b.capacity >= job.instance.num_qubits:
+                return idx
+        return None
+
     open_bins = [
         Bin(index=0, capacity=qpu.qubits, qpu=idx)
         for idx, qpu in enumerate(accelerators)
@@ -82,7 +82,7 @@ def generate_baseline_schedule(
             continue
         # Find the index of a fitting bin
         bin_idx = find_fitting_bin(job, open_bins)
-        
+
         if bin_idx is None:
             # Open new bins
             new_bins = [
@@ -96,7 +96,7 @@ def generate_baseline_schedule(
             assert bin_idx is not None, "Job doesn't fit onto any qpu"
             bin_idx += len(open_bins)
             open_bins += new_bins
-        
+
         # Add job to selected bin
         selected_bin = open_bins[bin_idx]
         selected_bin.jobs.append(job)
@@ -537,57 +537,51 @@ def _form_bins(
     for job in sorted(
         assigned_jobs, key=lambda x: x.start_time if x.start_time is not None else 0
     ):
-        if job.start_time < 0:
-            continue
         if job.start_time == current_time:
+            # s_i = s_j -> add to same bin
             _append_if_exists(job, current_bin, jobs, open_jobs=open_jobs)
-            # if cjob := next((j for j in jobs if j.uuid == job.name), None):
-            #     current_bin.jobs.append(cjob)
-            #     insort(open_jobs, job, key=lambda x: x.completion_time)
-        elif job.start_time > current_time:
-            counter += 1
-            _bin = Bin(index=counter, qpu=machine_id)
-            if len(open_jobs) == 0:
-                _append_if_exists(job, _bin, jobs,open_jobs=open_jobs)
-                # if cjob := next((j for j in jobs if j.uuid == job.name), None):
-                #     _bin.jobs.append(cjob)
-                #     open_jobs.append(job)
+            continue
 
-            elif open_jobs[0].completion_time > job.start_time:
-                _append_if_exists(job, _bin, jobs,current_bin=current_bin, open_jobs=open_jobs)
-                # if cjob := next((j for j in jobs if j.uuid == job.name), None):
-                #     _bin.jobs = current_bin.jobs
-                #     _bin.jobs.append(cjob)
-                #     insort(open_jobs, job, key=lambda x: x.completion_time)
-            else:
-                open_jobs_copy = open_jobs.copy()
-                for open_job in open_jobs_copy:
-                    if open_job.completion_time > job.start_time:
-                        _append_if_exists(job, _bin, jobs,current_bin=current_bin, open_jobs=open_jobs)
-                        # if cjob := next((j for j in jobs if j.uuid == job.name), None):
-                        #     _bin.jobs = current_bin.jobs
-                        #     _bin.jobs.append(cjob)
-                        #     insort(open_jobs, job, key=lambda x: x.completion_time)
-                        break
-                    if open_job not in open_jobs:
-                        continue
-                    # remove the last job and all that end at the same time
-                    _bin.jobs = current_bin.jobs
-                    for second_job in open_jobs_copy:
-                        if second_job.completion_time == open_job.completion_time:
-                            _append_if_exists(second_job, _bin, jobs, open_jobs=open_jobs, do_remove=True)
-                            # if cjob := next(
-                            #     (j for j in jobs if j.uuid == second_job.name), None
-                            # ):
-                            #     _bin.jobs.append(cjob)
-                            #     open_jobs.remove(second_job)
-                    current_bin = _bin
-                    counter += 1
-                    _bin = Bin(index=counter, qpu=machine_id)
+        # s_i > s_j -> add to new bin
+        counter += 1
+        _bin = Bin(index=counter, qpu=machine_id)
+        if len(open_jobs) == 0:
+            # no open jobs -> add simply add to new bin
+            _append_if_exists(job, _bin, jobs, open_jobs=open_jobs)
 
-        bins.append(_bin)
-        current_time = job.start_time
-        current_bin = _bin
+        elif open_jobs[0].completion_time > job.start_time:
+            # noone finishes before job starts -> add to new bin which includes all open jobs
+            _append_if_exists(
+                job, _bin, jobs, current_bin=current_bin, open_jobs=open_jobs
+            )
+        else:
+            # someone finishes before job starts
+            # -> add bin for each job that finishes before job starts
+            open_jobs_copy = open_jobs.copy()
+            for open_job in open_jobs_copy:
+                if open_job.completion_time > job.start_time:
+                    # found the first that is still running, can stop
+                    _append_if_exists(
+                        job, _bin, jobs, current_bin=current_bin, open_jobs=open_jobs
+                    )
+                    break
+                if open_job not in open_jobs:
+                    # has been removed in the meantime
+                    continue
+                # remove the last job and all that end at the same time
+                _bin.jobs = current_bin.jobs
+                for second_job in open_jobs_copy:
+                    if second_job.completion_time == open_job.completion_time:
+                        _append_if_exists(
+                            second_job, _bin, jobs, open_jobs=open_jobs, do_remove=True
+                        )
+                current_bin = _bin
+                counter += 1
+                _bin = Bin(index=counter, qpu=machine_id)
+
+            bins.append(_bin)
+            current_time = job.start_time
+            current_bin = _bin
 
     return bins
 
