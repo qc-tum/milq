@@ -38,10 +38,10 @@ def generate_baseline_schedule(
     """Schedule jobs onto qpus.
 
     Each qpu represents a bin.
-    Since all jobs are asumet to take the same amount of time, the are associated
+    Since all jobs are asumed to take the same amount of time, they are associated
     with a timestep (index).
     k-first fit bin means we keep track of all bins that still have space left.
-    Once a qpu is full, we add a new bin for each qpu at the next timestep.
+    Once a qpu is full, we add a new bin for all qpus at the next timestep.
     We can't run circuits with one qubit, scheduling doesn't take this into account.
     Args:
         jobs (list[CircuitJob]): The list of jobs to run.
@@ -53,7 +53,7 @@ def generate_baseline_schedule(
     # placeholder for propper scheduling
     # TODO set a flag when an experiment is done
     # TODO consider number of shots
-    # Assumption: beens should be equally loaded and take same amoutn of time
+    # Assumption: bins should be equally loaded and take same amount of time
     open_bins = [
         Bin(index=0, capacity=qpu.qubits, qpu=idx)
         for idx, qpu in enumerate(accelerators)
