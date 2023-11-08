@@ -54,6 +54,13 @@ def generate_baseline_schedule(
     # TODO set a flag when an experiment is done
     # TODO consider number of shots
     # Assumption: bins should be equally loaded and take same amount of time
+    
+    def find_fitting_bin(job: CircuitJob, bins: list[Bin]) -> int | None:
+            for idx, b in enumerate(bins):
+                if b.capacity >= job.instance.num_qubits:
+                    return idx
+            return None
+    
     open_bins = [
         Bin(index=0, capacity=qpu.qubits, qpu=idx)
         for idx, qpu in enumerate(accelerators)
@@ -63,36 +70,40 @@ def generate_baseline_schedule(
     for job in jobs:
         if job.instance is None:
             continue
-        for obin in open_bins:
-            # TODO consider 1 free qubit remaining
-            if obin.capacity >= job.instance.num_qubits:
-                obin.jobs.append(job)
-                obin.capacity -= job.instance.num_qubits
-                if obin.capacity <= 1:
-                    obin.full = True
-                    closed_bins.append(obin)
-                    open_bins.remove(obin)
-                break
-        else:
+        # Find the index of a fitting bin
+        bin_idx = find_fitting_bin(job, open_bins)
+        
+        if bin_idx is None:
+            # Open new bins
             new_bins = [
                 Bin(index=index, capacity=qpu.qubits, qpu=idx)
                 for idx, qpu in enumerate(accelerators)
             ]
             index += 1
-            for nbin in new_bins:
-                # TODO consider 1 free qubit remaining
-                if nbin.capacity >= job.instance.num_qubits:
-                    nbin.jobs.append(job)
-                    nbin.capacity -= job.instance.num_qubits
-                    if nbin.capacity == 0:
-                        nbin.full = True
-                        closed_bins.append(nbin)
-                        new_bins.remove(nbin)
-                    break
+
+            # Search for a fitting bin among the new ones
+            bin_idx = find_fitting_bin(job, new_bins)
+            assert bin_idx is not None, "Job doesn't fit onto any qpu"
+            bin_idx += len(open_bins)
             open_bins += new_bins
+        
+        # Add job to selected bin
+        selected_bin = open_bins[bin_idx]
+        selected_bin.jobs.append(job)
+        selected_bin.capacity -= job.instance.num_qubits
+
+        # Close bin if full
+        if selected_bin.capacity == 0:
+            selected_bin.full = True
+            closed_bins.append(selected_bin)
+            del open_bins[bin_idx]
+
+    # Close all open bins
     for obin in open_bins:
         if len(obin.jobs) > 0:
             closed_bins.append(obin)
+
+    # Build combined jobs from bins
     combined_jobs = []
     for _bin in sorted(closed_bins, key=lambda x: x.index):
         combined_jobs.append(ScheduledJob(job=assemble_job(_bin.jobs), qpu=_bin.qpu))
