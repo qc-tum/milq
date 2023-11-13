@@ -16,6 +16,14 @@ class Bin:
 
 
 @dataclass
+class JobHelper:
+    """Helper to keep track of job names."""
+
+    name: str
+    instance: QuantumCircuit
+
+
+@dataclass
 class LPInstance:
     """Helper to keep track of LP problem."""
 
