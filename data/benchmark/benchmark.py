@@ -1,10 +1,13 @@
 """Generates the benchmark data."""
+from time import perf_counter
 from typing import Collection
 import json
 
 from mqt.bench import get_benchmark
 from qiskit import QuantumCircuit
 import numpy as np
+
+from .generate_baseline_schedules import generate_baseline_schedule
 
 from .generate_milp_schedules import (
     generate_extended_schedule,
@@ -38,7 +41,7 @@ def _generate_batch(max_size: int, circuits_per_batch: int) -> list[QuantumCircu
 
 
 def run_experiments(
-    circuits_per_batch: int, settings: list[dict[str, int]]
+    circuits_per_batch: int, settings: list[dict[str, int]], t_max: int
 ) -> list[dict[str, Collection[Collection[str]]]]:
     """Runs the benchmakr experiments."""
     results = []
@@ -49,21 +52,25 @@ def run_experiments(
         ]
         benchmark_results = []
         for benchmark in benchmarks:
-            # TODO: timing
-            # TODO: set up processing times and set up times
-            # TODO: timesteps
             lp_instance = set_up_base_lp(
-                benchmark, setting, big_m=1000, timesteps=list(range(2**6))
+                benchmark, setting, big_m=1000, timesteps=list(range(t_max))
             )
             p_times = _get_processing_times(benchmark, setting)
             s_times = _get_setup_times(benchmark, setting, default_value=2**5)
             result = {}
-            # makespan, jobs = generate_baseline_schedule(benchmark, setting)
-            # result["baseline"] = Result(makespan, jobs)
+            t_0 = perf_counter()
+            makespan, jobs = generate_baseline_schedule(
+                benchmark, setting, p_times, s_times
+            )
+            t_1 = perf_counter()
+            result["baseline"] = Result(makespan, jobs, t_1 - t_0)
+
             makespan, jobs = generate_simple_schedule(lp_instance, p_times, s_times)
-            result["simple"] = Result(makespan, jobs)
+            t_2 = perf_counter()
+            result["simple"] = Result(makespan, jobs, t_2 - t_1)
             makespan, jobs = generate_extended_schedule(lp_instance, p_times, s_times)
-            result["extended"] = Result(makespan, jobs)
+            t_3 = perf_counter()
+            result["extended"] = Result(makespan, jobs, t_3 - t_2)
             benchmark_results.append(result)
 
             results.append({"setting": setting, "benchmarks": benchmark_results})
@@ -74,38 +81,31 @@ def _get_processing_times(
     base_jobs: list[QuantumCircuit],
     accelerators: dict[str, int],
 ) -> list[list[float]]:
-    # return [
-    #     [qpu.compute_processing_time(job.instance) for qpu in accelerators]
-    #     for job in base_jobs
-    #     if job.instance is not None
-    # ]
-    # TODO
-    return []
+    return [
+        [np.random.random() * 2 + job.num_qubits / 10 for _ in accelerators]
+        for job in base_jobs
+    ]
 
 
 def _get_setup_times(
-    base_jobs: list[QuantumCircuit], accelerators: dict[str, int], default_value: int
+    base_jobs: list[QuantumCircuit], accelerators: dict[str, int], default_value: float
 ) -> list[list[list[float]]]:
-    # return [
-    #     [
-    #         [
-    #             default_value  # BIG!
-    #             if job_i == job_j
-    #             else qpu.compute_setup_time(job_i.instance, job_j.instance)
-    #             for qpu in accelerators
-    #         ]
-    #         for job_i in base_jobs
-    #         if job_i.instance is not None
-    #     ]
-    #     for job_j in base_jobs
-    #     if job_j.instance is not None
-    # ]
-    # TODO
-    return []
+    return [
+        [
+            [
+                default_value
+                if job_i == job_j
+                else np.random.random() * 5 + (job_i.num_qubits + job_j.num_qubits) / 20
+                for _ in accelerators
+            ]
+            for job_i in base_jobs
+        ]
+        for job_j in base_jobs
+    ]
 
 
 if __name__ == "__main__":
-    experiment_results = run_experiments(CIRCUITS_PER_BATCH, SETTINGS)
+    experiment_results = run_experiments(CIRCUITS_PER_BATCH, SETTINGS, T_MAX)
     with open("benchmark_results.json", "w+", encoding="uft-8") as f:
         json.dump(experiment_results, f)
 

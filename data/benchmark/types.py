@@ -40,5 +40,8 @@ class JobResultInfo:
 
 @dataclass
 class Result:
+    """Benchmark result for one instance of setting+jobs."""
+
     makespan: float
     jobs: list[JobResultInfo]
+    time: float

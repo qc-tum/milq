@@ -1,12 +1,14 @@
 """Generate baseline schedules."""
-
 from qiskit import QuantumCircuit
 
 from .types import Bin, JobResultInfo, Result
 
 
 def generate_baseline_schedule(
-    jobs: list[QuantumCircuit], accelerators: dict[str, int]
+    jobs: list[QuantumCircuit],
+    accelerators: dict[str, int],
+    p_times: list[list[float]],
+    s_times: list[list[list[float]]],
 ) -> tuple[float, list[JobResultInfo]]:
     """Generate baseline schedule."""
 
@@ -63,12 +65,13 @@ def generate_baseline_schedule(
     # TODO: calclulate makespan and schedule
     # for _bin in sorted(closed_bins, key=lambda x: x.index):
     #     combined_jobs.append(ScheduledJob(job=assemble_job(_bin.jobs), qpu=_bin.qpu))
-    return 0, combined_jobs
+
+    return _calculate_result_from_baseline(combined_jobs, p_times, s_times)
 
 
 def _calculate_result_from_baseline(
     jobs: list[JobResultInfo],
     p_times: list[list[float]],
     s_times: list[list[list[float]]],
-) -> Result:
-    return Result(0.0, [])
+) -> tuple[float, list[JobResultInfo]]:
+    return 0.0, []

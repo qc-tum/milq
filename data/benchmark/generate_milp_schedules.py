@@ -1,6 +1,4 @@
 """Helpers to generate MILP based schedules."""
-from collections import defaultdict
-
 import pulp
 from qiskit import QuantumCircuit
 
