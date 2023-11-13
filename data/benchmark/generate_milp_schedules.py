@@ -1,4 +1,8 @@
 """Helpers to generate MILP based schedules."""
+from collections import defaultdict
+from typing import Any
+
+import numpy as np
 import pulp
 from qiskit import QuantumCircuit
 
@@ -143,7 +147,7 @@ def generate_simple_schedule(
                 <= lp_instance.s_j[job]
             )
     _, jobs = _solve_lp(lp_instance)
-    return _calclulate_makespan_from_simple(jobs, process_times, setup_times), jobs
+    return _calclulate_makespan_from_simple(jobs, p_times, s_times), jobs
 
 
 def generate_extended_schedule(
@@ -312,23 +316,46 @@ def _generate_results(lp_instance: LPInstance) -> tuple[float, list[JobResultInf
 
 def _calclulate_makespan_from_simple(
     jobs: list[JobResultInfo],
-    process_times: list[list[float]],
-    setup_times: list[list[list[float]]],
+    p_times: defaultdict[str, defaultdict[str, float]],
+    s_times: defaultdict[str, defaultdict[str, defaultdict[str, float]]],
 ) -> float:
-    # TODO
-    return 0.0
+    assigned_machines: defaultdict[str, list[JobResultInfo]] = defaultdict(list)
+    for job in jobs:
+        assigned_machines[job.machine].append(job)
+    makespans = []
+    for machine, assigned_jobs in assigned_machines.items():
+        for job in sorted(assigned_jobs, key=lambda x: x.start_time):
+            # Find the last predecessor that is completed before the job starts
+            # this can technically change the correct predecessor to a wrong one
+            # because completion times are updated in the loop
+            # I'm not sure if copying before the loop corrects this
+            last_completed = next(
+                iter(
+                    sorted(
+                        (
+                            j
+                            for j in assigned_jobs
+                            if j.completion_time <= job.start_time
+                        ),
+                        key=lambda x: x.completion_time,
+                        reverse=True,
+                    )
+                ),
+                JobResultInfo("0", machine, 0.0, 0.0),
+            )
+            # calclulate p_j + s_ij
+            completion_time = (  # check if this order is correct
+                job.start_time
+                + p_times[job.name][machine]
+                + s_times[job.name][last_completed.name][machine]
+            )
+            job.completion_time = completion_time
+        makespans.append(max(job.completion_time for job in assigned_jobs))
+
+    return max(makespans)
 
 
 def _get_simple_setup_times(
     setup_times: list[list[list[float]]],
 ) -> list[list[float]]:
-    # return [
-    #     [
-    #         qpu.compute_setup_time(job_i.instance, circuit_to=None)
-    #         for qpu in accelerators
-    #     ]
-    #     for job_i in base_jobs
-    #     if job_i.instance is not None
-    # ]
-    # TODO
-    return []
+    return [list(np.max(times.transpose(), axis=1)) for times in np.array(setup_times)]
