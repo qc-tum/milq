@@ -229,6 +229,7 @@ def generate_extended_schedule(
         _get_processing_times(jobs, accelerators),
         0,
     )
+    # TODO check if this works correctly for job "0"
     s_times = pulp.makeDict(
         [lp_instance.jobs, lp_instance.jobs, lp_instance.machines],
         _get_setup_times(jobs, accelerators, kwargs.get("default_value", 50)),
