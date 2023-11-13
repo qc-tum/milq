@@ -84,11 +84,13 @@ def _get_setup_times(
         [
             [
                 default_value
-                if job_i == job_j
+                if job_i in [job_j, None]
+                else 0
+                if job_j is None
                 else np.random.random() * 5 + (job_i.num_qubits + job_j.num_qubits) / 20
                 for _ in accelerators
             ]
-            for job_i in base_jobs
+            for job_i in [None] + base_jobs
         ]
-        for job_j in base_jobs
+        for job_j in [None] + base_jobs
     ]

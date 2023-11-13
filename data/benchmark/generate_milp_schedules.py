@@ -146,6 +146,11 @@ def generate_simple_schedule(
                 <= lp_instance.s_j[job]
             )
     _, jobs = _solve_lp(lp_instance)
+    s_times = pulp.makeDict(
+        [lp_instance.jobs, lp_instance.jobs, lp_instance.machines],
+        setup_times,
+        0,
+    )
     return calculate_makespan(jobs, p_times, s_times), jobs
 
 
@@ -302,13 +307,13 @@ def _generate_results(lp_instance: LPInstance) -> tuple[float, list[JobResultInf
     for var in lp_instance.problem.variables():
         if var.name.startswith("x_") and var.varValue > 0.0:
             name = var.name.split("_")[2:]
-            assigned_jobs["-".join(name[:5])].machine = "-".join(name[-5:])
+            assigned_jobs[name[0]].machine = name[1]
         elif var.name.startswith("s_"):
-            name = var.name.split("_")[2:]
+            name = var.name.split("_")[2]
             assigned_jobs[name].start_time = float(var.varValue)
         elif var.name.startswith("c_"):
-            name = var.name.split("_")[2:]
-            assigned_jobs[name].completion_time = float(var.varValue)
+            name = var.name.split("_")[2]
+            assigned_jobs[name[0]].completion_time = float(var.varValue)
     del assigned_jobs["0"]
     return lp_instance.problem.objective.value(), list(assigned_jobs.values())
 
