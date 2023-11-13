@@ -1,7 +1,6 @@
 """Generates the benchmark data."""
 from time import perf_counter
 from typing import Collection
-import json
 
 from mqt.bench import get_benchmark
 from qiskit import QuantumCircuit
@@ -16,18 +15,6 @@ from .generate_milp_schedules import (
 )
 from .types import Result
 
-np.random.seed(42)
-
-# Define the maximum circuit size
-# MAX_SIZE = 25
-NUM_BATCHES = 10
-CIRCUITS_PER_BATCH = 5
-SETTINGS = [
-    {"A": 5, "B": 5},
-    {"A": 5, "B": 6, "C": 20},
-]
-T_MAX = 2**6
-
 
 def _generate_batch(max_size: int, circuits_per_batch: int) -> list[QuantumCircuit]:
     # Generate a random circuit
@@ -41,14 +28,17 @@ def _generate_batch(max_size: int, circuits_per_batch: int) -> list[QuantumCircu
 
 
 def run_experiments(
-    circuits_per_batch: int, settings: list[dict[str, int]], t_max: int
+    circuits_per_batch: int,
+    settings: list[dict[str, int]],
+    t_max: int,
+    num_batches: int,
 ) -> list[dict[str, Collection[Collection[str]]]]:
     """Runs the benchmakr experiments."""
     results = []
     for setting in settings:
         max_size = max(setting.values())
         benchmarks = [
-            _generate_batch(max_size, circuits_per_batch) for _ in range(NUM_BATCHES)
+            _generate_batch(max_size, circuits_per_batch) for _ in range(num_batches)
         ]
         benchmark_results = []
         for benchmark in benchmarks:
@@ -102,11 +92,3 @@ def _get_setup_times(
         ]
         for job_j in base_jobs
     ]
-
-
-if __name__ == "__main__":
-    experiment_results = run_experiments(CIRCUITS_PER_BATCH, SETTINGS, T_MAX)
-    with open("benchmark_results.json", "w+", encoding="uft-8") as f:
-        json.dump(experiment_results, f)
-
-    # TODO: Visualize results
