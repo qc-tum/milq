@@ -1,6 +1,5 @@
 """Helpers to generate MILP based schedules."""
 from collections import defaultdict
-from typing import Any
 
 import numpy as np
 import pulp
@@ -20,8 +19,8 @@ def set_up_base_lp(
     jobs = ["0"] + [str(idx + 1) for idx, _ in enumerate(base_jobs)]
     job_capacities = {str(idx + 1): job.num_qubits for idx, job in enumerate(base_jobs)}
     job_capacities["0"] = 0
-    machines = [qpu for qpu in accelerators.keys()]
-    machine_capacities = {qpu: qubits for qpu, qubits in accelerators.items()}
+    machines = list(accelerators.keys())
+    machine_capacities = accelerators
 
     # set up problem variables
     x_ik = pulp.LpVariable.dicts("x_ik", (jobs, machines), cat="Binary")
@@ -147,7 +146,7 @@ def generate_simple_schedule(
                 <= lp_instance.s_j[job]
             )
     _, jobs = _solve_lp(lp_instance)
-    return _calclulate_makespan_from_simple(jobs, p_times, s_times), jobs
+    return calculate_makespan(jobs, p_times, s_times), jobs
 
 
 def generate_extended_schedule(
@@ -163,7 +162,7 @@ def generate_extended_schedule(
         0,
     )
     s_times = pulp.makeDict(
-        [lp_instance.jobs[1:], lp_instance.machines],
+        [lp_instance.jobs, lp_instance.jobs, lp_instance.machines],
         setup_times,
         0,
     )
@@ -314,11 +313,12 @@ def _generate_results(lp_instance: LPInstance) -> tuple[float, list[JobResultInf
     return lp_instance.problem.objective.value(), list(assigned_jobs.values())
 
 
-def _calclulate_makespan_from_simple(
+def calculate_makespan(
     jobs: list[JobResultInfo],
     p_times: defaultdict[str, defaultdict[str, float]],
     s_times: defaultdict[str, defaultdict[str, defaultdict[str, float]]],
 ) -> float:
+    """Calculates the actual makespan from the list of jobs."""
     assigned_machines: defaultdict[str, list[JobResultInfo]] = defaultdict(list)
     for job in jobs:
         assigned_machines[job.machine].append(job)
@@ -343,7 +343,7 @@ def _calclulate_makespan_from_simple(
                 ),
                 JobResultInfo("0", machine, 0.0, 0.0),
             )
-            # calclulate p_j + s_ij
+            # calculate p_j + s_ij
             completion_time = (  # check if this order is correct
                 job.start_time
                 + p_times[job.name][machine]
@@ -358,4 +358,11 @@ def _calclulate_makespan_from_simple(
 def _get_simple_setup_times(
     setup_times: list[list[list[float]]],
 ) -> list[list[float]]:
-    return [list(np.max(times.transpose(), axis=1)) for times in np.array(setup_times)]
+    new_times = [
+        list(np.max(times.transpose(), axis=1)) for times in np.array(setup_times)
+    ]
+    # remove job 0
+    del new_times[0]
+    for times in new_times:
+        del times[0]
+    return new_times
