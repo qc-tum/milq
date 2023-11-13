@@ -1,5 +1,5 @@
 """Generates the benchmark data."""
-from collections import namedtuple
+from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Collection
 import json
@@ -56,6 +56,11 @@ class JobResultInfo:
     completion_time: float = -1.0
 
 
+@dataclass
+class Result:
+    makespan: float
+    jobs: list[JobResultInfo]
+
 def generate_batch(max_size: int, circuits_per_batch: int) -> list[QuantumCircuit]:
     # Generate a random circuit
     batch = []
@@ -81,13 +86,25 @@ def run_experiments(
             # TODO: timing
             # TODO: set up processing times and set up times
             # TODO: timesteps
+            lp_instance = _set_up_base_lp(
+                benchmark, setting, big_m=1000, timesteps=list(range(2**6))
+            )
+            p_times = pulp.makeDict(
+                [lp_instance.jobs[1:], lp_instance.machines],
+                _get_processing_times(benchmark, setting),
+                0,
+            )
+            s_times = pulp.makeDict(
+                [lp_instance.jobs[1:], lp_instance.machines],
+                _get_simple_setup_times(benchmark, setting),
+                0,
+            )
             result = {}
-            Result = namedtuple("Result", ["makespan", "jobs"])
             # makespan, jobs = generate_baseline_schedule(benchmark, setting)
-            # result["baseline"] = Result(makespan, jobs)
-            makespan, jobs = generate_simple_schedule(benchmark, setting)
-            result["simple"] = Result(makespan, jobs)
-            makespan, jobs = generate_extended_schedule(benchmark, setting)
+            result["baseline"] = Result(makespan, jobs)
+            makespan, jobs = generate_simple_schedule(lp_instance, p_times, s_times)
+            result["simple"] = Result(_calclulate_makespan_from_simple(jobs, p_times, s_times), jobs)
+            makespan, jobs = generate_extended_schedule(lp_instance, p_times,s_times)
             result["extended"] = Result(makespan, jobs)
             benchmark_results.append(result)
 
@@ -252,24 +269,24 @@ def generate_baseline_schedule(
 
 
 def generate_simple_schedule(
-    jobs: list[QuantumCircuit],
-    accelerators: dict[str, int],
+    lp_instance: LPInstance,
+    p_times: defaultdict[str, defaultdict[str, float]],
+    s_times: defaultdict[str, defaultdict[str, float]],
     big_m: int = 1000,
-    t_max: int = 2**7,
-    **kwargs,
+
 ) -> tuple[float, list[JobResultInfo]]:
-    lp_instance = _set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
-    # (4) - (7), (9)
-    p_times = pulp.makeDict(
-        [lp_instance.jobs[1:], lp_instance.machines],
-        _get_processing_times(jobs, accelerators),
-        0,
-    )
-    s_times = pulp.makeDict(
-        [lp_instance.jobs[1:], lp_instance.machines],
-        _get_simple_setup_times(jobs, accelerators),
-        0,
-    )
+    # lp_instance = _set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
+    # # (4) - (7), (9)
+    # p_times = pulp.makeDict(
+    #     [lp_instance.jobs[1:], lp_instance.machines],
+    #     _get_processing_times(jobs, accelerators),
+    #     0,
+    # )
+    # s_times = pulp.makeDict(
+    #     [lp_instance.jobs[1:], lp_instance.machines],
+    #     _get_simple_setup_times(jobs, accelerators),
+    #     0,
+    # )
     y_ijk = pulp.LpVariable.dicts(
         "y_ijk",
         (lp_instance.jobs, lp_instance.jobs, lp_instance.machines),
@@ -323,25 +340,25 @@ def generate_simple_schedule(
 
 
 def generate_extended_schedule(
-    jobs: list[QuantumCircuit],
-    accelerators: dict[str, int],
+    lp_instance: LPInstance,
+    p_times: defaultdict[str, defaultdict[str, float]],
+    s_times: defaultdict[str, defaultdict[str, float]],
     big_m: int = 1000,
-    t_max: int = 2**7,
     **kwargs,
 ) -> tuple[float, list[JobResultInfo]]:
-    lp_instance = _set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
+    # lp_instance = _set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
 
-    # additional parameters
-    p_times = pulp.makeDict(
-        [lp_instance.jobs, lp_instance.machines],
-        _get_processing_times(jobs, accelerators),
-        0,
-    )
-    s_times = pulp.makeDict(
-        [lp_instance.jobs, lp_instance.jobs, lp_instance.machines],
-        _get_setup_times(jobs, accelerators, kwargs.get("default_value", 50)),
-        0,
-    )
+    # # additional parameters
+    # p_times = pulp.makeDict(
+    #     [lp_instance.jobs, lp_instance.machines],
+    #     _get_processing_times(jobs, accelerators),
+    #     0,
+    # )
+    # s_times = pulp.makeDict(
+    #     [lp_instance.jobs, lp_instance.jobs, lp_instance.machines],
+    #     _get_setup_times(jobs, accelerators, kwargs.get("default_value", 50)),
+    #     0,
+    # )
 
     # decision variables
     y_ijk = pulp.LpVariable.dicts(
@@ -513,6 +530,15 @@ def _get_simple_setup_times(
     return []
 
 
+def _calclulate_makespan_from_simple(jobs: list[JobResultInfo],
+    p_times: defaultdict[str, defaultdict[str, float]],
+    s_times: defaultdict[str, defaultdict[str, float]],) -> float:
+    return 0.0
+
+def _calculate_result_from_baseline(jobs: list[JobResultInfo],
+    p_times: defaultdict[str, defaultdict[str, float]],
+    s_times: defaultdict[str, defaultdict[str, float]],) -> Result:
+    return Result(0.0, [])
 if __name__ == "__main__":
     experiment_results = run_experiments(CIRCUITS_PER_BATCH, SETTINGS)
     with open("benchmark_results.json", "w+", encoding="uft-8") as f:
