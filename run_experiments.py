@@ -1,9 +1,20 @@
 """Generates the benchmark data."""
+from dataclasses import is_dataclass, asdict
+from typing import Any
 import json
 
 import numpy as np
 
 from data.benchmark import run_experiments
+
+
+class DataclassJSONEncoder(json.JSONEncoder):
+    """Helper to serialize dataclasses."""
+
+    def default(self, o) -> dict[str, Any] | Any:
+        if is_dataclass(o):
+            return asdict(o)
+        return super().default(o)
 
 
 np.random.seed(42)
@@ -22,6 +33,6 @@ if __name__ == "__main__":
         CIRCUITS_PER_BATCH, SETTINGS, T_MAX, NUM_BATCHES
     )
     with open("benchmark_results.json", "w+", encoding="utf-8") as f:
-        json.dump(experiment_results, f)
+        json.dump(experiment_results, f, cls=DataclassJSONEncoder)
 
     # TODO: Visualize results
