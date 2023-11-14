@@ -56,7 +56,9 @@ def run_experiments(
             t_1 = perf_counter()
             result["baseline"] = Result(makespan, jobs, t_1 - t_0)
 
-            makespan, jobs = generate_simple_schedule(deepcopy(lp_instance), p_times, s_times)
+            makespan, jobs = generate_simple_schedule(
+                deepcopy(lp_instance), p_times, s_times
+            )
             t_2 = perf_counter()
             result["simple"] = Result(makespan, jobs, t_2 - t_1)
             makespan, jobs = generate_extended_schedule(lp_instance, p_times, s_times)
@@ -85,13 +87,19 @@ def _get_setup_times(
         [
             [
                 default_value
-                if job_i in [job_j, None]
-                else 0
-                if job_j is None
-                else np.random.random() * 5 + (job_i.num_qubits + job_j.num_qubits) / 20
+                if id_i in [id_j, 0]
+                else _calc_setup_times(job_i, job_j)
                 for _ in accelerators
             ]
-            for job_i in [None] + base_jobs
+            for id_i, job_i in enumerate([None] + base_jobs)
         ]
-        for job_j in [None] + base_jobs
+        for id_j, job_j in enumerate([None] + base_jobs)
     ]
+
+
+def _calc_setup_times(
+    job_i: QuantumCircuit, job_j: QuantumCircuit | None = None
+) -> float:
+    if job_j is None:
+        return 0.0
+    return np.random.random() * 5 + (job_i.num_qubits + job_j.num_qubits) / 20
