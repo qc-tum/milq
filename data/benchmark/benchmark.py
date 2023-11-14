@@ -66,7 +66,7 @@ def run_experiments(
             result["extended"] = Result(makespan, jobs, t_3 - t_2)
             benchmark_results.append(result)
 
-            results.append({"setting": setting, "benchmarks": benchmark_results})
+            results.append({"setting": setting, "benchmarks": benchmark_results, "s_times": s_times, "p_times": p_times})
     return results
 
 
@@ -75,7 +75,8 @@ def _get_processing_times(
     accelerators: dict[str, int],
 ) -> list[list[float]]:
     return [
-        [np.random.random() * 2 + job.num_qubits / 10 for _ in accelerators]
+        [np.random.random() * 10 + job.num_qubits / 5 for _ in accelerators]
+        #[np.random.randint(0,3) + job.num_qubits //2 for _ in accelerators]
         for job in base_jobs
     ]
 
@@ -102,4 +103,5 @@ def _calc_setup_times(
 ) -> float:
     if job_j is None:
         return 0.0
-    return np.random.random() * 5 + (job_i.num_qubits + job_j.num_qubits) / 20
+    return np.random.random() * 10 + (job_i.num_qubits + job_j.num_qubits) / 10
+    #  return np.random.randint(0,2) + (job_i.num_qubits + job_j.num_qubits) // 8

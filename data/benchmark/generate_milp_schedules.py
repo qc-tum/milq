@@ -1,11 +1,12 @@
 """Helpers to generate MILP based schedules."""
 from collections import defaultdict
+from copy import deepcopy
 
 import numpy as np
 import pulp
 from qiskit import QuantumCircuit
 
-from .types import JobResultInfo, LPInstance
+from .types import JobHelper, JobResultInfo, LPInstance
 
 
 def set_up_base_lp(
@@ -76,6 +77,8 @@ def set_up_base_lp(
         z_ikt=z_ikt,
         c_j=c_j,
         s_j=s_j,
+        instances=[JobHelper("0", None)]
+        + [JobHelper(str(idx + 1), job) for idx, job in enumerate(base_jobs)],
     )
 
 
@@ -288,7 +291,8 @@ def generate_extended_schedule(
                     + d_ijk[job][job_j][machine]
                     - 2
                 )
-    return _solve_lp(lp_instance)
+    _, jobs = _solve_lp(lp_instance)
+    return calculate_makespan(jobs, p_times, s_times), jobs
 
 
 def _solve_lp(lp_instance: LPInstance) -> tuple[float, list[JobResultInfo]]:
@@ -303,7 +307,12 @@ def _solve_lp(lp_instance: LPInstance) -> tuple[float, list[JobResultInfo]]:
 
 
 def _generate_results(lp_instance: LPInstance) -> tuple[float, list[JobResultInfo]]:
-    assigned_jobs = {job: JobResultInfo(name=job) for job in lp_instance.jobs}
+    assigned_jobs = {
+        job.name: JobResultInfo(name=job.name, capacity=job.instance.num_qubits)
+        if job.instance is not None
+        else JobResultInfo(name=job.name)
+        for job in lp_instance.instances
+    }
     for var in lp_instance.problem.variables():
         if var.name.startswith("x_") and var.varValue > 0.0:
             name = var.name.split("_")[2:]
@@ -329,18 +338,28 @@ def calculate_makespan(
         assigned_machines[job.machine].append(job)
     makespans = []
     for machine, assigned_jobs in assigned_machines.items():
+        assigned_jobs_copy = deepcopy(assigned_jobs)
         for job in sorted(assigned_jobs, key=lambda x: x.start_time):
             # Find the last predecessor that is completed before the job starts
             # this can technically change the correct predecessor to a wrong one
             # because completion times are updated in the loop
             # I'm not sure if copying before the loop corrects this
+
             last_completed = next(
                 iter(
                     sorted(
                         (
                             j
-                            for j in assigned_jobs
-                            if j.completion_time <= job.start_time
+                            for j in assigned_jobs_copy
+                            if j.completion_time
+                            <= next(
+                                (
+                                    i.start_time
+                                    for i in assigned_jobs_copy
+                                    if job.name == i.name
+                                ),
+                                0,
+                            )
                         ),
                         key=lambda x: x.completion_time,
                         reverse=True,
@@ -348,11 +367,21 @@ def calculate_makespan(
                 ),
                 JobResultInfo("0", machine, 0.0, 0.0),
             )
+            if job.start_time == 0.0:
+                last_completed = JobResultInfo("0", machine, 0.0, 0.0)
+            job.start_time = next(
+                (
+                    j.completion_time
+                    for j in assigned_jobs
+                    if last_completed.name == j.name
+                ),
+                0.0,
+            )
             # calculate p_j + s_ij
             completion_time = (  # check if this order is correct
                 job.start_time
                 + p_times[job.name][machine]
-                + s_times[job.name][last_completed.name][machine]
+                + s_times[last_completed.name][job.name][machine]
             )
             job.completion_time = completion_time
         makespans.append(max(job.completion_time for job in assigned_jobs))
