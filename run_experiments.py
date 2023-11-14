@@ -10,7 +10,7 @@ np.random.seed(42)
 
 # Define the maximum circuit size
 # MAX_SIZE = 25
-NUM_BATCHES = 10
+NUM_BATCHES = 1
 CIRCUITS_PER_BATCH = 5
 SETTINGS = [
     {"A": 5, "B": 5},
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     experiment_results = run_experiments(
         CIRCUITS_PER_BATCH, SETTINGS, T_MAX, NUM_BATCHES
     )
-    with open("benchmark_results.json", "w+", encoding="uft-8") as f:
+    with open("benchmark_results.json", "w+", encoding="utf-8") as f:
         json.dump(experiment_results, f)
 
     # TODO: Visualize results

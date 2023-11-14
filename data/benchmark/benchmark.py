@@ -1,4 +1,5 @@
 """Generates the benchmark data."""
+from copy import deepcopy
 from time import perf_counter
 from typing import Collection
 
@@ -55,7 +56,7 @@ def run_experiments(
             t_1 = perf_counter()
             result["baseline"] = Result(makespan, jobs, t_1 - t_0)
 
-            makespan, jobs = generate_simple_schedule(lp_instance, p_times, s_times)
+            makespan, jobs = generate_simple_schedule(deepcopy(lp_instance), p_times, s_times)
             t_2 = perf_counter()
             result["simple"] = Result(makespan, jobs, t_2 - t_1)
             makespan, jobs = generate_extended_schedule(lp_instance, p_times, s_times)
