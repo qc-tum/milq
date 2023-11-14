@@ -393,7 +393,13 @@ def _get_simple_setup_times(
     setup_times: list[list[list[float]]],
 ) -> list[list[float]]:
     new_times = [
-        list(np.max(times.transpose(), axis=1)) for times in np.array(setup_times)
+        list(
+            np.max(
+                times[[t not in [0, idx] for t, _ in enumerate(times)]].transpose(),
+                axis=1,
+            )
+        )
+        for idx, times in enumerate(np.array(setup_times))
     ]
     # remove job 0
     del new_times[0]
