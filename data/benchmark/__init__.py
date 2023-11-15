@@ -6,3 +6,4 @@ from .generate_milp_schedules import (
     set_up_base_lp,
 )
 from .benchmark import run_experiments
+from .visualization import visualize_benchmarks
