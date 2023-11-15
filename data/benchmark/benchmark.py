@@ -64,9 +64,11 @@ def run_experiments(
             makespan, jobs = generate_extended_schedule(lp_instance, p_times, s_times)
             t_3 = perf_counter()
             result["extended"] = Result(makespan, jobs, t_3 - t_2)
-            benchmark_results.append(result)
+            benchmark_results.append(
+                {"results": result, "s_times": s_times, "p_times": p_times}
+            )
 
-            results.append({"setting": setting, "benchmarks": benchmark_results, "s_times": s_times, "p_times": p_times})
+        results.append({"setting": setting, "benchmarks": benchmark_results})
     return results
 
 
@@ -87,9 +89,7 @@ def _get_setup_times(
     return [
         [
             [
-                default_value
-                if id_i in [id_j, 0]
-                else _calc_setup_times(job_i, job_j)
+                default_value if id_i in [id_j, 0] else _calc_setup_times(job_i, job_j)
                 for _ in accelerators
             ]
             for id_i, job_i in enumerate([None] + base_jobs)
