@@ -92,10 +92,6 @@ def _plot_benchmark_result(
     x_pos_1 = np.arange(len(data["baseline"]))
     x_pos_2 = [x + bar_width for x in x_pos_1]
     x_pos_3 = [x + bar_width for x in x_pos_2]
-    cmap = matplotlib.colormaps.get_cmap("tab10")
-    color_mapping = {
-        m: cmap(i / (len(data.columns) - 1)) for i, m in enumerate(data.columns)
-    }
     plt.subplot(*subplot)
 
     plt.bar(
@@ -104,7 +100,7 @@ def _plot_benchmark_result(
         width=bar_width,
         label="baseline",
         edgecolor="grey",
-        color=color_mapping["baseline"],
+        color="#A2AD00",
     )
     plt.bar(
         x_pos_2,
@@ -112,7 +108,7 @@ def _plot_benchmark_result(
         width=bar_width,
         label="simple",
         edgecolor="grey",
-        color=color_mapping["simple"],
+        color="#E37222",
     )
     plt.bar(
         x_pos_3,
@@ -120,7 +116,7 @@ def _plot_benchmark_result(
         width=bar_width,
         label="extended",
         edgecolor="grey",
-        color=color_mapping["extended"],
+        color="#0065BD",
     )
 
     plt.xlabel("Trial", fontweight="bold")
