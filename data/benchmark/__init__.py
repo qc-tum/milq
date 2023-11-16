@@ -1,3 +1,4 @@
+"""Benchmarking tools for the MILP model."""
 from .generate_baseline_schedules import generate_baseline_schedule
 from .generate_milp_schedules import (
     calculate_makespan,
@@ -6,4 +7,4 @@ from .generate_milp_schedules import (
     set_up_base_lp,
 )
 from .benchmark import run_experiments
-from .visualization import visualize_benchmarks
+from .processing import process_benchmarks
