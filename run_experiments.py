@@ -5,7 +5,7 @@ import json
 
 import numpy as np
 
-from data.benchmark import run_experiments
+from data.benchmark import run_experiments, process_benchmarks
 
 
 class DataclassJSONEncoder(json.JSONEncoder):
