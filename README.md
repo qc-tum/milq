@@ -1,7 +1,6 @@
 # MILQ
 
 Greedy circuit cutting and a minimal scheduler based on a Mixed Integer Linear Programming problem.
-A project implementing a minimal scheduler, which is aware of circuit cutting.
 
 ## Installation 
 
