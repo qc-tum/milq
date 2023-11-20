@@ -1,5 +1,6 @@
 # MILQ
 
+Greedy circuit cutting and a minimal scheduler based on a Mixed Integer Linear Programming problem.
 A project implementing a minimal scheduler, which is aware of circuit cutting.
 
 ## Installation 
@@ -17,4 +18,4 @@ The benchmark results can be reproduced with `python run_experiments.py`
 ## Integration
 
 **MILQ** is developed test driven, to see its functionality refer to the test directory.
-We use `pytets` as a testing environment.
+We use `pytest` as a testing environment.
