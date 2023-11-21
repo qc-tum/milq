@@ -40,32 +40,33 @@ machines = ["QUITO", "BELEM"]
 machine_capacities = {"QUITO": 5, "BELEM": 5}
 timesteps = list(range(TIMESTEPS + 1))  # Big enough to cover all possible timesteps
 
+processing_times = [
+    [
+        get_process_time(job_capacities[job], machine_capacities[machine])
+        for machine in machines
+    ]
+    for job in jobs
+]
+setup_times = [
+    [
+        [
+            50  # BIG!
+            if job_i in [job_j, "0"]
+            else get_setup_time(
+                job_capacities[job_i],
+                job_capacities[job_j],
+                machine_capacities[machine],
+            )
+            for machine in machines
+        ]
+        for job_i in jobs
+    ]
+    for job_j in jobs
+]
+
 
 def generate_lp() -> pulp.LpProblem:
     # params
-    processing_times = [
-        [
-            get_process_time(job_capacities[job], machine_capacities[machine])
-            for machine in machines
-        ]
-        for job in jobs
-    ]
-    setup_times = [
-        [
-            [
-                50  # BIG!
-                if job_i in [job_j, "0"]
-                else get_setup_time(
-                    job_capacities[job_i],
-                    job_capacities[job_j],
-                    machine_capacities[machine],
-                )
-                for machine in machines
-            ]
-            for job_i in jobs
-        ]
-        for job_j in jobs
-    ]
     p_times = pulp.makeDict([jobs, machines], processing_times, 0)
     s_times = pulp.makeDict([jobs, jobs, machines], setup_times, 0)
 
@@ -271,8 +272,8 @@ def solve_and_print_lp(filename: str, problem: pulp.LpProblem) -> None:
                     "job_capcities": job_capacities,
                     "machine_capacities": machine_capacities,
                     "timesteps": timesteps,
-                    # "processing_times": processing_times,
-                    # "setup_times": s_times,
+                    "processing_times": processing_times,
+                    "setup_times": setup_times,
                 },
                 "status": pulp.LpStatus[problem.status],
                 "objective": pulp.value(problem.objective),
