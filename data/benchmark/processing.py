@@ -1,8 +1,7 @@
-from collections import defaultdict
+"""Data processing for the benchmark results."""
 from dataclasses import dataclass, asdict
 
 import json
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -38,9 +37,9 @@ class ImprovementResult:
     def __repr__(self) -> str:
         return (
             f"Simple Makespan: {self.simple_makespan:.2f}%\n"
-            + f"Simple Time: {self.simple_time:.2f}\n"
+            + f"Simple Time: {self.simple_time}\n"
             + f"Extended Makespan: {self.extended_makespan:.2f}%\n"
-            + f"Extended Time: {self.extended_time:.2f}"
+            + f"Extended Time: {self.extended_time}"
         )
 
 
@@ -72,7 +71,7 @@ def process_benchmarks(in_file: str) -> dict[str, ImprovementResult]:
                 )
             )
 
-        _plot_benchmark_result(makespans, title, (1, len(data), idx + 1))
+        _plot_benchmark_result(makespans, title, (len(data), 1, idx + 1))
         numbers[title] = _caclulate_improvements(makespans, times)
         # Display the resulting plot
     plt.tight_layout()
@@ -138,11 +137,14 @@ def _caclulate_improvements(
         simple_makespans.append((baseline - makespan.simple) / baseline * 100)
         extended_makespans.append((baseline - makespan.extended) / baseline * 100)
 
+        # TODO still not sure what the best metric for this is
         simple_times.append(
-            (baseline - makespan.simple) / (time.simple - baseline_time)
+            simple_makespans[-1]
+            / (abs(baseline_time - time.simple) / baseline_time * 100)
         )
         extended_times.append(
-            (baseline - makespan.extended) / (time.extended - baseline_time)
+            extended_makespans[-1]
+            / (abs(baseline_time - time.extended) / baseline_time * 100)
         )
 
     return ImprovementResult(
