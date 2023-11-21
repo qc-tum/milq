@@ -3,7 +3,7 @@ from dataclasses import is_dataclass, asdict
 from typing import Any
 import json
 
-import numpy as np
+# import numpy as np
 
 from data.benchmark import run_experiments, process_benchmarks
 
@@ -17,7 +17,7 @@ class DataclassJSONEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-np.random.seed(42)
+# np.random.seed(42)
 
 # Define the maximum circuit size
 # MAX_SIZE = 25
@@ -32,7 +32,21 @@ if __name__ == "__main__":
     experiment_results = run_experiments(
         CIRCUITS_PER_BATCH, SETTINGS, T_MAX, NUM_BATCHES
     )
-    with open("benchmark_results.json", "w+", encoding="utf-8") as f:
+    with open("benchmark_results_default.json", "w+", encoding="utf-8") as f:
         json.dump(experiment_results, f, cls=DataclassJSONEncoder)
 
-    # TODO: Visualize results
+    experiment_results = run_experiments(
+        CIRCUITS_PER_BATCH, SETTINGS, T_MAX, NUM_BATCHES, get_integers=True
+    )
+    with open("benchmark_results_integer.json", "w+", encoding="utf-8") as f:
+        json.dump(experiment_results, f, cls=DataclassJSONEncoder)
+
+    numbers = process_benchmarks("./benchmark_results_default.json")
+    for setting, result in numbers.items():
+        print(f"Setting: {setting}")
+        print(result)
+
+    numbers = process_benchmarks("./benchmark_results_integer.json")
+    for setting, result in numbers.items():
+        print(f"Setting: {setting}")
+        print(result)
