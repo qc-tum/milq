@@ -37,9 +37,9 @@ class ImprovementResult:
     def __repr__(self) -> str:
         return (
             f"Simple Makespan: {self.simple_makespan:.2f}%\n"
-            + f"Simple Time: {self.simple_time}\n"
+            + f"Simple Time: {self.simple_time:.2e}\n"
             + f"Extended Makespan: {self.extended_makespan:.2f}%\n"
-            + f"Extended Time: {self.extended_time}"
+            + f"Extended Time: {self.extended_time:.2e}"
         )
 
 
@@ -138,14 +138,8 @@ def _caclulate_improvements(
         extended_makespans.append((baseline - makespan.extended) / baseline * 100)
 
         # TODO still not sure what the best metric for this is
-        simple_times.append(
-            simple_makespans[-1]
-            / (abs(baseline_time - time.simple) / baseline_time * 100)
-        )
-        extended_times.append(
-            extended_makespans[-1]
-            / (abs(baseline_time - time.extended) / baseline_time * 100)
-        )
+        simple_times.append(time.simple / baseline_time)
+        extended_times.append(time.extended / baseline_time)
 
     return ImprovementResult(
         float(np.average(simple_makespans)),
