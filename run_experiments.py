@@ -32,21 +32,25 @@ if __name__ == "__main__":
     experiment_results = run_experiments(
         CIRCUITS_PER_BATCH, SETTINGS, T_MAX, NUM_BATCHES
     )
-    with open("benchmark_results_default.json", "w+", encoding="utf-8") as f:
+    with open(
+        "./data/results/benchmark_results_default.json", "w+", encoding="utf-8"
+    ) as f:
         json.dump(experiment_results, f, cls=DataclassJSONEncoder)
 
     experiment_results = run_experiments(
         CIRCUITS_PER_BATCH, SETTINGS, T_MAX, NUM_BATCHES, get_integers=True
     )
-    with open("benchmark_results_integer.json", "w+", encoding="utf-8") as f:
+    with open(
+        "./data/results/benchmark_results_integer.json", "w+", encoding="utf-8"
+    ) as f:
         json.dump(experiment_results, f, cls=DataclassJSONEncoder)
 
-    numbers = process_benchmarks("./benchmark_results_default.json")
+    numbers = process_benchmarks("./data/results/benchmark_results_default.json")
     for setting, result in numbers.items():
         print(f"Setting: {setting}")
         print(result)
 
-    numbers = process_benchmarks("./benchmark_results_integer.json")
+    numbers = process_benchmarks("./data/results/benchmark_results_integer.json")
     for setting, result in numbers.items():
         print(f"Setting: {setting}")
         print(result)
