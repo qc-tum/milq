@@ -33,6 +33,7 @@ def run_experiments(
     settings: list[dict[str, int]],
     t_max: int,
     num_batches: int,
+    get_integers: bool = False,
 ) -> list[dict[str, Collection[Collection[str]]]]:
     """Runs the benchmakr experiments."""
     results = []
@@ -46,8 +47,10 @@ def run_experiments(
             lp_instance = set_up_base_lp(
                 benchmark, setting, big_m=1000, timesteps=list(range(t_max))
             )
-            p_times = _get_processing_times(benchmark, setting)
-            s_times = _get_setup_times(benchmark, setting, default_value=2**5)
+            p_times = _get_processing_times(benchmark, setting, get_integers)
+            s_times = _get_setup_times(
+                benchmark, setting, default_value=2**5, get_integers=get_integers
+            )
             result = {}
             t_0 = perf_counter()
             makespan, jobs = generate_baseline_schedule(
@@ -75,21 +78,28 @@ def run_experiments(
 def _get_processing_times(
     base_jobs: list[QuantumCircuit],
     accelerators: dict[str, int],
+    get_integers: bool = False,
 ) -> list[list[float]]:
     return [
-        [np.random.random() * 10 + job.num_qubits / 5 for _ in accelerators]
-        #[np.random.randint(0,3) + job.num_qubits //2 for _ in accelerators]
+        [np.random.randint(0, 3) + job.num_qubits // 2 for _ in accelerators]
+        if get_integers
+        else [np.random.random() * 10 + job.num_qubits / 5 for _ in accelerators]
         for job in base_jobs
     ]
 
 
 def _get_setup_times(
-    base_jobs: list[QuantumCircuit], accelerators: dict[str, int], default_value: float
+    base_jobs: list[QuantumCircuit],
+    accelerators: dict[str, int],
+    default_value: float,
+    get_integers: bool = False,
 ) -> list[list[list[float]]]:
     return [
         [
             [
-                default_value if id_i in [id_j, 0] else _calc_setup_times(job_i, job_j)
+                default_value
+                if id_i in [id_j, 0]
+                else _calc_setup_times(job_i, job_j, get_integers)
                 for _ in accelerators
             ]
             for id_i, job_i in enumerate([None] + base_jobs)
@@ -99,9 +109,12 @@ def _get_setup_times(
 
 
 def _calc_setup_times(
-    job_i: QuantumCircuit, job_j: QuantumCircuit | None = None
+    job_i: QuantumCircuit,
+    job_j: QuantumCircuit | None = None,
+    get_integers: bool = False,
 ) -> float:
     if job_j is None:
         return 0.0
+    if get_integers:
+        return np.random.randint(0, 2) + (job_i.num_qubits + job_j.num_qubits) // 8
     return np.random.random() * 10 + (job_i.num_qubits + job_j.num_qubits) / 10
-    #  return np.random.randint(0,2) + (job_i.num_qubits + job_j.num_qubits) // 8
