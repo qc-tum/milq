@@ -150,21 +150,8 @@ def generate_simple_schedule(
         _get_simple_setup_times(jobs, accelerators),
         0,
     )
-    y_ijk = pulp.LpVariable.dicts(
-        "y_ijk",
-        (lp_instance.jobs, lp_instance.jobs, lp_instance.machines),
-        cat="Binary",
-    )
 
     for job in lp_instance.jobs[1:]:
-        lp_instance.problem += (  # (4)
-            pulp.lpSum(
-                y_ijk[job_j][job][machine]
-                for machine in lp_instance.machines
-                for job_j in lp_instance.jobs
-            )
-            >= 1  # each job has a predecessor
-        )
         lp_instance.problem += lp_instance.c_j[job] >= lp_instance.s_j[  # (7)
             job
         ] + pulp.lpSum(
@@ -172,32 +159,6 @@ def generate_simple_schedule(
             * (p_times[job][machine] + s_times[job][machine])
             for machine in lp_instance.machines
         )
-        for machine in lp_instance.machines:
-            lp_instance.problem += (  # predecessor (6)
-                lp_instance.x_ik[job][machine]
-                >= pulp.lpSum(y_ijk[job_j][job][machine] for job_j in lp_instance.jobs)
-                / big_m
-            )
-            lp_instance.problem += (  # successor
-                lp_instance.x_ik[job][machine]
-                >= pulp.lpSum(y_ijk[job][job_j][machine] for job_j in lp_instance.jobs)
-                / big_m
-            )
-            lp_instance.problem += (  # (5)
-                lp_instance.z_ikt[job][machine][0] == y_ijk["0"][job][machine]
-            )
-        for job_j in lp_instance.jobs:
-            lp_instance.problem += (
-                lp_instance.c_j[job_j]
-                + (
-                    pulp.lpSum(
-                        y_ijk[job_j][job][machine] for machine in lp_instance.machines
-                    )
-                    - 1
-                )
-                * big_m
-                <= lp_instance.s_j[job]
-            )
 
     return _solve_lp(lp_instance, jobs, accelerators)
 
