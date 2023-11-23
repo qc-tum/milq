@@ -469,14 +469,13 @@ def _generate_schedule_from_lp(
             machine_assignments[job.machine].append(job)
 
     closed_bins = []
+    accelerator_uuids = [str(qpu.uuid) for qpu in accelerators]
     for machine, machine_jobs in machine_assignments.items():
-        machine_id = next(
-            (idx for idx, qpu in enumerate(accelerators) if str(qpu.uuid) == machine),
-            None,
-        )
-        if machine_id is None:
+        try:
+            machine_idx = accelerator_uuids.index(machine)
+        except ValueError:
             continue
-        closed_bins += _form_bins(machine_id, machine_jobs, jobs)
+        closed_bins += _form_bins(machine_idx, machine_jobs, jobs)
     combined_jobs = []
 
     for _bin in sorted(closed_bins, key=lambda x: x.index):
