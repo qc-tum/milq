@@ -7,6 +7,8 @@ from mqt.bench import get_benchmark
 from qiskit import QuantumCircuit
 import numpy as np
 
+from utils.helpers import Timer
+
 from .generate_baseline_schedules import generate_baseline_schedule
 
 from .generate_milp_schedules import (
@@ -52,21 +54,30 @@ def run_experiments(
                 benchmark, setting, default_value=2**5, get_integers=get_integers
             )
             result = {}
-            t_0 = perf_counter()
-            makespan, jobs = generate_baseline_schedule(
-                benchmark, setting, p_times, s_times
-            )
-            t_1 = perf_counter()
-            result["baseline"] = Result(makespan, jobs, t_1 - t_0)
 
-            makespan, jobs = generate_simple_schedule(
-                deepcopy(lp_instance), p_times, s_times
-            )
-            t_2 = perf_counter()
-            result["simple"] = Result(makespan, jobs, t_2 - t_1)
-            makespan, jobs = generate_extended_schedule(lp_instance, p_times, s_times)
-            t_3 = perf_counter()
-            result["extended"] = Result(makespan, jobs, t_3 - t_2)
+            # Run the baseline model
+            with Timer() as t0:
+                makespan, jobs = generate_baseline_schedule(
+                    benchmark, setting, p_times, s_times
+                )
+            result["baseline"] = Result(makespan, jobs, t0.elapsed)
+
+            # Run the simple model
+            lp_instance_copy = deepcopy(lp_instance)
+            with Timer() as t1:
+                makespan, jobs = generate_simple_schedule(
+                    lp_instance_copy, p_times, s_times
+                )
+            result["simple"] = Result(makespan, jobs, t1.elapsed)
+
+            # Run the extended model
+            with Timer() as t2:
+                makespan, jobs = generate_extended_schedule(
+                    lp_instance, p_times, s_times
+                )
+            result["extended"] = Result(makespan, jobs, t2.elapsed)
+
+            # Store results
             benchmark_results.append(
                 {"results": result, "s_times": s_times, "p_times": p_times}
             )
