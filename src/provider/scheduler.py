@@ -90,8 +90,10 @@ class Scheduler:
                 schedule_function = generate_simple_schedule
             case SchedulerType.EXTENDED:
                 schedule_function = generate_extended_schedule
-            case _:
+            case SchedulerType.BASELINE:
                 schedule_function = generate_baseline_schedule
+            case _:
+                raise ValueError("Unknown scheduler type")
         return schedule_function(accelerators=self.accelerator.accelerators, jobs=jobs)
 
     def _convert_to_jobs(self, circuits: list[QuantumCircuit]) -> list[CircuitJob]:
