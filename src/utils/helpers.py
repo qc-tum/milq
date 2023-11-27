@@ -1,4 +1,6 @@
+"""Helper functions and classes."""
 from time import perf_counter
+
 
 class Timer:
     """A performance timer that can be used as a context manager."""
