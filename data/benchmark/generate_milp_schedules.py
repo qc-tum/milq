@@ -357,29 +357,8 @@ def calculate_makespan(
             # this can technically change the correct predecessor to a wrong one
             # because completion times are updated in the loop
             # I'm not sure if copying before the loop corrects this
+            last_completed = _find_last_completed(job.name, assigned_jobs_copy, machine)
 
-            last_completed = next(
-                iter(
-                    sorted(
-                        (
-                            j
-                            for j in assigned_jobs_copy
-                            if j.completion_time
-                            <= next(
-                                (
-                                    i.start_time
-                                    for i in assigned_jobs_copy
-                                    if job.name == i.name
-                                ),
-                                0,
-                            )
-                        ),
-                        key=lambda x: x.completion_time,
-                        reverse=True,
-                    )
-                ),
-                JobResultInfo("0", machine, 0.0, 0.0),
-            )
             if job.start_time == 0.0:
                 last_completed = JobResultInfo("0", machine, 0.0, 0.0)
             job.start_time = next(
@@ -420,3 +399,23 @@ def _get_simple_setup_times(
     for times in new_times:
         del times[0]
     return new_times
+
+
+def _find_last_completed(
+    job_name: str, jobs: list[JobResultInfo], machine: str
+) -> JobResultInfo:
+    """Finds the last completed job before the given job from the original schedule."""
+    original_starttime = next(
+        (j.start_time for j in jobs if job_name == j.name),
+        0,
+    )
+    completed_before = [j for j in jobs if j.completion_time <= original_starttime]
+    if len(completed_before) == 0:
+        return JobResultInfo("0", machine, 0.0, 0.0)
+
+    completed_before = sorted(
+        completed_before,
+        key=lambda x: x.completion_time,
+        reverse=True,
+    )
+    return completed_before[0]
