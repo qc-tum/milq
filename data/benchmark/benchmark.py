@@ -139,11 +139,9 @@ def _get_setup_times(
 
 def _calc_setup_times(
     job_i: QuantumCircuit,
-    job_j: QuantumCircuit | None = None,
+    job_j: QuantumCircuit,
     get_integers: bool = False,
 ) -> float:
-    if job_j is None:
-        return 0.0
     if get_integers:
         return np.random.randint(0, 2) + (job_i.num_qubits + job_j.num_qubits) // 8
     return np.random.random() * 10 + (job_i.num_qubits + job_j.num_qubits) / 10
