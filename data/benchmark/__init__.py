@@ -7,4 +7,4 @@ from .generate_milp_schedules import (
     set_up_base_lp,
 )
 from .benchmark import run_experiments
-from .processing import process_benchmarks
+from .processing import analyze_benchmarks

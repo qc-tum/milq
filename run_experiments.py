@@ -5,7 +5,7 @@ import json
 
 # import numpy as np
 
-from data.benchmark import run_experiments, process_benchmarks
+from data.benchmark import run_experiments, analyze_benchmarks
 
 
 class DataclassJSONEncoder(json.JSONEncoder):
@@ -45,12 +45,12 @@ if __name__ == "__main__":
     ) as f:
         json.dump(experiment_results, f, cls=DataclassJSONEncoder)
 
-    numbers = process_benchmarks("./data/results/benchmark_results_default.json")
+    numbers = analyze_benchmarks("./data/results/benchmark_results_default.json")
     for setting, result in numbers.items():
         print(f"Setting: {setting}")
         print(result)
 
-    numbers = process_benchmarks("./data/results/benchmark_results_integer.json")
+    numbers = analyze_benchmarks("./data/results/benchmark_results_integer.json")
     for setting, result in numbers.items():
         print(f"Setting: {setting}")
         print(result)

@@ -36,16 +36,26 @@ class ImprovementResult:
 
     def __repr__(self) -> str:
         return (
-            f"Simple Makespan: {self.simple_makespan:.2f}%\n"
+            f"Simple Makespan: {self.simple_makespan:.2%}\n"
             + f"Simple Time: {self.simple_time:.2e}\n"
-            + f"Extended Makespan: {self.extended_makespan:.2f}%\n"
+            + f"Extended Makespan: {self.extended_makespan:.2%}\n"
             + f"Extended Time: {self.extended_time:.2e}"
         )
 
 
-def process_benchmarks(in_file: str) -> dict[str, ImprovementResult]:
-    # Load the JSON file
-    """Visualizes the benchmark results and calculates the average improvement"""
+def analyze_benchmarks(in_file: str) -> dict[str, ImprovementResult]:
+    """Visualizes the benchmark results and calculates the average improvements.
+
+    Calculates Makespan and Timing improvements for the simple and extended algorithms.
+    Makespan improvements are calculated as (baseline - algorithm) / baseline * 100
+    Timing improvements are calculated as (algorithm / baseline)
+
+    Args:
+        in_file (str): The file containing the benchmark results.
+
+    Returns:
+        dict[str, ImprovementResult]: The calculated improvements for each setting.
+    """
     with open(in_file, "r", encoding="utf-8") as f:
         data: list[dict] = json.load(f)
     numbers = {}
