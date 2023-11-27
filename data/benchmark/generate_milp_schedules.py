@@ -91,7 +91,7 @@ def set_up_base_lp(
         z_ikt=z_ikt,
         c_j=c_j,
         s_j=s_j,
-        instances=[JobHelper("0", None)]
+        named_circuits=[JobHelper("0", None)]
         + [JobHelper(str(idx + 1), job) for idx, job in enumerate(base_jobs)],
     )
 
@@ -310,10 +310,10 @@ def _solve_lp(lp_instance: LPInstance) -> tuple[float, list[JobResultInfo]]:
 
 def _generate_results(lp_instance: LPInstance) -> tuple[float, list[JobResultInfo]]:
     assigned_jobs = {
-        job.name: JobResultInfo(name=job.name, capacity=job.instance.num_qubits)
-        if job.instance is not None
+        job.name: JobResultInfo(name=job.name, capacity=job.circuit.num_qubits)
+        if job.circuit is not None
         else JobResultInfo(name=job.name)
-        for job in lp_instance.instances
+        for job in lp_instance.named_circuits
     }
     for var in lp_instance.problem.variables():
         if var.name.startswith("x_") and var.varValue > 0.0:

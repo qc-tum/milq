@@ -30,10 +30,10 @@ def generate_baseline_schedule(
     """
 
     def find_fitting_bin(job: JobHelper, bins: list[Bin]) -> int | None:
-        if job.instance is None:
+        if job.circuit is None:
             return None
         for idx, b in enumerate(bins):
-            if b.capacity >= job.instance.num_qubits:
+            if b.capacity >= job.circuit.num_qubits:
                 return idx
         return None
 
@@ -45,7 +45,7 @@ def generate_baseline_schedule(
     closed_bins = []
     index = 1
     for job in new_jobs:
-        if job is None or job.instance is None:
+        if job is None or job.circuit is None:
             continue
         # Find the index of a fitting bin
         bin_idx = find_fitting_bin(job, open_bins)
@@ -67,7 +67,7 @@ def generate_baseline_schedule(
         # Add job to selected bin
         selected_bin = open_bins[bin_idx]
         selected_bin.jobs.append(job)
-        selected_bin.capacity -= job.instance.num_qubits
+        selected_bin.capacity -= job.circuit.num_qubits
 
         # Close bin if full
         if selected_bin.capacity == 0:
@@ -85,7 +85,7 @@ def generate_baseline_schedule(
     for _bin in sorted(closed_bins, key=lambda x: x.index):
         # combined_jobs.append(ScheduledJob(job=assemble_job(_bin.jobs), qpu=_bin.qpu))
         for job in _bin.jobs:
-            if job is None or job.instance is None:
+            if job is None or job.circuit is None:
                 continue
             combined_jobs.append(
                 JobResultInfo(
@@ -93,7 +93,7 @@ def generate_baseline_schedule(
                     machine=list(accelerators.keys())[_bin.qpu],
                     start_time=_bin.index,
                     completion_time=-1.0,
-                    capacity=job.instance.num_qubits,
+                    capacity=job.circuit.num_qubits,
                 )
             )
 

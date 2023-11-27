@@ -11,6 +11,7 @@ Benchmark = list[
     dict[str, dict[str, int] | list[dict[str, PTimes | STimes | dict[str, Result]]]]
 ]
 
+
 @dataclass
 class Bin:
     """Helper to keep track of binning problem."""
@@ -27,7 +28,7 @@ class JobHelper:
     """Helper to keep track of job names."""
 
     name: str
-    instance: QuantumCircuit | None
+    circuit: QuantumCircuit | None
 
 
 @dataclass
@@ -41,7 +42,7 @@ class LPInstance:
     z_ikt: dict[str, dict[str, dict[int, pulp.LpVariable]]]
     c_j: dict[str, pulp.LpVariable]
     s_j: dict[str, pulp.LpVariable]
-    instances: list[JobHelper]
+    named_circuits: list[JobHelper]
 
 
 @dataclass
