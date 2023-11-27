@@ -6,7 +6,7 @@ import numpy as np
 import pulp
 from qiskit import QuantumCircuit
 
-from .types import JobHelper, JobResultInfo, LPInstance
+from .types import JobHelper, JobResultInfo, LPInstance, PTimes, STimes
 
 
 def set_up_base_lp(
@@ -15,7 +15,21 @@ def set_up_base_lp(
     big_m: int,
     timesteps: list[int],
 ) -> LPInstance:
-    """Sets up the common LP problem."""
+    """Sets up the base LP instance.
+
+    Generates a base LP instance with the given jobs and accelerators.
+    It contains all the default constraints and variables.
+    Does not contain the constraints regarding the successor relationship.
+
+    Args:
+        base_jobs (list[QuantumCircuit]): The list of quantum cirucits (jobs).
+        accelerators (dict[str, int]): The list of available accelerators (machines).
+        big_m (int): Metavariable for the LP.
+        timesteps (list[int]): Meta variable for the LP, big enough to cover largest makespan.
+
+    Returns:
+        LPInstance: The LP instance object.
+    """
     # Set up input params
     jobs = ["0"] + [str(idx + 1) for idx, _ in enumerate(base_jobs)]
     job_capacities = {str(idx + 1): job.num_qubits for idx, job in enumerate(base_jobs)}
@@ -84,10 +98,24 @@ def set_up_base_lp(
 
 def generate_simple_schedule(
     lp_instance: LPInstance,
-    process_times: list[list[float]],
-    setup_times: list[list[list[float]]],
+    process_times: PTimes,
+    setup_times: STimes,
 ) -> tuple[float, list[JobResultInfo]]:
-    """Generates the simple schedule."""
+    """Generates a simple schedule for the given jobs and accelerators using a simple MILP.
+
+    First generates the schedule using MILP  and then calculates the makespan
+    by executing the schedule with the correct p_ij and s_ij values.
+    The MILP uses setup times depending on the maximum over all possible values.
+
+    Args:
+        lp_instance (LPInstance): The base LP instance.
+        process_times (PTimes): The process times for each job on each machine.
+        setup_times (STimes): The setup times for each job on each machine.
+
+    Returns:
+        tuple[float, list[JobResultInfo]]: List of jobs with their assigned machine and
+            start and completion times.
+    """
     p_times = pulp.makeDict(
         [lp_instance.jobs[1:], lp_instance.machines],
         process_times,
@@ -118,11 +146,25 @@ def generate_simple_schedule(
 
 def generate_extended_schedule(
     lp_instance: LPInstance,
-    process_times: list[list[float]],
-    setup_times: list[list[list[float]]],
+    process_times: PTimes,
+    setup_times: STimes,
     big_m: int = 1000,
 ) -> tuple[float, list[JobResultInfo]]:
-    """Generates the extended schedule."""
+    """Generates the extended schedule for the given jobs and accelerators using a complex MILP.
+
+    First generates the schedule using MILP  and then calculates the makespan
+    by executing the schedule with the correct p_ij and s_ij values.
+
+    Args:
+        lp_instance (LPInstance): The base LP instance.
+        process_times (PTimes): The process times for each job on each machine.
+        setup_times (STimes): The setup times for each job on each machine.
+        big_m (int, optional): Metavariable for the LP. Defaults to 1000.
+
+    Returns:
+        tuple[float, list[JobResultInfo]]: List of jobs with their assigned machine and
+            start and completion times.
+    """
     p_times = pulp.makeDict(
         [lp_instance.jobs[1:], lp_instance.machines],
         process_times,
@@ -255,6 +297,7 @@ def generate_extended_schedule(
 
 
 def _solve_lp(lp_instance: LPInstance) -> tuple[float, list[JobResultInfo]]:
+    """Solves a LP using gurobi and generates the results."""
     solver_list = pulp.listSolvers(onlyAvailable=True)
     gurobi = "GUROBI_CMD"
     if gurobi in solver_list:
@@ -291,7 +334,18 @@ def calculate_makespan(
     p_times: defaultdict[str, defaultdict[str, float]],
     s_times: defaultdict[str, defaultdict[str, defaultdict[str, float]]],
 ) -> float:
-    """Calculates the actual makespan from the list of jobs."""
+    """Calculates the actual makespan from the list of results.
+
+    Executes the schedule with the corret p_ij and s_ij values.
+
+    Args:
+        jobs (list[JobResultInfo]): The list of job results.
+        p_times (defaultdict[str, defaultdict[str, float]]): The correct  p_ij.
+        s_times (defaultdict[str, defaultdict[str, defaultdict[str, float]]]): The correct s_ij.
+
+    Returns:
+        float: The makespan of the schedule.
+    """
     assigned_machines: defaultdict[str, list[JobResultInfo]] = defaultdict(list)
     for job in jobs:
         assigned_machines[job.machine].append(job)
@@ -349,8 +403,9 @@ def calculate_makespan(
 
 
 def _get_simple_setup_times(
-    setup_times: list[list[list[float]]],
+    setup_times: STimes,
 ) -> list[list[float]]:
+    """Overestimates the actual setup times for the simple LP."""
     new_times = [
         list(
             np.max(
