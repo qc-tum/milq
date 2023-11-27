@@ -1,7 +1,5 @@
 """Generates the benchmark data."""
 from copy import deepcopy
-from time import perf_counter
-from typing import Collection
 
 from mqt.bench import get_benchmark
 from qiskit import QuantumCircuit
@@ -10,20 +8,19 @@ import numpy as np
 from utils.helpers import Timer
 
 from .generate_baseline_schedules import generate_baseline_schedule
-
 from .generate_milp_schedules import (
     generate_extended_schedule,
     generate_simple_schedule,
     set_up_base_lp,
 )
-from .types import Result
+from .types import Benchmark, PTimes, Result, STimes
 
 
-def _generate_batch(max_size: int, circuits_per_batch: int) -> list[QuantumCircuit]:
+def _generate_batch(max_qubits: int, circuits_per_batch: int) -> list[QuantumCircuit]:
     # Generate a random circuit
     batch = []
     for _ in range(circuits_per_batch):
-        size = np.random.randint(2, max_size + 1)
+        size = np.random.randint(2, max_qubits + 1)
         circuit = get_benchmark(benchmark_name="random", level=0, circuit_size=size)
         batch.append(circuit)
 
@@ -36,15 +33,36 @@ def run_experiments(
     t_max: int,
     num_batches: int,
     get_integers: bool = False,
-) -> list[dict[str, Collection[Collection[str]]]]:
-    """Runs the benchmakr experiments."""
-    results = []
+) -> Benchmark:
+    """Generates the benchmarks and executes scheduling.
+
+    A setting represents a set of machines with their respective capacities
+    e.g. {"BELEM": 5, "QUITO": 5}.
+    Generates a total of num_batches * circuits_per_batch circuits for each setting.
+    The maximum circuit size is determined by the maximum capacity in the setting.
+    In each setting the three algorithms 'simple', 'extended', and 'baseline' are executed.
+    The results for timings and makespan  are stored in a list of dictionaries.
+
+
+    Args:
+        circuits_per_batch (int): The number of circuits per batch.
+        settings (list[dict[str, int]]): The list of settings to run.
+        t_max (int): Metaparameter for timesteps.
+        num_batches (int): The number of batches to generate.
+        get_integers (bool, optional): Switch to use integer inputs. Defaults to False.
+
+    Returns:
+        list[dict[str, dict[str, int] | list[dict[str, list[list[float]] |
+            list[list[list[float]]] | dict[str, Result]]]]]
+            The results of the experiments.
+    """
+    results: Benchmark = []
     for setting in settings:
         max_size = max(setting.values())
         benchmarks = [
             _generate_batch(max_size, circuits_per_batch) for _ in range(num_batches)
         ]
-        benchmark_results = []
+        benchmark_results: list[dict[str, PTimes | STimes | dict[str, Result]]] = []
         for benchmark in benchmarks:
             lp_instance = set_up_base_lp(
                 benchmark, setting, big_m=1000, timesteps=list(range(t_max))
@@ -53,7 +71,7 @@ def run_experiments(
             s_times = _get_setup_times(
                 benchmark, setting, default_value=2**5, get_integers=get_integers
             )
-            result = {}
+            result: dict[str, Result] = {}
 
             # Run the baseline model
             with Timer() as t0:
@@ -90,7 +108,7 @@ def _get_processing_times(
     base_jobs: list[QuantumCircuit],
     accelerators: dict[str, int],
     get_integers: bool = False,
-) -> list[list[float]]:
+) -> PTimes:
     return [
         [np.random.randint(0, 3) + job.num_qubits // 2 for _ in accelerators]
         if get_integers
@@ -104,7 +122,7 @@ def _get_setup_times(
     accelerators: dict[str, int],
     default_value: float,
     get_integers: bool = False,
-) -> list[list[list[float]]]:
+) -> STimes:
     return [
         [
             [
