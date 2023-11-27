@@ -4,18 +4,34 @@ from collections import defaultdict
 import pulp
 from qiskit import QuantumCircuit
 
-from .types import Bin, JobHelper, JobResultInfo
+from .types import Bin, JobHelper, JobResultInfo, PTimes, STimes
 
 
 def generate_baseline_schedule(
     jobs: list[QuantumCircuit],
     accelerators: dict[str, int],
-    process_times: list[list[float]],
-    setup_times: list[list[list[float]]],
+    process_times: PTimes,
+    setup_times: STimes,
 ) -> tuple[float, list[JobResultInfo]]:
-    """Generate baseline schedule."""
+    """Generates a baseline schedule for the given jobs and accelerators using binpacking.
+
+    First generates the schedule using binpacking and then calculates the makespan
+    by executing the schedule with the correct p_ij and s_ij values.
+
+    Args:
+        jobs (list[QuantumCircuit]): The list of circuits (jobs) to schedule.
+        accelerators (dict[str, int]): The list of accelerators to schedule on (bins).
+        process_times (PTimes): The process times for each job on each machine.
+        setup_times (STimes): The setup times for each job on each machine.
+
+    Returns:
+        tuple[float, list[JobResultInfo]]: List of jobs with their assigned machine and
+            start and completion times.
+    """
 
     def find_fitting_bin(job: JobHelper, bins: list[Bin]) -> int | None:
+        if job.instance is None:
+            return None
         for idx, b in enumerate(bins):
             if b.capacity >= job.instance.num_qubits:
                 return idx
@@ -88,11 +104,14 @@ def generate_baseline_schedule(
 
 def _calculate_result_from_baseline(
     jobs: list[JobResultInfo],
-    process_times: list[list[float]],
-    setup_times: list[list[list[float]]],
+    process_times: PTimes,
+    setup_times: STimes,
     base_jobs: list[QuantumCircuit],
     accelerators: dict[str, int],
 ) -> tuple[float, list[JobResultInfo]]:
+    """Converst the setup and process times to a format that can be used by the
+    _calculate_makespan function.
+    """
     lp_jobs = ["0"] + [str(idx + 1) for idx, _ in enumerate(base_jobs)]
     machines = list(accelerators.keys())
     p_times = pulp.makeDict(
@@ -114,7 +133,9 @@ def _calculate_makespan(
     p_times: defaultdict[str, defaultdict[str, float]],
     s_times: defaultdict[str, defaultdict[str, defaultdict[str, float]]],
 ) -> float:
-    """Calculates the actual makespan from the list of jobs."""
+    """Calculates the actual makespan from the list of jobs.
+    By executing the schedule with the corret p_ij and s_ij values.
+    """
     assigned_machines: defaultdict[str, list[JobResultInfo]] = defaultdict(list)
     for job in jobs:
         assigned_machines[job.machine].append(job)
