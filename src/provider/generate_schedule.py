@@ -411,9 +411,7 @@ def _get_setup_times(
     return [
         [
             [
-                default_value  # BIG!
-                if job_i == job_j
-                else qpu.compute_setup_time(job_i.instance, job_j.instance)
+                qpu.compute_setup_time(job_i.instance, job_j.instance)
                 for qpu in accelerators
             ]
             for job_i in base_jobs
@@ -502,9 +500,7 @@ def _form_bins(
     counter = -1
     current_bin = Bin(capacity=machine_capacity, index=counter, qpu=machine_id)
 
-    for job in sorted(
-        assigned_jobs, key=lambda x: x.start_time if x.start_time is not None else 0
-    ):
+    for job in sorted(assigned_jobs, key=lambda x: x.start_time):
         if job.start_time == current_time:
             # s_i = s_j -> add to same bin
             _append_if_exists(job, current_bin, jobs, open_jobs=open_jobs)
