@@ -2,7 +2,8 @@
 
 from src.circuits import create_ghz
 from src.common import IBMQBackend, job_from_circuit
-from src.provider import Accelerator, generate_simple_schedule
+from src.provider import Accelerator
+from src.provider.generate_schedule import generate_simple_schedule
 
 
 def test_generate_simple_schedule() -> None:
