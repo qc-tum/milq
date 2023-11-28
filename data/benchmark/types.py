@@ -4,14 +4,6 @@ from qiskit import QuantumCircuit
 import pulp
 
 
-# Typedef
-PTimes = list[list[float]]
-STimes = list[list[list[float]]]
-Benchmark = list[
-    dict[str, dict[str, int] | list[dict[str, PTimes | STimes | dict[str, Result]]]]
-]
-
-
 @dataclass
 class Bin:
     """Helper to keep track of binning problem."""
@@ -63,3 +55,11 @@ class Result:
     makespan: float
     jobs: list[JobResultInfo]
     time: float
+
+
+# Typedef
+PTimes = list[list[float]]
+STimes = list[list[list[float]]]
+Benchmark = list[
+    dict[str, dict[str, int] | list[dict[str, PTimes | STimes | dict[str, Result]]]]
+]
