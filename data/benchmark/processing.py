@@ -81,7 +81,10 @@ def analyze_benchmarks(in_file: str) -> dict[str, ImprovementResult]:
                 )
             )
 
-        _plot_benchmark_result(makespans, title, (len(data), 1, idx + 1))
+        hide_x_axis = idx < len(data) - 1
+        _plot_benchmark_result(
+            makespans, title, (len(data), 1, idx + 1), hide_x_axis=hide_x_axis
+        )
         numbers[title] = _caclulate_improvements(makespans, times)
         # Display the resulting plot
     plt.tight_layout()
@@ -94,6 +97,7 @@ def _plot_benchmark_result(
     title: str,
     subplot: tuple[int, int, int],
     bar_width=0.25,
+    hide_x_axis: bool = False,
 ) -> None:
     """Plot the makespan values for the baseline, simple, and extended algorithms."""
 
@@ -128,9 +132,10 @@ def _plot_benchmark_result(
         color="#0065BD",
     )
 
-    plt.xlabel("Trial", fontweight="bold")
-    plt.ylabel("Total Makespan", fontweight="bold")
+    if not hide_x_axis:
+        plt.xlabel("Trial", fontweight="bold")
     plt.xticks(x_pos_2, [str(x) for x in x_pos_1])
+    plt.ylabel("Total Makespan", fontweight="bold")
     plt.title(title, fontweight="bold")
     plt.legend()
 
