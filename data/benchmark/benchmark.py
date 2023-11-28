@@ -128,6 +128,8 @@ def _get_setup_times(
             [
                 default_value
                 if id_i in [id_j, 0]
+                else 0
+                if job_j is None
                 else _calc_setup_times(job_i, job_j, get_integers)
                 for _ in accelerators
             ]
