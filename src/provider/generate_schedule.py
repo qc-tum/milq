@@ -14,11 +14,11 @@ from .accelerator import Accelerator
 class Bin:
     """Helper to keep track of binning problem."""
 
-    capacity: int = 0
+    capacity: int
+    index: int
+    qpu: int
     full: bool = False
-    index: int = -1
     jobs: list[CircuitJob] = field(default_factory=list)
-    qpu: int = -1
 
 
 @dataclass
@@ -36,10 +36,12 @@ class LPInstance:
 
 @dataclass
 class JobResultInfo:
+    """Keep track of job results after scheduling."""
+
     name: str
-    machine: str = ""
-    start_time: float = -1.0
-    completion_time: float = -1.0
+    machine: str
+    start_time: float
+    completion_time: float
 
 
 def generate_baseline_schedule(
@@ -451,7 +453,10 @@ def _solve_lp(
 def _generate_schedule_from_lp(
     lp_instance: LPInstance, jobs: list[CircuitJob], accelerators: list[Accelerator]
 ) -> list[ScheduledJob]:
-    assigned_jobs = {job: JobResultInfo(name=job) for job in lp_instance.jobs}
+    assigned_jobs = {
+        job: JobResultInfo(name=job, machine="", start_time=-1.0, completion_time=-1.0)
+        for job in lp_instance.jobs
+    }
     for var in lp_instance.problem.variables():
         if var.name.startswith("x_") and var.varValue > 0.0:
             name = var.name.split("_")[2:]
@@ -475,7 +480,8 @@ def _generate_schedule_from_lp(
             machine_idx = accelerator_uuids.index(machine)
         except ValueError:
             continue
-        closed_bins += _form_bins(machine_idx, machine_jobs, jobs)
+        machine_capacity = accelerators[machine_idx].qubits
+        closed_bins += _form_bins(machine_capacity, machine_idx, machine_jobs, jobs)
     combined_jobs = []
 
     for _bin in sorted(closed_bins, key=lambda x: x.index):
@@ -484,6 +490,7 @@ def _generate_schedule_from_lp(
 
 
 def _form_bins(
+    machine_capacity: int,
     machine_id: int,
     assigned_jobs: list[JobResultInfo],
     jobs: list[CircuitJob],
@@ -493,7 +500,7 @@ def _form_bins(
     current_time = -1.0
     open_jobs: list[JobResultInfo] = []
     counter = -1
-    current_bin = Bin(index=counter, qpu=machine_id)
+    current_bin = Bin(capacity=machine_capacity, index=counter, qpu=machine_id)
 
     for job in sorted(
         assigned_jobs, key=lambda x: x.start_time if x.start_time is not None else 0
@@ -505,7 +512,7 @@ def _form_bins(
 
         # s_i > s_j -> add to new bin
         counter += 1
-        _bin = Bin(index=counter, qpu=machine_id)
+        _bin = Bin(capacity=machine_capacity, index=counter, qpu=machine_id)
         if len(open_jobs) == 0:
             # no open jobs -> add simply add to new bin
             _append_if_exists(job, _bin, jobs, open_jobs=open_jobs)
@@ -538,7 +545,7 @@ def _form_bins(
                         )
                 current_bin = _bin
                 counter += 1
-                _bin = Bin(index=counter, qpu=machine_id)
+                _bin = Bin(capacity=machine_capacity, index=counter, qpu=machine_id)
 
             bins.append(_bin)
             current_time = job.start_time
