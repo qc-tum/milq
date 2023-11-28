@@ -112,24 +112,24 @@ def _plot_benchmark_result(
         data["baseline"],
         width=bar_width,
         label="baseline",
-        edgecolor="grey",
-        color="#A2AD00",
+        edgecolor="white",
+        color="#154060",
     )
     plt.bar(
         x_pos_2,
         data["simple"],
         width=bar_width,
         label="simple",
-        edgecolor="grey",
-        color="#E37222",
+        edgecolor="white",
+        color="#527a9c",
     )
     plt.bar(
         x_pos_3,
         data["extended"],
         width=bar_width,
         label="extended",
-        edgecolor="grey",
-        color="#0065BD",
+        edgecolor="white",
+        color="#98c6ea",
     )
 
     if not hide_x_axis:
