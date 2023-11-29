@@ -116,19 +116,17 @@ def collect_binary_one_runs(s: str) -> list[tuple[int, int]]:
 for i, row in df.iterrows():
     color = color_mapping[row["machine"]]
     bar_color = color if args.no_z else "none"
-    padding = 0.1
-    height = 1 - 2 * padding
+    PADDING = 0.1
+    HEIGHT = 1 - 2 * PADDING
     if not args.no_z:
         zruns = collect_binary_one_runs(row["zmask"])
-        for zrun in zruns:
-            ax.broken_barh(
-                zruns, (i - 0.5 + padding, height), color=color_mapping[row["machine"]]
-            )
+        ax.broken_barh(zruns, (i - 0.5 + PADDING, HEIGHT), color=color)
+
     ax.barh(
         i,
         row["duration"],
         left=row["start"],
-        height=height,
+        height=HEIGHT,
         edgecolor="black",
         linewidth=2,
         color=bar_color,
