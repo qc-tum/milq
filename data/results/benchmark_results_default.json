@@ -1,0 +1,3359 @@
+[
+    {
+        "setting": {
+            "A": 5,
+            "B": 5
+        },
+        "benchmarks": [
+            {
+                "baseline": {
+                    "makespan": 37.48624822713015,
+                    "jobs": [
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 9.554635870637075,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 3.9730443044234267,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 9.554635870637075,
+                            "completion_time": 26.954577507264144,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 3.9730443044234267,
+                            "completion_time": 9.39923561118426,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 9.39923561118426,
+                            "completion_time": 23.544606110950657,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 26.954577507264144,
+                            "completion_time": 35.07636814042742,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 23.544606110950657,
+                            "completion_time": 37.48624822713015,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 0.0002798299537971616
+                },
+                "simple": {
+                    "makespan": 46.32201223289449,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 35.36906669479354,
+                            "completion_time": 46.32201223289449,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 1.8854702251124769,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 1.8854702251124769,
+                            "completion_time": 15.552262432871675,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 22.954836941772474,
+                            "completion_time": 35.36906669479354,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 1.4436642884704183,
+                            "completion_time": 16.39177307602057,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 1.4436642884704183,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 16.39177307602057,
+                            "completion_time": 22.954836941772474,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 13.742773734033108
+                },
+                "extended": {
+                    "makespan": 31.50334116709137,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 4.196711549774495,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 1.8854702251124769,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 4.196711549774495,
+                            "completion_time": 11.079709247836387,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 11.079709247836387,
+                            "completion_time": 23.381550533928095,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 1.8854702251124769,
+                            "completion_time": 15.690375629149798,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 23.381550533928095,
+                            "completion_time": 31.50334116709137,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 15.690375629149798,
+                            "completion_time": 29.632017745329296,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 828.9550190409645
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 33.296186737610256,
+                    "jobs": [
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 9.27093648045326,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 7.1401512173029325,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 1.7258322354271576,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 1.7258322354271576,
+                            "completion_time": 22.11568581495981,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 9.27093648045326,
+                            "completion_time": 22.99647422522329,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 22.11568581495981,
+                            "completion_time": 33.296186737610256,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 22.99647422522329,
+                            "completion_time": 32.15244924774366,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 0.00023513298947364092
+                },
+                "simple": {
+                    "makespan": 27.143864471317205,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 0.9245052834512983,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.9245052834512983,
+                            "completion_time": 12.836448141907217,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 12.836448141907217,
+                            "completion_time": 17.30422461731204,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.9245052834512983,
+                            "completion_time": 17.364087749011038,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 1.8758346777949826,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 1.8758346777949826,
+                            "completion_time": 8.459662511305787,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 17.30422461731204,
+                            "completion_time": 27.143864471317205,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 7.914822060032748
+                },
+                "extended": {
+                    "makespan": 25.88497812659281,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 9.27093648045326,
+                            "completion_time": 12.625703817710583,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 9.27093648045326,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 12.625703817710583,
+                            "completion_time": 25.88497812659281,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 7.1401512173029325,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 1.8758346777949826,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 9.719546390604751,
+                            "completion_time": 18.48039876343696,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 1.8758346777949826,
+                            "completion_time": 9.719546390604751,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 243.46340541099198
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 37.396583862943935,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 3.6329477982714726,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 8.428602179279942,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 8.428602179279942,
+                            "completion_time": 13.751689992388709,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 3.6329477982714726,
+                            "completion_time": 18.223335878176645,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 18.223335878176645,
+                            "completion_time": 22.42718274145429,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 13.751689992388709,
+                            "completion_time": 21.8225172685498,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 22.42718274145429,
+                            "completion_time": 37.396583862943935,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 0.000258974963799119
+                },
+                "simple": {
+                    "makespan": 69.19971509017155,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 8.428602179279942,
+                            "completion_time": 25.562227590079644,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 8.428602179279942,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 41.621325981349834,
+                            "completion_time": 56.80400218783414,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 56.80400218783414,
+                            "completion_time": 69.19971509017155,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 4.18249567522307,
+                            "completion_time": 12.603312848965768,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 25.562227590079644,
+                            "completion_time": 41.621325981349834,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 4.18249567522307,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 54.48358572693542
+                },
+                "extended": {
+                    "makespan": 33.23291007226665,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 10.798675478962345,
+                            "completion_time": 27.1799466879147,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "A",
+                            "start_time": 21.666209784976495,
+                            "completion_time": 33.23291007226665,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 6.476426836450851,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 2.7278482028012556,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 13.245392611233797,
+                            "completion_time": 21.666209784976495,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 2.7278482028012556,
+                            "completion_time": 10.798675478962345,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 6.476426836450851,
+                            "completion_time": 13.245392611233797,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 1119.5188871020218
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 39.26041868846306,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 9.943277782002534,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 6.655059929840225,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 0.7269718927913013,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 9.943277782002534,
+                            "completion_time": 18.95694345496653,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 6.655059929840225,
+                            "completion_time": 15.267246715094775,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 15.267246715094775,
+                            "completion_time": 26.14382046399816,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 18.95694345496653,
+                            "completion_time": 39.26041868846306,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 0.00019074801821261644
+                },
+                "simple": {
+                    "makespan": 33.94655647586188,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 28.576166584355796,
+                            "completion_time": 33.94655647586188,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 6.655059929840225,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 0.7269718927913013,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 6.655059929840225,
+                            "completion_time": 15.30315058246289,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 8.577440391155587,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 22.92457149583568,
+                            "completion_time": 28.576166584355796,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 15.30315058246289,
+                            "completion_time": 22.92457149583568,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 6.676825969945639
+                },
+                "extended": {
+                    "makespan": 31.256289655282036,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 21.440927644876005,
+                            "completion_time": 31.256289655282036,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "A",
+                            "start_time": 4.12734223122597,
+                            "completion_time": 9.280994049317014,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 12.562617673693648,
+                            "completion_time": 21.440927644876005,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 2.9208091856174967,
+                            "completion_time": 12.562617673693648,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 9.280994049317014,
+                            "completion_time": 25.75032993013162,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 2.9208091856174967,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 4.12734223122597,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 568.350724769989
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 39.11076966179925,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 9.124488017760726,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 6.846478867831534,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 1.9442744777777858,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 1.9442744777777858,
+                            "completion_time": 19.805944017221087,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 9.124488017760726,
+                            "completion_time": 23.59732030124905,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 23.59732030124905,
+                            "completion_time": 39.11076966179925,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 19.805944017221087,
+                            "completion_time": 31.430753818427632,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 0.00017110793851315975
+                },
+                "simple": {
+                    "makespan": 48.52868038204857,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 9.124488017760726,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 1.9442744777777858,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 38.88978217639276,
+                            "completion_time": 48.52868038204857,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 6.846478867831534,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 1.9442744777777858,
+                            "completion_time": 19.805944017221087,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 31.430753818427632,
+                            "completion_time": 38.88978217639276,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 19.805944017221087,
+                            "completion_time": 31.430753818427632,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 15.80739580700174
+                },
+                "extended": {
+                    "makespan": 27.758192340904166,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 9.39842078220293,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 18.17094951601864,
+                            "completion_time": 27.758192340904166,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 9.39842078220293,
+                            "completion_time": 18.17094951601864,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 5.529466991393853,
+                            "completion_time": 15.240572217779329,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 15.240572217779329,
+                            "completion_time": 26.938541681770246,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 5.529466991393853,
+                            "completion_time": 15.947956103805367,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 5.529466991393853,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 113.02528857602738
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 30.68648685804596,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 5.583269676441466,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 1.4972556975417544,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 1.4972556975417544,
+                            "completion_time": 18.43534142418269,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 18.43534142418269,
+                            "completion_time": 20.876121438988328,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 5.583269676441466,
+                            "completion_time": 10.098965200535638,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 10.098965200535638,
+                            "completion_time": 26.735027828933536,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 26.735027828933536,
+                            "completion_time": 30.68648685804596,
+                            "capacity": 2
+                        }
+                    ],
+                    "time": 0.000610213028267026
+                },
+                "simple": {
+                    "makespan": 21.816494569525602,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 16.287675853695287,
+                            "completion_time": 21.816494569525602,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 5.81009229046653,
+                            "completion_time": 16.287675853695287,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 3.4804543307914866,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 5.81009229046653,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 4.85231096102247,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 0.6187780720781596,
+                            "completion_time": 6.955699182159317,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 0.6187780720781596,
+                            "capacity": 2
+                        }
+                    ],
+                    "time": 6.753065939992666
+                },
+                "extended": {
+                    "makespan": 18.345756580055486,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 5.81009229046653,
+                            "completion_time": 9.05332784965918,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "A",
+                            "start_time": 3.4804543307914866,
+                            "completion_time": 18.345756580055486,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 3.4804543307914866,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 5.81009229046653,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 4.85231096102247,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 0.6187780720781596,
+                            "completion_time": 6.955699182159317,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 0.6187780720781596,
+                            "capacity": 2
+                        }
+                    ],
+                    "time": 25.28855137899518
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 50.34724880959551,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 5.606102671950161,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 7.405524227394546,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 8.097209229903973,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 5.606102671950161,
+                            "completion_time": 24.118818196998646,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 24.118818196998646,
+                            "completion_time": 34.854678840002116,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 8.097209229903973,
+                            "completion_time": 23.98650715928844,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 34.854678840002116,
+                            "completion_time": 50.34724880959551,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 0.00019588798750191927
+                },
+                "simple": {
+                    "makespan": 32.143305521760034,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 5.606102671950161,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 18.510017324142787,
+                            "completion_time": 32.143305521760034,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 2.0038640847774283,
+                            "completion_time": 18.510017324142787,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 9.341190725903171,
+                            "completion_time": 16.383215023622284,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 16.383215023622284,
+                            "completion_time": 26.93075605607727,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 2.0038640847774283,
+                            "completion_time": 9.341190725903171,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 2.0038640847774283,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 12.976193457026966
+                },
+                "extended": {
+                    "makespan": 17.326027836290258,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 5.127088508304527,
+                            "completion_time": 16.928070728440467,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "2",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 5.127088508304527,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 8.097209229903973,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 8.99813108544495,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 3.070400205180744,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 3.070400205180744,
+                            "completion_time": 10.72542899570115,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 8.097209229903973,
+                            "completion_time": 17.326027836290258,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 8.939564096974209
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 29.475943530469948,
+                    "jobs": [
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 4.784011563196148,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 1.3439329546858918,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 4.784011563196148,
+                            "completion_time": 15.251994183885198,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 1.3439329546858918,
+                            "completion_time": 12.153006715904889,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 12.153006715904889,
+                            "completion_time": 17.616838472041078,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 17.616838472041078,
+                            "completion_time": 28.95064832462807,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 15.251994183885198,
+                            "completion_time": 29.475943530469948,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 0.00018972600810229778
+                },
+                "simple": {
+                    "makespan": 32.67035886560049,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 11.916891452108402,
+                            "completion_time": 14.280698527156808,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 2.8602858673073275,
+                            "completion_time": 11.916891452108402,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 20.450791268314337,
+                            "completion_time": 32.67035886560049,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 2.8602858673073275,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 2.463139992862587,
+                            "completion_time": 13.069443786329417,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 14.280698527156808,
+                            "completion_time": 20.450791268314337,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 2.463139992862587,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 3.2179031500127167
+                },
+                "extended": {
+                    "makespan": 27.122979800622755,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 2.463139992862587,
+                            "completion_time": 6.646325755119791,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 2.8602858673073275,
+                            "completion_time": 11.916891452108402,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 6.646325755119791,
+                            "completion_time": 17.455399516338787,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 2.8602858673073275,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 6.646325755119791,
+                            "completion_time": 12.088993334168123,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 11.916891452108402,
+                            "completion_time": 27.122979800622755,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 2.463139992862587,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 118.50198875798378
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 24.26476667536746,
+                    "jobs": [
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 7.199687468067575,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 6.176587450477594,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 1.872622535003333,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "2",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 0.8531809209628124,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 1.872622535003333,
+                            "completion_time": 17.536758631134603,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 7.199687468067575,
+                            "completion_time": 18.556916596941413,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 17.536758631134603,
+                            "completion_time": 24.26476667536746,
+                            "capacity": 2
+                        }
+                    ],
+                    "time": 0.0002960279816761613
+                },
+                "simple": {
+                    "makespan": 33.08116346009426,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 18.758990733811622,
+                            "completion_time": 23.00427741451551,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "2",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 0.8531809209628124,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 5.247832139157488,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 7.833774280437074,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 23.00427741451551,
+                            "completion_time": 33.08116346009426,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 7.833774280437074,
+                            "completion_time": 23.779824192139,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 7.833774280437074,
+                            "completion_time": 18.758990733811622,
+                            "capacity": 2
+                        }
+                    ],
+                    "time": 8.115504621062428
+                },
+                "extended": {
+                    "makespan": 23.260761332383268,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 8.694281601679164,
+                            "completion_time": 12.196723334543426,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "2",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 0.8531809209628124,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.8531809209628124,
+                            "completion_time": 9.55712699050876,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.8843069323214596,
+                            "completion_time": 12.33554487900872,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 0.8843069323214596,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 8.694281601679164,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 12.33554487900872,
+                            "completion_time": 23.260761332383268,
+                            "capacity": 2
+                        }
+                    ],
+                    "time": 61.09019079396967
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 36.22181198358132,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 10.114412105973408,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 1.248020278743918,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 10.114412105973408,
+                            "completion_time": 15.473959571148239,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 15.473959571148239,
+                            "completion_time": 29.79022952354995,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 1.248020278743918,
+                            "completion_time": 16.244101035854598,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 16.244101035854598,
+                            "completion_time": 36.22181198358132,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 29.79022952354995,
+                            "completion_time": 33.100331023674435,
+                            "capacity": 2
+                        }
+                    ],
+                    "time": 0.000234306906349957
+                },
+                "simple": {
+                    "makespan": 36.99950649713192,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 1.937183426846703,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 1.937183426846703,
+                            "completion_time": 5.059423338254011,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 20.055504095364693,
+                            "completion_time": 31.919619627253837,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 5.059423338254011,
+                            "completion_time": 20.055504095364693,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 20.055504095364693,
+                            "completion_time": 32.99850566840753,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 31.919619627253837,
+                            "completion_time": 36.99950649713192,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 9.785873424552198,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 9.527624782989733
+                },
+                "extended": {
+                    "makespan": 20.096076511973195,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 1.937183426846703,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 13.56301595594726,
+                            "completion_time": 20.096076511973195,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 0.9912330777310981,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 7.514647140143447,
+                            "completion_time": 17.261197215426748,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 7.514647140143447,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 0.9912330777310981,
+                            "completion_time": 6.552746114702957,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 1.937183426846703,
+                            "completion_time": 13.56301595594726,
+                            "capacity": 5
+                        }
+                    ],
+                    "time": 22.482970656012185
+                }
+            }
+        ]
+    },
+    {
+        "setting": {
+            "A": 5,
+            "B": 6,
+            "C": 20
+        },
+        "benchmarks": [
+            {
+                "baseline": {
+                    "makespan": 30.148825402781455,
+                    "jobs": [
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 8.744696944267856,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 4.620155508252116,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 11.468635932801444,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 7.733796058381235,
+                            "capacity": 9
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 4.620155508252116,
+                            "completion_time": 15.24076069637334,
+                            "capacity": 6
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 11.468635932801444,
+                            "completion_time": 20.983613630701186,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 20.983613630701186,
+                            "completion_time": 30.148825402781455,
+                            "capacity": 18
+                        }
+                    ],
+                    "time": 0.00038935698103159666
+                },
+                "simple": {
+                    "makespan": 23.468180210265444,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 11.468635932801444,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 7.733796058381235,
+                            "capacity": 9
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 7.733796058381235,
+                            "completion_time": 23.468180210265444,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 9.44669064955969,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 3.7992224725977586,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 11.468635932801444,
+                            "completion_time": 20.88422538142664,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 7.429196830656051,
+                            "capacity": 6
+                        }
+                    ],
+                    "time": 8.279709868016653
+                },
+                "extended": {
+                    "makespan": 20.983613630701186,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 11.468635932801444,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 7.733796058381235,
+                            "capacity": 9
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 11.468635932801444,
+                            "completion_time": 20.983613630701186,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 8.744696944267856,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 7.429196830656051,
+                            "completion_time": 19.594507457666595,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 7.733796058381235,
+                            "completion_time": 20.02644372582763,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 7.429196830656051,
+                            "capacity": 6
+                        }
+                    ],
+                    "time": 11.609861260978505
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 53.15179580787829,
+                    "jobs": [
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 0.4842248138494972,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 3.5583251860331795,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 4.231625995243133,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 9.445044618536707,
+                            "capacity": 12
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 9.445044618536707,
+                            "completion_time": 27.69559154721778,
+                            "capacity": 9
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 27.69559154721778,
+                            "completion_time": 42.32654324764896,
+                            "capacity": 14
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 42.32654324764896,
+                            "completion_time": 53.15179580787829,
+                            "capacity": 16
+                        }
+                    ],
+                    "time": 0.00021188403479754925
+                },
+                "simple": {
+                    "makespan": 44.16845329651456,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 7.689042396600296,
+                            "completion_time": 26.130860742076436,
+                            "capacity": 12
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 6.626453322296777,
+                            "capacity": 9
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 4.796669634682132,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 8.73409649508745,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 7.689042396600296,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 34.77852171531692,
+                            "completion_time": 44.16845329651456,
+                            "capacity": 14
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 26.130860742076436,
+                            "completion_time": 34.77852171531692,
+                            "capacity": 16
+                        }
+                    ],
+                    "time": 1.1111716129817069
+                },
+                "extended": {
+                    "makespan": 50.18591565392472,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 31.96990236620091,
+                            "completion_time": 50.18591565392472,
+                            "capacity": 12
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 5.1429134735045245,
+                            "completion_time": 18.37995385631925,
+                            "capacity": 9
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 5.6471289247592384,
+                            "completion_time": 15.057958208711565,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 2.6260598429357533,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 5.6471289247592384,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 5.1429134735045245,
+                            "capacity": 14
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 18.37995385631925,
+                            "completion_time": 31.96990236620091,
+                            "capacity": 16
+                        }
+                    ],
+                    "time": 348.9793008690467
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 45.22810449824472,
+                    "jobs": [
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 3.6060021970308163,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 2.888567874541625,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 3.1342857084906077,
+                            "capacity": 11
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 4.420447499540623,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 4.420447499540623,
+                            "completion_time": 16.42276433072726,
+                            "capacity": 17
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 16.42276433072726,
+                            "completion_time": 27.59832880583091,
+                            "capacity": 15
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 27.59832880583091,
+                            "completion_time": 45.22810449824472,
+                            "capacity": 11
+                        }
+                    ],
+                    "time": 0.00021542003378272057
+                },
+                "simple": {
+                    "makespan": 31.002943761438388,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 4.283516043446441,
+                            "completion_time": 10.378750386307445,
+                            "capacity": 11
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 4.283516043446441,
+                            "capacity": 17
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 9.799076702080487,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 20.788518053219164,
+                            "completion_time": 31.002943761438388,
+                            "capacity": 15
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 23.7913020651904,
+                            "completion_time": 30.301708942620603,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 10.378750386307445,
+                            "completion_time": 20.788518053219164,
+                            "capacity": 11
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 10.378750386307445,
+                            "completion_time": 23.7913020651904,
+                            "capacity": 8
+                        }
+                    ],
+                    "time": 3.9641628849785775
+                },
+                "extended": {
+                    "makespan": 36.865854562820736,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 14.517198827125661,
+                            "completion_time": 20.612433169986666,
+                            "capacity": 11
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 6.830963560106025,
+                            "completion_time": 14.517198827125661,
+                            "capacity": 17
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 2.888567874541625,
+                            "completion_time": 18.396633481356222,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 20.612433169986666,
+                            "completion_time": 36.865854562820736,
+                            "capacity": 15
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 2.888567874541625,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 6.830963560106025,
+                            "capacity": 11
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 14.517198827125661,
+                            "completion_time": 25.89386070619289,
+                            "capacity": 8
+                        }
+                    ],
+                    "time": 102.30400201503653
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 32.22968446896756,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 9.831269362484436,
+                            "capacity": 20
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 3.415065458052506,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 9.212150880309729,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 3.415065458052506,
+                            "completion_time": 12.434144561392037,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "7",
+                            "machine": "B",
+                            "start_time": 9.212150880309729,
+                            "completion_time": 19.103859174432785,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 9.831269362484436,
+                            "completion_time": 25.66721474687685,
+                            "capacity": 16
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 25.66721474687685,
+                            "completion_time": 32.22968446896756,
+                            "capacity": 9
+                        }
+                    ],
+                    "time": 0.0008846300188452005
+                },
+                "simple": {
+                    "makespan": 35.53697367625765,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 12.93405322156895,
+                            "completion_time": 35.53697367625765,
+                            "capacity": 20
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 1.9657759235792056,
+                            "completion_time": 12.93405322156895,
+                            "capacity": 16
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 1.9657759235792056,
+                            "capacity": 9
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 4.929480146344334,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 8.85283922415587,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 4.62170209495493,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 6.995196009849647,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 17.62037150398828
+                },
+                "extended": {
+                    "makespan": 21.38723395625617,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 8.85283922415587,
+                            "completion_time": 21.38723395625617,
+                            "capacity": 20
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 1.9657759235792056,
+                            "completion_time": 12.93405322156895,
+                            "capacity": 16
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 1.9657759235792056,
+                            "capacity": 9
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 4.929480146344334,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 8.85283922415587,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 4.62170209495493,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "7",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 6.995196009849647,
+                            "capacity": 4
+                        }
+                    ],
+                    "time": 20.45669946190901
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 68.39726285984942,
+                    "jobs": [
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 9.388072247401654,
+                            "capacity": 6
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 6.356805721344173,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 4.9362428583031255,
+                            "capacity": 15
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 4.9362428583031255,
+                            "completion_time": 25.608244252794005,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 25.608244252794005,
+                            "completion_time": 40.275275557936816,
+                            "capacity": 20
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 40.275275557936816,
+                            "completion_time": 53.488751448911856,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 53.488751448911856,
+                            "completion_time": 68.39726285984942,
+                            "capacity": 11
+                        }
+                    ],
+                    "time": 0.0005438270745798945
+                },
+                "simple": {
+                    "makespan": 49.865120846799584,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 38.975155954015,
+                            "completion_time": 49.865120846799584,
+                            "capacity": 15
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 11.094648757897149,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 6.356805721344173,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 9.388072247401654,
+                            "capacity": 6
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 11.094648757897149,
+                            "completion_time": 25.76168006303996,
+                            "capacity": 20
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 25.76168006303996,
+                            "completion_time": 38.975155954015,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 25.76168006303996,
+                            "completion_time": 42.25271936627926,
+                            "capacity": 11
+                        }
+                    ],
+                    "time": 11.297682382981293
+                },
+                "extended": {
+                    "makespan": 49.865120846799584,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 38.975155954015,
+                            "completion_time": 49.865120846799584,
+                            "capacity": 15
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 11.094648757897149,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 6.356805721344173,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 9.388072247401654,
+                            "capacity": 6
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 11.094648757897149,
+                            "completion_time": 25.76168006303996,
+                            "capacity": 20
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 25.76168006303996,
+                            "completion_time": 38.975155954015,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 25.76168006303996,
+                            "completion_time": 42.25271936627926,
+                            "capacity": 11
+                        }
+                    ],
+                    "time": 229.24114916997496
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 53.19942172398694,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 3.8354006808540957,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 9.461646307406475,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 3.9649235797648172,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 6.392567922188781,
+                            "capacity": 11
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 6.392567922188781,
+                            "completion_time": 20.220106147471967,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 20.220106147471967,
+                            "completion_time": 36.981700270587304,
+                            "capacity": 14
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 36.981700270587304,
+                            "completion_time": 53.19942172398694,
+                            "capacity": 17
+                        }
+                    ],
+                    "time": 0.0002293050056323409
+                },
+                "simple": {
+                    "makespan": 52.347911053972624,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 3.379997983054648,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 2.8772171992267275,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 3.9649235797648172,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 14.9877551755681,
+                            "completion_time": 28.591207924750083,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 3.9649235797648172,
+                            "completion_time": 14.9877551755681,
+                            "capacity": 14
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 6.392567922188781,
+                            "capacity": 11
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 28.591207924750083,
+                            "completion_time": 52.347911053972624,
+                            "capacity": 17
+                        }
+                    ],
+                    "time": 4.2150116809643805
+                },
+                "extended": {
+                    "makespan": 61.5174337294095,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 3.379997983054648,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 2.8772171992267275,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 46.05158244052234,
+                            "completion_time": 61.5174337294095,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 8.691426562117819,
+                            "completion_time": 22.294879311299802,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 8.691426562117819,
+                            "capacity": 14
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 46.05158244052234,
+                            "completion_time": 58.277831453471165,
+                            "capacity": 11
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 22.294879311299802,
+                            "completion_time": 46.05158244052234,
+                            "capacity": 17
+                        }
+                    ],
+                    "time": 315.73216912103817
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 64.45140859110168,
+                    "jobs": [
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 8.789478929448427,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 5.031898203602789,
+                            "capacity": 10
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 5.4941291725980985,
+                            "capacity": 9
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 5.4941291725980985,
+                            "completion_time": 26.15350801417555,
+                            "capacity": 14
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 26.15350801417555,
+                            "completion_time": 40.72961117422369,
+                            "capacity": 7
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 40.72961117422369,
+                            "completion_time": 47.500982144794925,
+                            "capacity": 10
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 47.500982144794925,
+                            "completion_time": 64.45140859110168,
+                            "capacity": 17
+                        }
+                    ],
+                    "time": 0.00027041591238230467
+                },
+                "simple": {
+                    "makespan": 47.661156378300035,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 37.269248116027796,
+                            "completion_time": 45.063410728440466,
+                            "capacity": 10
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 37.269248116027796,
+                            "completion_time": 47.661156378300035,
+                            "capacity": 9
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 21.275644117214597,
+                            "completion_time": 37.269248116027796,
+                            "capacity": 14
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 11.773472540159228,
+                            "completion_time": 21.275644117214597,
+                            "capacity": 7
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 2.915433738986359,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 11.773472540159228,
+                            "capacity": 17
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 11.773472540159228,
+                            "completion_time": 19.37489662971185,
+                            "capacity": 10
+                        }
+                    ],
+                    "time": 8.748175910091959
+                },
+                "extended": {
+                    "makespan": 58.07460420429864,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 26.374447112330696,
+                            "completion_time": 42.943643813684936,
+                            "capacity": 10
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 42.943643813684936,
+                            "completion_time": 58.07460420429864,
+                            "capacity": 9
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 8.747215195766543,
+                            "capacity": 14
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 42.943643813684936,
+                            "completion_time": 51.53937397170624,
+                            "capacity": 7
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 8.789478929448427,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 8.747215195766543,
+                            "completion_time": 26.374447112330696,
+                            "capacity": 17
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 26.374447112330696,
+                            "completion_time": 33.975871201883315,
+                            "capacity": 10
+                        }
+                    ],
+                    "time": 5805.838474947959
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 47.03188933945136,
+                    "jobs": [
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 7.641255772744993,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 7.48558462616436,
+                            "capacity": 6
+                        },
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 1.859418650547022,
+                            "capacity": 7
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 7.306317038047865,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 7.306317038047865,
+                            "completion_time": 21.37090758489085,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 21.37090758489085,
+                            "completion_time": 39.78193875712737,
+                            "capacity": 12
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 39.78193875712737,
+                            "completion_time": 47.03188933945136,
+                            "capacity": 14
+                        }
+                    ],
+                    "time": 0.0001977189676836133
+                },
+                "simple": {
+                    "makespan": 37.55525650120873,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 17.98736975895946,
+                            "completion_time": 26.71597416331191,
+                            "capacity": 7
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 5.499619781200838,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 5.499619781200838,
+                            "completion_time": 15.95994137505329,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 7.48558462616436,
+                            "capacity": 6
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 17.98736975895946,
+                            "completion_time": 31.632107662212658,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 26.71597416331191,
+                            "completion_time": 37.55525650120873,
+                            "capacity": 12
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 5.499619781200838,
+                            "completion_time": 17.98736975895946,
+                            "capacity": 14
+                        }
+                    ],
+                    "time": 7.05153010005597
+                },
+                "extended": {
+                    "makespan": 36.249219577619606,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 1.859418650547022,
+                            "capacity": 7
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 22.18462903077662,
+                            "completion_time": 36.249219577619606,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 7.641255772744993,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "4",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 7.48558462616436,
+                            "capacity": 6
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 8.539891127523422,
+                            "completion_time": 22.18462903077662,
+                            "capacity": 8
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 8.539891127523422,
+                            "completion_time": 24.570004449320976,
+                            "capacity": 12
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 1.859418650547022,
+                            "completion_time": 8.539891127523422,
+                            "capacity": 14
+                        }
+                    ],
+                    "time": 247.6402631419478
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 61.801845251891216,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 2.6004894726906054,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "3",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 7.956295990945374,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 6.703481878672271,
+                            "capacity": 11
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 8.409860832731834,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 8.409860832731834,
+                            "completion_time": 25.119381223292812,
+                            "capacity": 12
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 25.119381223292812,
+                            "completion_time": 44.93652566495472,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 44.93652566495472,
+                            "completion_time": 61.801845251891216,
+                            "capacity": 19
+                        }
+                    ],
+                    "time": 0.00021713506430387497
+                },
+                "simple": {
+                    "makespan": 56.301107556244155,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 1.1062089234513188,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 43.882462828943055,
+                            "completion_time": 56.301107556244155,
+                            "capacity": 11
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 28.11680100661014,
+                            "completion_time": 37.01934118270182,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 28.11680100661014,
+                            "completion_time": 43.882462828943055,
+                            "capacity": 12
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 11.251481419673647,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "6",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 7.264578170128221,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 11.251481419673647,
+                            "completion_time": 28.11680100661014,
+                            "capacity": 19
+                        }
+                    ],
+                    "time": 6.397695557912812
+                },
+                "extended": {
+                    "makespan": 59.8402931191336,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "B",
+                            "start_time": 6.829840221784199,
+                            "completion_time": 15.699181923843534,
+                            "capacity": 4
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 24.771046860168482,
+                            "completion_time": 37.18969158746958,
+                            "capacity": 11
+                        },
+                        {
+                            "name": "3",
+                            "machine": "C",
+                            "start_time": 24.771046860168482,
+                            "completion_time": 35.150433447953844,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 11.251481419673647,
+                            "completion_time": 24.771046860168482,
+                            "capacity": 12
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 11.251481419673647,
+                            "capacity": 18
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 6.829840221784199,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 37.18969158746958,
+                            "completion_time": 59.8402931191336,
+                            "capacity": 19
+                        }
+                    ],
+                    "time": 838.6774801230058
+                }
+            },
+            {
+                "baseline": {
+                    "makespan": 35.37669993354191,
+                    "jobs": [
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 5.477160088997655,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 1.6201531478801052,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 4.837405497795044,
+                            "capacity": 15
+                        },
+                        {
+                            "name": "6",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 8.672305282550354,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "5",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 8.403425656182387,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 8.672305282550354,
+                            "completion_time": 22.7664215449814,
+                            "capacity": 13
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 22.7664215449814,
+                            "completion_time": 35.37669993354191,
+                            "capacity": 14
+                        }
+                    ],
+                    "time": 0.00026763894129544497
+                },
+                "simple": {
+                    "makespan": 33.39989730162871,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 7.745118944675454,
+                            "completion_time": 23.791468843184177,
+                            "capacity": 15
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 7.745118944675454,
+                            "capacity": 13
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 5.477160088997655,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 7.047893080736099,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "5",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 9.824800395592325,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 8.484469156583557,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 23.791468843184177,
+                            "completion_time": 33.39989730162871,
+                            "capacity": 14
+                        }
+                    ],
+                    "time": 5.065211812965572
+                },
+                "extended": {
+                    "makespan": 33.44441370083729,
+                    "jobs": [
+                        {
+                            "name": "1",
+                            "machine": "C",
+                            "start_time": 0.0,
+                            "completion_time": 4.837405497795044,
+                            "capacity": 15
+                        },
+                        {
+                            "name": "2",
+                            "machine": "C",
+                            "start_time": 4.837405497795044,
+                            "completion_time": 20.834135312276786,
+                            "capacity": 13
+                        },
+                        {
+                            "name": "3",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 5.477160088997655,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "4",
+                            "machine": "A",
+                            "start_time": 0.0,
+                            "completion_time": 1.6201531478801052,
+                            "capacity": 3
+                        },
+                        {
+                            "name": "5",
+                            "machine": "A",
+                            "start_time": 1.6201531478801052,
+                            "completion_time": 7.809988348053912,
+                            "capacity": 2
+                        },
+                        {
+                            "name": "6",
+                            "machine": "B",
+                            "start_time": 0.0,
+                            "completion_time": 8.484469156583557,
+                            "capacity": 5
+                        },
+                        {
+                            "name": "7",
+                            "machine": "C",
+                            "start_time": 20.834135312276786,
+                            "completion_time": 33.44441370083729,
+                            "capacity": 14
+                        }
+                    ],
+                    "time": 12.953028521034867
+                }
+            }
+        ]
+    }
+]
