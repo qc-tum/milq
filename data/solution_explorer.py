@@ -1,3 +1,5 @@
+"""A utility script to visualize a solution to the scheduling problem."""
+
 import argparse
 
 # Fix relative imports
@@ -53,6 +55,14 @@ with open(args.solution, encoding="utf-8") as f:
 
 
 def list2binstr(l: list[int]) -> str:
+    """Converts a list of 0 or 1 to a binary string.
+
+    Args:
+        l (list[int]): The list of integers
+
+    Returns:
+        str: A binary string
+    """
     return "".join(map(str, l))
 
 
@@ -96,17 +106,32 @@ tick_points = list(set(tick_points))
 tick_points.sort()
 
 # Plot the jobs
-# The grid lines are at the start of a time step. Hence, if a job ends in time step 11, the bar ends at 12.
+# The grid lines are at the start of a time step.
+# Hence, if a job ends in time step 11, the bar ends at 12.
 fig, ax = plt.subplots()
 
 
 def collect_binary_one_runs(s: str) -> list[tuple[int, int]]:
+    """Given a binary string, returns the start and length of all runs of
+    consecutive ones.
+
+    Example: "001110001" -> [(2, 3), (8, 1)]
+
+    Args:
+        s (str): A binary string
+
+    Returns:
+        list[tuple[int, int]]: A list of tuples (start, length) of all runs
+    """
     runs = []
     start = None
     for i, c in enumerate(s):
         if c == "1":
+            # Start the run if not already started
             if start is None:
                 start = i
+
+            # Check if run is at end
             if i == len(s) - 1 or s[i + 1] == "0":
                 runs.append((start, i - start + 1))
                 start = None
@@ -137,7 +162,7 @@ ax.set_yticks(yticks)
 ax.set_yticklabels(df["job"])
 ax.invert_yaxis()
 ax.xaxis.set_minor_locator(ticker.MultipleLocator(base=1.0))
-#plt.rc("font", family="serif")
+# plt.rc("font", family="serif")
 plt.xlabel("Time")
 plt.grid(axis="x", which="major")
 plt.grid(axis="x", which="minor", alpha=0.4)
