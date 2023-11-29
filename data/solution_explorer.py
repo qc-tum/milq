@@ -131,7 +131,7 @@ for i, row in df.iterrows():
         height=height,
         edgecolor="black",
         linewidth=2,
-        color=color,
+        color=bar_color,
     )
 
 yticks = list(range(len(df)))
