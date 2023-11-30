@@ -18,3 +18,10 @@ The benchmark results can be reproduced with `python run_experiments.py`
 
 **MILQ** is developed test driven, to see its functionality refer to the test directory.
 We use `pytest` as a testing environment.
+
+## References
+
+MILQ implements the methods described in the following paper.
+
+[[1]](https://arxiv.org/abs/2311.17490)
+P. Seitz and M. Geiger and C. B. Mendl. Multithreaded parallelism for heterogeneous clusters of QPUs.
