@@ -2,18 +2,12 @@
 
 import argparse
 
-# Fix relative imports
-import sys
-sys.path.append(__file__)
-
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.patches import Patch
-from matplotlib import ticker
-import pandas as pd
-
-# Import the problem description
 import milp
+import pandas as pd
+from matplotlib import ticker
+from matplotlib.patches import Patch
 
 # Parse the command line arguments
 parser = argparse.ArgumentParser(
@@ -170,6 +164,6 @@ plt.legend(handles=patches, labels=color_mapping.keys())
 
 if args.pdf:
     plt.tight_layout()
-    plt.savefig(args.pdf, bbox_inches="tight")
+    plt.savefig(args.pdf, format="pdf", bbox_inches="tight")
 else:
     plt.show()
