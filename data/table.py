@@ -1,7 +1,6 @@
 import argparse
 
-# Import the problem description
-import data.milp as milp
+import milp as milp
 
 # Parse the command line arguments
 parser = argparse.ArgumentParser(
