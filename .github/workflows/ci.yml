@@ -1,0 +1,24 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup PDM
+      uses: pdm-project/setup-pdm@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: true
+    - name: Install dependencies
+      run: pdm install
+    - name: Analysing the code with pylint
+      run: pdm run pylint $(git ls-files '*.py')
+      continue-on-error: true
+    - name: Testing the code with pytest
+      run: pdm run pytest
