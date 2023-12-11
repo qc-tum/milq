@@ -7,9 +7,9 @@ from src.circuits import create_ghz
 from src.provider import Accelerator, AcceleratorGroup, IBMQBackend
 
 
-@pytest.mark.skip(
-    reason="Error does not get raised if transpile is not done in accelerator."
-)
+# @pytest.mark.skip(
+#     reason="Error does not get raised if transpile is not done in accelerator."
+# )
 def test_acceleratorgroup_run() -> None:
     """_summary_"""
     backend_belem = IBMQBackend.BELEM
