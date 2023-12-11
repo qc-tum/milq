@@ -543,9 +543,9 @@ def _form_bins(
                 counter += 1
                 _bin = Bin(capacity=machine_capacity, index=counter, qpu=machine_id)
 
-            bins.append(_bin)
-            current_time = job.start_time
-            current_bin = _bin
+        bins.append(_bin)
+        current_time = job.start_time
+        current_bin = _bin
 
     return bins
 
