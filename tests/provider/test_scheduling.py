@@ -1,7 +1,8 @@
 """_summary_"""
+from unittest.mock import MagicMock, patch
 
 from src.circuits import create_ghz, create_quantum_only_ghz
-from src.common import IBMQBackend
+from src.common import CombinedJob, IBMQBackend
 from src.provider import Accelerator, Scheduler
 from src.tools import optimize_circuit_offline
 
@@ -25,7 +26,7 @@ def test_generate_schedule() -> None:
     # 4. qpu0 -> 3,2 qubits, qpu1 -> 2,2 qubits
     # 5. qpu0 -> 2,2 qubits, qpu1 -> 2 qubits
     assert len(jobs) == 10
-    jobs_per_qpu = {}
+    jobs_per_qpu: dict[int, list[CombinedJob]] = {}
     for job in jobs:
         jobs_per_qpu.setdefault(job.qpu, []).append(job.job)
     assert jobs_per_qpu.keys() == {0, 1}
@@ -53,8 +54,17 @@ def test_generate_schedule() -> None:
         assert job.mapping == qubits
 
 
-def test_run_circuits() -> None:
+@patch("qiskit_aer.AerSimulator.run")
+def test_run_circuits(run_mock) -> None:
     """_summary_"""
+
+    run_mock.return_value = MagicMock()
+    run_mock.result.return_value = MagicMock()
+    run_mock.return_value.result.return_value = MagicMock()
+    run_mock.return_value.result.return_value.get_counts.return_value = {
+        "00000": 512,
+        "11111": 512,
+    }
     backend_belem = IBMQBackend.BELEM
     accelerator_belem = Accelerator(backend_belem)
     backend_quito = IBMQBackend.QUITO
