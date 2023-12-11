@@ -483,7 +483,10 @@ def _generate_schedule_from_lp(
     combined_jobs = []
 
     for _bin in sorted(closed_bins, key=lambda x: x.index):
-        combined_jobs.append(ScheduledJob(job=assemble_job(_bin.jobs), qpu=_bin.qpu))
+        if len(_bin.jobs) > 0:
+            combined_jobs.append(
+                ScheduledJob(job=assemble_job(_bin.jobs), qpu=_bin.qpu)
+            )
     return combined_jobs
 
 
