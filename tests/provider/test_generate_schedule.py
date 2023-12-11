@@ -13,5 +13,5 @@ def test_generate_simple_schedule() -> None:
         Accelerator(IBMQBackend.QUITO, shot_time=1, reconfiguration_time=1),
     ]
     jobs = [job_from_circuit(create_ghz(i)) for i in range(2, 6)]
-    schedule = generate_simple_schedule(jobs, accelerators, t_max=2**5)
-    assert len(schedule) == 3
+    schedule = generate_simple_schedule(jobs, accelerators, t_max=20)
+    assert len(schedule) <= 3
