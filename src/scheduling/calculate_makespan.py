@@ -75,3 +75,39 @@ def _find_last_completed(
         reverse=True,
     )
     return completed_before[0]
+
+
+def calculate_bin_makespan(
+    jobs: list[JobResultInfo],
+    p_times: defaultdict[str, defaultdict[str, float]],
+    s_times: defaultdict[str, defaultdict[str, defaultdict[str, float]]],
+) -> float:
+    """Calculates the actual makespan from the list of jobs.
+    By executing the schedule with the corret p_ij and s_ij values.
+    """
+    assigned_machines: defaultdict[str, list[JobResultInfo]] = defaultdict(list)
+    for job in jobs:
+        assigned_machines[job.machine].append(job)
+    makespans = []
+    for machine, assigned_jobs in assigned_machines.items():
+        for job in sorted(assigned_jobs, key=lambda x: x.start_time):
+            # Find the last predecessor that is completed before the job starts
+            # this can technically change the correct predecessor to a wrong one
+            # because completion times are updated in the loop
+            # I'm not sure if copying before the loop corrects this
+            last_completed = max(
+                (job for job in assigned_jobs), key=lambda x: x.completion_time
+            )
+            if job.start_time == 0.0:
+                last_completed = JobResultInfo("0", machine, 0.0, 0.0)
+            job.start_time = last_completed.completion_time
+            # calculate p_j + s_ij
+            completion_time = (  # check if this order is correct
+                last_completed.completion_time
+                + p_times[job.name][machine]
+                + s_times[last_completed.name][job.name][machine]
+            )
+            job.completion_time = completion_time
+        makespans.append(max(job.completion_time for job in assigned_jobs))
+
+    return max(makespans)

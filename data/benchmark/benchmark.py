@@ -13,10 +13,9 @@ from src.scheduling import (
     set_up_base_lp,
     generate_extended_schedule,
     generate_simple_schedule,
+    generate_baseline_schedule,
 )
 from utils.helpers import Timer
-
-from .generate_baseline_schedules import generate_baseline_schedule
 
 
 def _generate_batch(max_qubits: int, circuits_per_batch: int) -> list[QuantumCircuit]:
