@@ -81,7 +81,7 @@ class Scheduler:
         """
         jobs = sorted(
             self._convert_to_jobs(circuits),
-            key=lambda x: x.instance.num_qubits if x.instance is not None else 0,
+            key=lambda x: x.circuit.num_qubits if x.circuit is not None else 0,
             reverse=True,
         )
         schedule_function = generate_baseline_schedule

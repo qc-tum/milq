@@ -127,11 +127,11 @@ def _get_simple_setup_times_provider(
 ) -> list[list[float]]:
     return [
         [
-            qpu.compute_setup_time(job_i.instance, circuit_to=None)
+            qpu.compute_setup_time(job_i.circuit, circuit_to=None)
             for qpu in accelerators
         ]
         for job_i in base_jobs
-        if job_i.instance is not None
+        if job_i.circuit is not None
     ]
 
 
@@ -140,7 +140,7 @@ def _get_processing_times(
     accelerators: list[Accelerator],
 ) -> list[list[float]]:
     return [
-        [qpu.compute_processing_time(job.instance) for qpu in accelerators]
+        [qpu.compute_processing_time(job.circuit) for qpu in accelerators]
         for job in base_jobs
-        if job.instance is not None
+        if job.circuit is not None
     ]

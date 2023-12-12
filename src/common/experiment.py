@@ -33,7 +33,7 @@ class CircuitJob:
     coefficient: tuple[float, WeightType] | None
     cregs: int
     index: int
-    instance: QuantumCircuit | None
+    circuit: QuantumCircuit | None
     n_shots: int
     observable: PauliList  # Should be single pauli
     partition_lable: str
@@ -50,7 +50,7 @@ class CombinedJob:
     coefficients: list[tuple[float, WeightType]] = field(default_factory=list)
     cregs: list[int] = field(default_factory=list)
     indices: list[int] = field(default_factory=list)
-    instance: QuantumCircuit | None = None
+    circuit: QuantumCircuit | None = None
     mapping: list[slice] = field(default_factory=list)
     n_shots: int = 0
     observable: PauliList | None = None
@@ -82,7 +82,7 @@ def job_from_circuit(circuit: QuantumCircuit) -> CircuitJob:
         coefficient=None,
         cregs=len(circuit.cregs),
         index=0,
-        instance=circuit,
+        circuit=circuit,
         n_shots=1024,
         observable=PauliList(""),
         partition_lable="1",
@@ -105,7 +105,7 @@ def jobs_from_experiment(experiment: Experiment) -> list[CircuitJob]:
             coefficient=experiment.coefficients[idx],
             cregs=len(circuit.cregs),
             index=idx,
-            instance=circuit,
+            circuit=circuit,
             n_shots=experiment.n_shots,
             # TODO this might need to change for proper observables
             observable=experiment.observables,

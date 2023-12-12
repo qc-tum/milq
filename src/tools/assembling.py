@@ -54,16 +54,16 @@ def assemble_job(circuit_jobs: list[CircuitJob]) -> CombinedJob:
     observable = PauliList("")
     for job in circuit_jobs:
         combined_job.indices.append(job.index)
-        circuits.append(job.instance)
+        circuits.append(job.circuit)
         combined_job.coefficients.append(job.coefficient)
         combined_job.mapping.append(
-            slice(qubit_count, qubit_count + job.instance.num_qubits)
+            slice(qubit_count, qubit_count + job.circuit.num_qubits)
         )
-        qubit_count += job.instance.num_qubits
+        qubit_count += job.circuit.num_qubits
         observable = observable.expand(job.observable)
         combined_job.partition_lables.append(job.partition_lable)
         combined_job.uuids.append(job.uuid)
         combined_job.cregs.append(job.cregs)
-    combined_job.instance = assemble_circuit(circuits)
+    combined_job.circuit = assemble_circuit(circuits)
     combined_job.observable = observable
     return combined_job

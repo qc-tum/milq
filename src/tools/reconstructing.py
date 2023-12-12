@@ -69,7 +69,7 @@ def reconstruct_counts_from_job(job: CombinedJob) -> list[CircuitJob]:
                 coefficient=job.coefficients[idx],
                 cregs=job.cregs[idx],
                 index=job.indices[idx],
-                instance=None,
+                circuit=None,
                 n_shots=job.n_shots,
                 observable=observable,
                 partition_lable=job.partition_lables[idx],
