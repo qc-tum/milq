@@ -4,7 +4,7 @@ from collections import defaultdict
 import pulp
 from qiskit import QuantumCircuit
 
-from .types import Bin, JobHelper, JobResultInfo, PTimes, STimes
+from src.scheduling import Bin, JobHelper, JobResultInfo, PTimes, STimes
 
 
 def generate_baseline_schedule(

@@ -6,7 +6,7 @@ import numpy as np
 import pulp
 from qiskit import QuantumCircuit
 
-from .types import JobHelper, JobResultInfo, LPInstance, PTimes, STimes
+from src.scheduling import JobHelper, JobResultInfo, LPInstance, PTimes, STimes
 
 
 def set_up_base_lp(

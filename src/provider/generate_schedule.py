@@ -1,47 +1,13 @@
 """Methods for generating a schedule for a given provider."""
 from bisect import insort
 from collections import defaultdict
-from dataclasses import dataclass, field
 
 import pulp
 
 from src.common import CircuitJob, ScheduledJob
+from src.scheduling import Bin, JobResultInfo, LPInstance
 from src.tools import assemble_job
 from .accelerator import Accelerator
-
-
-@dataclass
-class Bin:
-    """Helper to keep track of binning problem."""
-
-    capacity: int
-    index: int
-    qpu: int
-    full: bool = False
-    jobs: list[CircuitJob] = field(default_factory=list)
-
-
-@dataclass
-class LPInstance:
-    """Helper to keep track of LP problem."""
-
-    problem: pulp.LpProblem
-    jobs: list[str]
-    machines: list[str]
-    x_ik: dict[str, dict[str, pulp.LpVariable]]
-    z_ikt: dict[str, dict[str, dict[int, pulp.LpVariable]]]
-    c_j: dict[str, pulp.LpVariable]
-    s_j: dict[str, pulp.LpVariable]
-
-
-@dataclass
-class JobResultInfo:
-    """Keep track of job results after scheduling."""
-
-    name: str
-    machine: str
-    start_time: float
-    completion_time: float
 
 
 def generate_baseline_schedule(

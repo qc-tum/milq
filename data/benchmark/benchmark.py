@@ -5,6 +5,7 @@ from mqt.bench import get_benchmark
 from qiskit import QuantumCircuit
 import numpy as np
 
+from src.scheduling import Benchmark, PTimes, Result, STimes
 from utils.helpers import Timer
 
 from .generate_baseline_schedules import generate_baseline_schedule
@@ -13,7 +14,6 @@ from .generate_milp_schedules import (
     generate_simple_schedule,
     set_up_base_lp,
 )
-from .types import Benchmark, PTimes, Result, STimes
 
 
 def _generate_batch(max_qubits: int, circuits_per_batch: int) -> list[QuantumCircuit]:
