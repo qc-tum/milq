@@ -11,6 +11,34 @@ from .solve_lp import solve_lp
 from .types import JobResultInfo, LPInstance, PTimes, STimes
 
 
+def _generate_simple_schedule(
+    lp_instance: LPInstance,
+    process_times: PTimes,
+    setup_times: STimes,
+) -> LPInstance:
+    """"""
+    p_times = pulp.makeDict(
+        [lp_instance.jobs[1:], lp_instance.machines],
+        process_times,
+        0,
+    )
+    s_times = pulp.makeDict(
+        [lp_instance.jobs[1:], lp_instance.machines],
+        _get_simple_setup_times(setup_times),
+        0,
+    )
+
+    for job in lp_instance.jobs[1:]:
+        lp_instance.problem += lp_instance.c_j[job] >= lp_instance.s_j[  # (7)
+            job
+        ] + pulp.lpSum(
+            lp_instance.x_ik[job][machine]
+            * (p_times[job][machine] + s_times[job][machine])
+            for machine in lp_instance.machines
+        )
+    return lp_instance
+
+
 def generate_simple_schedule(
     lp_instance: LPInstance,
     process_times: PTimes,
@@ -31,29 +59,16 @@ def generate_simple_schedule(
         tuple[float, list[JobResultInfo]]: List of jobs with their assigned machine and
             start and completion times.
     """
-    p_times = pulp.makeDict(
-        [lp_instance.jobs[1:], lp_instance.machines],
-        process_times,
-        0,
-    )
-    s_times = pulp.makeDict(
-        [lp_instance.jobs[1:], lp_instance.machines],
-        _get_simple_setup_times(setup_times),
-        0,
-    )
-
-    for job in lp_instance.jobs[1:]:
-        lp_instance.problem += lp_instance.c_j[job] >= lp_instance.s_j[  # (7)
-            job
-        ] + pulp.lpSum(
-            lp_instance.x_ik[job][machine]
-            * (p_times[job][machine] + s_times[job][machine])
-            for machine in lp_instance.machines
-        )
+    lp_instance = _generate_simple_schedule(lp_instance, process_times, setup_times)
     _, jobs = generate_info_schedule(solve_lp(lp_instance))
     s_times = pulp.makeDict(
         [lp_instance.jobs, lp_instance.jobs, lp_instance.machines],
         setup_times,
+        0,
+    )
+    p_times = pulp.makeDict(
+        [lp_instance.jobs[1:], lp_instance.machines],
+        process_times,
         0,
     )
     return calculate_makespan(jobs, p_times, s_times), jobs
@@ -84,7 +99,6 @@ def generate_simple_schedule_provider(
     accelerators: list[Accelerator],
     big_m: int = 1000,
     t_max: int = 2**7,
-    **kwargs,
 ) -> list[ScheduledJob]:
     """Calclulate a schedule for the given jobs and accelerators based on the simple MILP.
 
@@ -99,25 +113,11 @@ def generate_simple_schedule_provider(
     """
     lp_instance = set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
     # (4) - (7), (9)
-    p_times = pulp.makeDict(
-        [lp_instance.jobs[1:], lp_instance.machines],
+    lp_instance = _generate_simple_schedule(
+        lp_instance,
         _get_processing_times(jobs, accelerators),
-        0,
-    )
-    s_times = pulp.makeDict(
-        [lp_instance.jobs[1:], lp_instance.machines],
         _get_simple_setup_times_provider(jobs, accelerators),
-        0,
     )
-
-    for job in lp_instance.jobs[1:]:
-        lp_instance.problem += lp_instance.c_j[job] >= lp_instance.s_j[  # (7)
-            job
-        ] + pulp.lpSum(
-            lp_instance.x_ik[job][machine]
-            * (p_times[job][machine] + s_times[job][machine])
-            for machine in lp_instance.machines
-        )
 
     return generate_executable_schedule(solve_lp(lp_instance), jobs, accelerators)
 
@@ -126,10 +126,7 @@ def _get_simple_setup_times_provider(
     base_jobs: list[CircuitJob], accelerators: list[Accelerator]
 ) -> list[list[float]]:
     return [
-        [
-            qpu.compute_setup_time(job_i.circuit, circuit_to=None)
-            for qpu in accelerators
-        ]
+        [qpu.compute_setup_time(job_i.circuit, circuit_to=None) for qpu in accelerators]
         for job_i in base_jobs
         if job_i.circuit is not None
     ]
