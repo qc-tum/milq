@@ -56,9 +56,9 @@ def set_up_base_lp(
     """
     # Set up input params
     job_capacities = {
-        str(job.uuid): job.instance.num_qubits
+        str(job.uuid): job.circuit.num_qubits
         for job in base_jobs
-        if job.instance is not None
+        if job.circuit is not None
     }
     job_capacities["0"] = 0
     machine_capacities = {str(qpu.uuid): qpu.qubits for qpu in accelerators}
