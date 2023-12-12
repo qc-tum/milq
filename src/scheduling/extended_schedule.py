@@ -4,8 +4,9 @@ from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
 
 from .calculate_makespan import calculate_makespan
+from .generate_schedule import generate_info_schedule, generate_executable_schedule
 from .setup_lp import set_up_base_lp
-from .solve_lp import solve_lp, _solve_lp
+from .solve_lp import solve_lp
 from .types import JobResultInfo, LPInstance, PTimes, STimes
 
 
@@ -157,7 +158,7 @@ def generate_extended_schedule(
                     + d_ijk[job][job_j][machine]
                     - 2
                 )
-    _, jobs = solve_lp(lp_instance)
+    _, jobs = generate_info_schedule(solve_lp(lp_instance))
     return calculate_makespan(jobs, p_times, s_times), jobs
 
 
@@ -312,7 +313,7 @@ def generate_extended_schedule_provider(
                     + d_ijk[job][job_j][machine]
                     - 2
                 )
-    return _solve_lp(lp_instance, jobs, accelerators)
+    return generate_executable_schedule(solve_lp(lp_instance), jobs, accelerators)
 
 
 def _get_setup_times(
@@ -330,6 +331,7 @@ def _get_setup_times(
         for job_j in base_jobs
         if job_j.instance is not None
     ]
+
 
 def _get_processing_times(
     base_jobs: list[CircuitJob],

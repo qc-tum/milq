@@ -5,8 +5,9 @@ from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
 
 from .calculate_makespan import calculate_makespan
+from .generate_schedule import generate_info_schedule, generate_executable_schedule
 from .setup_lp import set_up_base_lp
-from .solve_lp import solve_lp, _solve_lp
+from .solve_lp import solve_lp
 from .types import JobResultInfo, LPInstance, PTimes, STimes
 
 
@@ -49,7 +50,7 @@ def generate_simple_schedule(
             * (p_times[job][machine] + s_times[job][machine])
             for machine in lp_instance.machines
         )
-    _, jobs = solve_lp(lp_instance)
+    _, jobs = generate_info_schedule(solve_lp(lp_instance))
     s_times = pulp.makeDict(
         [lp_instance.jobs, lp_instance.jobs, lp_instance.machines],
         setup_times,
@@ -118,7 +119,7 @@ def generate_simple_schedule_provider(
             for machine in lp_instance.machines
         )
 
-    return _solve_lp(lp_instance, jobs, accelerators)
+    return generate_executable_schedule(solve_lp(lp_instance), jobs, accelerators)
 
 
 def _get_simple_setup_times_provider(
