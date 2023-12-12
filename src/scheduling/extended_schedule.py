@@ -4,7 +4,7 @@ from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
 
 from .calculate_makespan import calculate_makespan
-from .setup_lp import _set_up_base_lp
+from .setup_lp import set_up_base_lp
 from .solve_lp import solve_lp, _solve_lp
 from .types import JobResultInfo, LPInstance, PTimes, STimes
 
@@ -166,7 +166,6 @@ def generate_extended_schedule_provider(
     accelerators: list[Accelerator],
     big_m: int = 1000,
     t_max: int = 2**7,
-    **kwargs,
 ) -> list[ScheduledJob]:
     """Calclulate a schedule for the given jobs and accelerators based on the extended MILP.
 
@@ -180,7 +179,7 @@ def generate_extended_schedule_provider(
     Returns:
         list[ScheduledJob]: A list of Jobs scheduled to accelerators.
     """
-    lp_instance = _set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
+    lp_instance = set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
 
     # additional parameters
     p_times = pulp.makeDict(

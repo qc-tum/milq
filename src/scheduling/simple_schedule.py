@@ -5,7 +5,7 @@ from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
 
 from .calculate_makespan import calculate_makespan
-from .setup_lp import _set_up_base_lp
+from .setup_lp import set_up_base_lp
 from .solve_lp import solve_lp, _solve_lp
 from .types import JobResultInfo, LPInstance, PTimes, STimes
 
@@ -96,7 +96,7 @@ def generate_simple_schedule_provider(
     Returns:
         list[ScheduledJob]: A list of Jobs scheduled to accelerators.
     """
-    lp_instance = _set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
+    lp_instance = set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
     # (4) - (7), (9)
     p_times = pulp.makeDict(
         [lp_instance.jobs[1:], lp_instance.machines],
