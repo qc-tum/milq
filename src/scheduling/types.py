@@ -15,6 +15,18 @@ class Bin:
     qpu: int = -1
 
 
+# @dataclass
+# class Bin:
+#     """Helper to keep track of binning problem."""
+
+#     capacity: int
+#     index: int
+#     qpu: int
+#     full: bool = False
+#     jobs: list[CircuitJob] = field(default_factory=list)
+
+
+
 @dataclass
 class JobHelper:
     """Helper to keep track of job names."""
@@ -38,6 +50,18 @@ class LPInstance:
 
 
 @dataclass
+# class LPInstance:
+#     """Helper to keep track of LP problem."""
+
+#     problem: pulp.LpProblem
+#     jobs: list[str]
+#     machines: list[str]
+#     x_ik: dict[str, dict[str, pulp.LpVariable]]
+#     z_ikt: dict[str, dict[str, dict[int, pulp.LpVariable]]]
+#     c_j: dict[str, pulp.LpVariable]
+#     s_j: dict[str, pulp.LpVariable]
+
+@dataclass
 class JobResultInfo:
     """Helper to keep track of job results."""
 
@@ -46,6 +70,15 @@ class JobResultInfo:
     start_time: float = -1.0
     completion_time: float = -1.0
     capacity: int = 0
+
+# @dataclass
+# class JobResultInfo:
+#     """Keep track of job results after scheduling."""
+
+#     name: str
+#     machine: str
+#     start_time: float
+#     completion_time: float
 
 
 @dataclass
