@@ -3,11 +3,47 @@ from collections import defaultdict
 from bisect import insort
 from typing import Callable
 
+import pulp
+
 from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
 from src.tools import assemble_job
 
-from .types import Bin, LPInstance, JobResultInfo
+from .calculate_makespan import calculate_bin_makespan
+from .types import Bin, LPInstance, JobResultInfo, PTimes, STimes
+
+
+def generate_bin_info_schedule(
+    jobs: list[JobResultInfo],
+    process_times: PTimes,
+    setup_times: STimes,
+    accelerators: dict[str, int],
+) -> tuple[float, list[JobResultInfo]]:
+    """Generates a schedule for evaluation purposes from bin packing.
+
+    TODO make in to a overloaded function, summarize input params
+    Args:
+        jobs (list[JobResultInfo]): The list of the scheduled jobs.
+        process_times (PTimes): The original processing times.
+        setup_times (STimes): The original setup times.
+        accelerators (dict[str, int]): The list of used accelerators.
+
+    Returns:
+        tuple[float, list[JobResultInfo]]: The objective value and the schedule.
+    """
+    lp_jobs = ["0"] + [job.name for job in jobs]  # TODO
+    machines = list(accelerators.keys())
+    p_times = pulp.makeDict(
+        [lp_jobs[1:], machines],
+        process_times,
+        0,
+    )
+    s_times = pulp.makeDict(
+        [lp_jobs, lp_jobs, machines],
+        setup_times,
+        0,
+    )
+    return calculate_bin_makespan(jobs, p_times, s_times), jobs
 
 
 def generate_info_schedule(
@@ -22,6 +58,7 @@ def generate_info_schedule(
         tuple[float, list[JobResultInfo]]: The objective value and the list of jobs with their
             with their assigned machine and start and completion times.
     """
+    # TODO check if _first_name_func is needed once we change to uuids
     assigned_jobs = _extract_gurobi_results(lp_instance, _first_name_func)
     return lp_instance.problem.objective.value(), list(assigned_jobs.values())
 

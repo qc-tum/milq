@@ -2,6 +2,7 @@
 from collections import defaultdict
 from copy import deepcopy
 
+
 from .types import JobResultInfo
 
 
@@ -36,7 +37,7 @@ def calculate_makespan(
             last_completed = _find_last_completed(job.name, assigned_jobs_copy, machine)
 
             if job.start_time == 0.0:
-                last_completed = JobResultInfo("0", machine, 0.0, 0.0)
+                last_completed = JobResultInfo("0", machine, 0.0, 0.0, 0)
             job.start_time = next(
                 (
                     j.completion_time
@@ -77,6 +78,7 @@ def _find_last_completed(
     return completed_before[0]
 
 
+# TODO Simplify?
 def calculate_bin_makespan(
     jobs: list[JobResultInfo],
     p_times: defaultdict[str, defaultdict[str, float]],

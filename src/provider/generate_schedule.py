@@ -1,5 +1,5 @@
 from src.scheduling.baseline_schedule import (
-    generate_baseline_schedule_provider as generate_baseline_schedule,
+    generate_bin_executable_schedule as generate_baseline_schedule,
 )
 from src.scheduling.extended_schedule import (
     generate_extended_schedule_provider as generate_extended_schedule,
