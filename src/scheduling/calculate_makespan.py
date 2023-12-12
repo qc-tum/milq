@@ -67,7 +67,7 @@ def _find_last_completed(
     )
     completed_before = [j for j in jobs if j.completion_time <= original_starttime]
     if len(completed_before) == 0:
-        return JobResultInfo("0", machine, 0.0, 0.0)
+        return JobResultInfo("0", machine, 0.0, 0.0, 0)
 
     completed_before = sorted(
         completed_before,
@@ -99,7 +99,7 @@ def calculate_bin_makespan(
                 (job for job in assigned_jobs), key=lambda x: x.completion_time
             )
             if job.start_time == 0.0:
-                last_completed = JobResultInfo("0", machine, 0.0, 0.0)
+                last_completed = JobResultInfo("0", machine, 0.0, 0.0, 0)
             job.start_time = last_completed.completion_time
             # calculate p_j + s_ij
             completion_time = (  # check if this order is correct

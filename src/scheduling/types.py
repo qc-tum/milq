@@ -66,19 +66,10 @@ class JobResultInfo:
     """Helper to keep track of job results."""
 
     name: str
-    machine: str = ""
-    start_time: float = -1.0
-    completion_time: float = -1.0
-    capacity: int = 0
-
-# @dataclass
-# class JobResultInfo:
-#     """Keep track of job results after scheduling."""
-
-#     name: str
-#     machine: str
-#     start_time: float
-#     completion_time: float
+    machine: str
+    start_time: float
+    completion_time: float
+    capacity: int
 
 
 @dataclass
