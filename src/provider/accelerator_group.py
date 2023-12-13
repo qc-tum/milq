@@ -1,7 +1,6 @@
 """A common interface for multiple accelerators."""
 from itertools import zip_longest
-from multiprocessing import Pool, current_process
-
+from multiprocessing import Pool, current_process, Manager, Queue
 from qiskit import QuantumCircuit
 
 from src.common import CombinedJob, Experiment, ScheduledJob
@@ -78,7 +77,15 @@ class AcceleratorGroup:
             qpu: [job for job in jobs if job.qpu == qpu]
             for qpu, _ in enumerate(self.accelerators)
         }  # Sort by qpu
-        with Pool(processes=len(self._accelerators)) as pool:
+        manager = Manager()
+        idx_queue = manager.Queue()
+        for idx in range(len(self._accelerators)):
+            idx_queue.put(idx)
+        with Pool(
+            processes=len(self._accelerators),
+            initializer=_init_accs,
+            initargs=(idx_queue,),
+        ) as pool:
             results = []
             for job in zip_longest(*jobs_per_qpu.values()):  # Run jobs in parallel
                 result = pool.apply_async(_run_job, [self._accelerators, job])
@@ -99,7 +106,15 @@ class AcceleratorGroup:
         Returns:
            list[Experiment]: Experiment with results inserted.
         """
-        with Pool(processes=len(self._accelerators)) as pool:
+        manager = Manager()
+        idx_queue = manager.Queue()
+        for idx in range(len(self._accelerators)):
+            idx_queue.put(idx)
+        with Pool(
+            processes=len(self._accelerators),
+            initializer=_init_accs,
+            initargs=(idx_queue,),
+        ) as pool:
             results = []
             for experiment in experiments:
                 result = pool.apply_async(_run_func, [self._accelerators, experiment])
@@ -107,6 +122,11 @@ class AcceleratorGroup:
             results = [result.get() for result in results]
 
         return results
+
+
+def _init_accs(queue: Queue) -> None:
+    idx = queue.get()
+    current_process().name = str(idx)
 
 
 def _run_func(accs: list[Accelerator], exp: Experiment) -> Experiment:
@@ -120,7 +140,7 @@ def _run_func(accs: list[Accelerator], exp: Experiment) -> Experiment:
         Experiment: Experiment with results inserted.
 
     """
-    pool_id = current_process()._identity[0] - 1  # TODO fix somehow
+    pool_id = int(current_process().name)
     try:
         exp.result_counts = [
             accs[pool_id].run_and_get_counts(circ) for circ in exp.circuits
@@ -132,24 +152,28 @@ def _run_func(accs: list[Accelerator], exp: Experiment) -> Experiment:
 
 
 def _run_job(
-    accs: list[Accelerator], jobs: tuple[CombinedJob | None]
+    accs: list[Accelerator], jobs: tuple[ScheduledJob | None]
 ) -> CombinedJob | None:
     """Selects a job from a tuple of jobs and runs it on the respective accelerator.
 
     Args:
         accs (list[Accelerator]): the internal accelerators.
-        jobs (tuple[CombinedJob  |  None]): The jobs which are run in parallel.
+        jobs (tuple[ScheduledJob  |  None]): The jobs which are run in parallel.
 
     Returns:
         CombinedJob | None: Returns the job with results inserted or None if no job was submited.
     """
-    pool_id = current_process()._identity[0] - 1  # TODO fix somehow
+    pool_id = int(current_process().name)
+    if pool_id > len(accs):
+        return None
     job = jobs[pool_id]
     if job is None:
         return None
-    job = job.job
+    run_job = job.job
     try:
-        job.result_counts = accs[pool_id].run_and_get_counts(job.instance, job.n_shots)
+        run_job.result_counts = accs[pool_id].run_and_get_counts(
+            run_job.instance, run_job.n_shots
+        )
     except Exception as exc:
         print(exc)
-    return job
+    return run_job
