@@ -1,5 +1,4 @@
 """A scheduler for quantum circuits."""
-from enum import auto, Enum
 from uuid import UUID
 
 from qiskit import QuantumCircuit
