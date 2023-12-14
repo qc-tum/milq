@@ -6,6 +6,7 @@ from qiskit import QuantumCircuit
 import pulp
 
 from src.common import CircuitJob
+from src.provider import Accelerator
 
 
 class SchedulerType(Enum):
@@ -21,10 +22,10 @@ class Bin:
     """Helper to keep track of binning problem."""
 
     capacity: int
-    full: bool = False
     index: int
-    jobs: list[QuantumCircuit] = field(default_factory=list)
     qpu: int
+    jobs: list[QuantumCircuit] = field(default_factory=list)
+    full: bool = False
 
 
 @dataclass
@@ -72,7 +73,7 @@ class Result:
 # Typedef
 PTimes = list[list[float]]
 STimes = list[list[list[float]]]
-Benchmark = list[ # TODO should we move this?
+Benchmark = list[  # TODO should we move this?
     dict[str, dict[str, int] | list[dict[str, PTimes | STimes | dict[str, Result]]]]
 ]
 
@@ -85,7 +86,7 @@ class ExecutableProblem:
     """
 
     base_jobs: list[CircuitJob]
-    accelerators: dict[str, int]
+    accelerators: list[Accelerator]
     big_m: int
     timesteps: int
 
