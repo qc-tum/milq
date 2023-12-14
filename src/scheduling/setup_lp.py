@@ -1,5 +1,5 @@
 """Module for setting up the base LP instance."""
-from functools import singledispatch
+from functools import singledispatch, lru_cache
 from typing import Any, Iterable
 
 from qiskit import QuantumCircuit
@@ -12,7 +12,7 @@ from .types import LPInstance, JobHelper
 
 @singledispatch
 def set_up_base_lp(
-    base_jobs: list[Any], accelerators: Iterable[Any], big_m: int, timesteps: list[int]
+    base_jobs: list[Any], accelerators: Iterable[Any], big_m: int, timesteps: int
 ) -> LPInstance:
     """Sets up the base LP instance base method. This method is not implemented!
 
@@ -24,7 +24,7 @@ def set_up_base_lp(
         base_jobs (list[Any]): The list of quantum cirucits (jobs).
         accelerators (Iterable[Any]): The list of available accelerators (machines).
         big_m (int): Metavariable for the LP.
-        timesteps (list[int]): Meta variable for the LP, big enough to cover largest makespan.
+        timesteps (int): Meta variable for the LP, big enough to cover largest makespan.
 
     Raises:
         NotImplementedError: If the method is not implemented for the given types.
@@ -37,7 +37,7 @@ def set_up_base_lp(
     base_jobs: list[CircuitJob],
     accelerators: list[Accelerator],
     big_m: int,
-    timesteps: list[int],
+    timesteps: int,
 ) -> LPInstance:
     """Sets up the base LP instance for use in the provider.
 
@@ -49,7 +49,7 @@ def set_up_base_lp(
         base_jobs (list[CircuitJob]): The list of quantum cirucits (jobs).
         accelerators (list[Accelerator]): The list of available accelerators (machines).
         big_m (int): Metavariable for the LP.
-        timesteps (list[int]): Meta variable for the LP, big enough to cover largest makespan.
+        timesteps (int): Meta variable for the LP, big enough to cover largest makespan.
 
     Returns:
         LPInstance: The LP instance object.
@@ -63,7 +63,9 @@ def set_up_base_lp(
     job_capacities["0"] = 0
     machine_capacities = {str(qpu.uuid): qpu.qubits for qpu in accelerators}
 
-    return _set_up_base_lp(job_capacities, machine_capacities, timesteps, big_m)
+    return _set_up_base_lp(
+        job_capacities, machine_capacities, list(range(timesteps)), big_m
+    )
 
 
 @set_up_base_lp.register
@@ -71,7 +73,7 @@ def set_up_base_lp(
     base_jobs: list[QuantumCircuit],
     accelerators: dict[str, int],
     big_m: int,
-    timesteps: list[int],
+    timesteps: int,
 ) -> LPInstance:
     """Sets up the base LP instance for use outside of provider.
 
@@ -83,7 +85,7 @@ def set_up_base_lp(
         base_jobs (list[QuantumCircuit]): The list of quantum cirucits (jobs).
         accelerators (dict[str, int]): The list of available accelerators (machines).
         big_m (int): Metavariable for the LP.
-        timesteps (list[int]): Meta variable for the LP, big enough to cover largest makespan.
+        timesteps (int): Meta variable for the LP, big enough to cover largest makespan.
 
     Returns:
         LPInstance: The LP instance object.
@@ -94,13 +96,16 @@ def set_up_base_lp(
 
     machine_capacities = accelerators
 
-    lp_instance = _set_up_base_lp(job_capacities, machine_capacities, timesteps, big_m)
+    lp_instance = _set_up_base_lp(
+        job_capacities, machine_capacities, list(range(timesteps)), big_m
+    )
     lp_instance.named_circuits = [JobHelper("0", None)] + [
         JobHelper(str(idx + 1), job) for idx, job in enumerate(base_jobs)
     ]
     return lp_instance
 
 
+@lru_cache
 def _set_up_base_lp(
     job_capacities: dict[str, int],
     machine_capacities: dict[str, int],
