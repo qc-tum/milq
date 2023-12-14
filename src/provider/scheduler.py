@@ -11,23 +11,11 @@ from src.common import (
     job_from_circuit,
     ScheduledJob,
 )
+from src.scheduling import ExecutableProblem, generate_schedule, SchedulerType
 from src.tools import cut_circuit
 
 from .accelerator import Accelerator
 from .accelerator_group import AcceleratorGroup
-from .generate_schedule import (
-    generate_baseline_schedule,
-    generate_extended_schedule,
-    generate_simple_schedule,
-)
-
-
-class SchedulerType(Enum):
-    """The type of scheduler to use."""
-
-    BASELINE = auto()
-    SIMPLE = auto()
-    EXTENDED = auto()
 
 
 class Scheduler:
@@ -39,6 +27,7 @@ class Scheduler:
             - Consider 1 free qubit remaining when scheduling
             - Make a continuous run function / sumbit new circuits
             - Keep track of current schedule and update it
+            - Find out the maximum number timesteps needed
     """
 
     def __init__(
@@ -84,17 +73,14 @@ class Scheduler:
             key=lambda x: x.circuit.num_qubits if x.circuit is not None else 0,
             reverse=True,
         )
-        schedule_function = generate_baseline_schedule
-        match self.stype:
-            case SchedulerType.SIMPLE:
-                schedule_function = generate_simple_schedule
-            case SchedulerType.EXTENDED:
-                schedule_function = generate_extended_schedule
-            case SchedulerType.BASELINE:
-                schedule_function = generate_baseline_schedule
-            case _:
-                raise ValueError("Unknown scheduler type")
-        return schedule_function(accelerators=self.accelerator.accelerators, jobs=jobs)
+        problem = ExecutableProblem(
+            base_jobs=jobs,
+            accelerators=self.accelerator.accelerators,
+            big_m=1000,
+            timesteps=2**7,
+        )
+
+        return generate_schedule(problem, self.stype)
 
     def _convert_to_jobs(self, circuits: list[QuantumCircuit]) -> list[CircuitJob]:
         """Generates jobs from circuits.
