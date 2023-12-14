@@ -4,7 +4,7 @@ from functools import singledispatch
 from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
 
-from .baseline_schedule import (
+from .bin_schedule import (
     generate_bin_info_schedule,
     generate_bin_executable_schedule,
 )
