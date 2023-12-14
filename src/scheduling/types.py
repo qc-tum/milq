@@ -72,7 +72,7 @@ class Result:
 # Typedef
 PTimes = list[list[float]]
 STimes = list[list[list[float]]]
-Benchmark = list[
+Benchmark = list[ # TODO should we move this?
     dict[str, dict[str, int] | list[dict[str, PTimes | STimes | dict[str, Result]]]]
 ]
 

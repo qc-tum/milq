@@ -1,19 +1,16 @@
 """Generates the benchmark data."""
-from copy import deepcopy
-
 from mqt.bench import get_benchmark
 from qiskit import QuantumCircuit
 import numpy as np
 
 from src.scheduling import (
     Benchmark,
+    InfoProblem,
     PTimes,
     Result,
+    SchedulerType,
     STimes,
-    set_up_base_lp,
-    generate_extended_schedule,
-    generate_simple_schedule,
-    generate_bin_info_schedule,
+    generate_schedule,
 )
 from utils.helpers import Timer
 
@@ -66,35 +63,37 @@ def run_experiments(
         ]
         benchmark_results: list[dict[str, PTimes | STimes | dict[str, Result]]] = []
         for benchmark in benchmarks:
-            lp_instance = set_up_base_lp(
-                benchmark, setting, big_m=1000, timesteps=list(range(t_max))
-            )
-            p_times = _get_processing_times(benchmark, setting, get_integers)
-            s_times = _get_setup_times(
+            # lp_instance = set_up_base_lp(
+            #     benchmark, setting, big_m=1000, timesteps=list(range(t_max))
+            # )
+            p_times = _get_benchmark_processing_times(benchmark, setting, get_integers)
+            s_times = _get_benchmark_setup_times(
                 benchmark, setting, default_value=2**5, get_integers=get_integers
+            )
+            problem = InfoProblem(
+                base_jobs=benchmark,
+                accelerators=setting,
+                big_m=1000,
+                timesteps=t_max,
+                process_times=p_times,
+                setup_times=s_times,
             )
             result: dict[str, Result] = {}
 
             # Run the baseline model
             with Timer() as t0:
-                makespan, jobs = generate_bin_info_schedule(
-                    benchmark, setting, p_times, s_times
-                )
+                makespan, jobs = generate_schedule(problem, SchedulerType.BASELINE)
             result["baseline"] = Result(makespan, jobs, t0.elapsed)
 
             # Run the simple model
-            lp_instance_copy = deepcopy(lp_instance)
+
             with Timer() as t1:
-                makespan, jobs = generate_simple_schedule(
-                    lp_instance_copy, p_times, s_times
-                )
+                makespan, jobs = generate_schedule(problem, SchedulerType.SIMPLE)
             result["simple"] = Result(makespan, jobs, t1.elapsed)
 
             # Run the extended model
             with Timer() as t2:
-                makespan, jobs = generate_extended_schedule(
-                    lp_instance, p_times, s_times
-                )
+                makespan, jobs = generate_schedule(problem, SchedulerType.EXTENDED)
             result["extended"] = Result(makespan, jobs, t2.elapsed)
 
             # Store results
@@ -106,7 +105,7 @@ def run_experiments(
     return results
 
 
-def _get_processing_times(
+def _get_benchmark_processing_times(
     base_jobs: list[QuantumCircuit],
     accelerators: dict[str, int],
     get_integers: bool = False,
@@ -119,7 +118,7 @@ def _get_processing_times(
     ]
 
 
-def _get_setup_times(
+def _get_benchmark_setup_times(
     base_jobs: list[QuantumCircuit],
     accelerators: dict[str, int],
     default_value: float,
