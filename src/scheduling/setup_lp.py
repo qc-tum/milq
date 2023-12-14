@@ -1,6 +1,5 @@
 """Module for setting up the base LP instance."""
-from functools import singledispatch, lru_cache
-from typing import Any, Iterable
+from functools import lru_cache
 
 from qiskit import QuantumCircuit
 import numpy as np
@@ -11,9 +10,11 @@ from src.provider import Accelerator
 from .types import LPInstance, JobHelper, PTimes, STimes
 
 
-@singledispatch
 def set_up_base_lp(
-    base_jobs: list[Any], accelerators: Iterable[Any], big_m: int, timesteps: int
+    base_jobs: list[CircuitJob] | list[QuantumCircuit],
+    accelerators: list[Accelerator] | dict[str, int],
+    big_m: int,
+    timesteps: int,
 ) -> LPInstance:
     """Sets up the base LP instance base method. This method is not implemented!
 
@@ -22,19 +23,27 @@ def set_up_base_lp(
     Does not contain the constraints regarding the successor relationship.
 
     Args:
-        base_jobs (list[Any]): The list of quantum cirucits (jobs).
-        accelerators (Iterable[Any]): The list of available accelerators (machines).
+        base_jobs (list[CircuitJob] | list[QuantumCircuit]): The list of quantum cirucits (jobs).
+        accelerators (list[Accelerator] | dict[str, int]):
+            The list of available accelerators (machines).
         big_m (int): Metavariable for the LP.
         timesteps (int): Meta variable for the LP, big enough to cover largest makespan.
 
+    Returns:
+        LPInstance: The LP instance object.
+
     Raises:
-        NotImplementedError: If the method is not implemented for the given types.
+        NotImplementedError: If the input types are not supported.
     """
+    if isinstance(accelerators, list):
+        return _set_up_base_lp_exec(base_jobs, accelerators, big_m, timesteps)
+    if isinstance(accelerators, dict):
+        return _set_up_base_lp_info(base_jobs, accelerators, big_m, timesteps)
+
     raise NotImplementedError
 
 
-@set_up_base_lp.register
-def set_up_base_lp(
+def _set_up_base_lp_exec(
     base_jobs: list[CircuitJob],
     accelerators: list[Accelerator],
     big_m: int,
@@ -69,8 +78,7 @@ def set_up_base_lp(
     )
 
 
-@set_up_base_lp.register
-def set_up_base_lp(
+def _set_up_base_lp_info(
     base_jobs: list[QuantumCircuit],
     accelerators: dict[str, int],
     big_m: int,
