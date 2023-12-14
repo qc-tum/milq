@@ -1,6 +1,4 @@
 """Module for setting up the base LP instance."""
-from functools import lru_cache
-
 from qiskit import QuantumCircuit
 import numpy as np
 import pulp
@@ -114,7 +112,6 @@ def _set_up_base_lp_info(
     return lp_instance
 
 
-@lru_cache
 def _set_up_base_lp(
     job_capacities: dict[str, int],
     machine_capacities: dict[str, int],
