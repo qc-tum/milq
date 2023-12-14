@@ -42,8 +42,8 @@ def test_generate_schedule() -> None:
         [slice(0, 3), slice(3, 5)],
         [slice(0, 2), slice(2, 4)],
     ]
-    for job, qubits in zip(jobs_0, qubits_0):
-        assert job.mapping == qubits
+    for _job, qubits in zip(jobs_0, qubits_0):
+        assert _job.mapping == qubits
     qubits_1 = [
         [slice(0, 5)],
         [slice(0, 5)],
@@ -51,8 +51,8 @@ def test_generate_schedule() -> None:
         [slice(0, 2), slice(2, 4)],
         [slice(0, 2)],
     ]
-    for job, qubits in zip(jobs_1, qubits_1):
-        assert job.mapping == qubits
+    for _job, qubits in zip(jobs_1, qubits_1):
+        assert _job.mapping == qubits
 
 
 @patch("qiskit_aer.AerSimulator.run")
