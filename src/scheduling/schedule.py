@@ -1,8 +1,5 @@
-""""""
+"""Wrapper for schedule generation."""
 from functools import singledispatch
-from typing import Any, Iterable
-
-import numpy as np
 
 from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
@@ -29,8 +26,18 @@ from .types import (
 
 @singledispatch
 def generate_schedule(
-    base_jobs: list[Any], accelerators: Iterable[Any], big_m: int, timesteps: list[int]
+    problem: InfoProblem | ExecutableProblem,
+    schedule_type: SchedulerType,
 ) -> None:
+    """Generates the schedule for the given problem and schedule type.
+
+    Args:
+        problem (InfoProblem | ExecutableProblem ): The full problem definition.
+        schedule_type (SchedulerType): The type of schedule to use.
+
+    Raises:
+        NotImplementedError: _description_
+    """
     raise NotImplementedError("Unsupported type")
 
 
