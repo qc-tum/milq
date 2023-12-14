@@ -5,6 +5,8 @@ from enum import auto, Enum
 from qiskit import QuantumCircuit
 import pulp
 
+from src.common import CircuitJob
+
 
 class SchedulerType(Enum):
     """The type of scheduler to use."""
@@ -73,3 +75,31 @@ STimes = list[list[list[float]]]
 Benchmark = list[
     dict[str, dict[str, int] | list[dict[str, PTimes | STimes | dict[str, Result]]]]
 ]
+
+
+@dataclass
+class ExecutableProblem:
+    """Defines an executable problem.
+
+    This calculates setup and process times based on the accelerators.
+    """
+
+    base_jobs: list[CircuitJob]
+    accelerators: dict[str, int]
+    big_m: int
+    timesteps: int
+
+
+@dataclass
+class InfoProblem:
+    """Defines an infor prolbem
+
+    This requires setup and process times to be defined.
+    """
+
+    base_jobs: list[QuantumCircuit]
+    accelerators: dict[str, int]
+    big_m: int
+    timesteps: int
+    process_times: PTimes
+    setup_times: STimes
