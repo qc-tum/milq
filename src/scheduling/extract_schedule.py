@@ -43,13 +43,13 @@ def generate_bin_info_schedule(
         setup_times,
         0,
     )
-    return calculate_bin_makespan(jobs, p_times, s_times), jobs
+    return calculate_bin_makespan(jobs, p_times, s_times, accelerators), jobs
 
 
-def generate_info_schedule(
+def extract_info_schedule(
     lp_instance: LPInstance,
 ) -> tuple[float, list[JobResultInfo]]:
-    """Generates a schedule for evaluation purposes.
+    """Extracts a schedule for evaluation purposes.
 
     Args:
         lp_instance (LPInstance): A solved LP instance.
@@ -63,10 +63,10 @@ def generate_info_schedule(
     return lp_instance.problem.objective.value(), list(assigned_jobs.values())
 
 
-def generate_executable_schedule(
+def extract_executable_schedule(
     lp_instance: LPInstance, jobs: list[CircuitJob], accelerators: list[Accelerator]
 ) -> list[ScheduledJob]:
-    """Generates a schedule for execution purposes.
+    """Extracts a schedule for execution purposes.
 
     Solves the problem and generates bins to execute simultaneous jobs.
     TODO still assumes that bins take same time. This is only done for acceleratorgroup.
