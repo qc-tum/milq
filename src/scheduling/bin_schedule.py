@@ -93,7 +93,7 @@ def generate_bin_executable_schedule(
 
 
 def _do_bin_pack(
-    jobs: list[CircuitJob], accelerator_capacities: list[str]
+    jobs: list[CircuitJob], accelerator_capacities: list[int]
 ) -> list[Bin]:
     open_bins = [
         Bin(index=0, capacity=qpu, qpu=idx)
