@@ -2,27 +2,41 @@
 from collections import defaultdict
 from copy import deepcopy
 
+import pulp
 
-from .types import JobResultInfo
+from .types import JobResultInfo, LPInstance, PTimes, STimes
 
 
 def calculate_makespan(
+    lp_instance: LPInstance,
     jobs: list[JobResultInfo],
-    p_times: defaultdict[str, defaultdict[str, float]],
-    s_times: defaultdict[str, defaultdict[str, defaultdict[str, float]]],
+    process_times: PTimes,
+    setup_times: STimes,
 ) -> float:
     """Calculates the actual makespan from the list of results.
 
     Executes the schedule with the corret p_ij and s_ij values.
 
     Args:
+        lp_instance (LPInstance): The base LP instance.
         jobs (list[JobResultInfo]): The list of job results.
-        p_times (defaultdict[str, defaultdict[str, float]]): The correct  p_ij.
-        s_times (defaultdict[str, defaultdict[str, defaultdict[str, float]]]): The correct s_ij.
+        process_times (PTimes): The correct  p_ij.
+        setup_times (STimes) The correct s_ij.
 
     Returns:
         float: The makespan of the schedule.
     """
+    s_times = pulp.makeDict(
+        [lp_instance.jobs, lp_instance.jobs, lp_instance.machines],
+        setup_times,
+        0,
+    )
+    p_times = pulp.makeDict(
+        [lp_instance.jobs[1:], lp_instance.machines],
+        process_times,
+        0,
+    )
+
     assigned_machines: defaultdict[str, list[JobResultInfo]] = defaultdict(list)
     for job in jobs:
         assigned_machines[job.machine].append(job)
@@ -81,12 +95,27 @@ def _find_last_completed(
 # TODO Simplify?
 def calculate_bin_makespan(
     jobs: list[JobResultInfo],
-    p_times: defaultdict[str, defaultdict[str, float]],
-    s_times: defaultdict[str, defaultdict[str, defaultdict[str, float]]],
+    process_times: PTimes,
+    setup_times: STimes,
+    accelerators: dict[str, int],
 ) -> float:
     """Calculates the actual makespan from the list of jobs.
     By executing the schedule with the corret p_ij and s_ij values.
+    TODO see generate_bin_info_schedule
     """
+    lp_jobs = ["0"] + [job.name for job in jobs]  # TODO
+    machines = list(accelerators.keys())
+    p_times = pulp.makeDict(
+        [lp_jobs[1:], machines],
+        process_times,
+        0,
+    )
+    s_times = pulp.makeDict(
+        [lp_jobs, lp_jobs, machines],
+        setup_times,
+        0,
+    )
+
     assigned_machines: defaultdict[str, list[JobResultInfo]] = defaultdict(list)
     for job in jobs:
         assigned_machines[job.machine].append(job)
