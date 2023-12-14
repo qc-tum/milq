@@ -140,6 +140,8 @@ def _do_bin_pack(
 
 
 def _find_fitting_bin(job: CircuitJob, bins: list[Bin]) -> int | None:
+    if job.circuit is None:
+        return None
     for idx, b in enumerate(bins):
         if b.capacity >= job.circuit.num_qubits:
             return idx
