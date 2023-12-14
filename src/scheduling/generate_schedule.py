@@ -16,6 +16,7 @@ from .types import (
     ExecutableProblem,
     InfoProblem,
     JobResultInfo,
+    LPInstance,
     PTimes,
     SchedulerType,
     STimes,
@@ -46,7 +47,7 @@ def generate_schedule(
 def generate_schedule(
     problem: InfoProblem,
     schedule_type: SchedulerType,
-) -> tuple[float, list[JobResultInfo]]:
+) -> tuple[float, list[JobResultInfo], LPInstance | None]:
     """Generates the schedule for the given problem and schedule type.
 
     Calculates the true makespan by 'executing' the schedlue.
@@ -63,7 +64,7 @@ def generate_schedule(
         makespan = calculate_bin_makespan(
             jobs, problem.process_times, problem.setup_times, problem.accelerators
         )
-        return makespan, jobs
+        return makespan, jobs, None
 
     lp_instance = set_up_base_lp(
         problem.base_jobs, problem.accelerators, problem.big_m, problem.timesteps
@@ -88,7 +89,7 @@ def generate_schedule(
         lp_instance, jobs, problem.process_times, problem.setup_times
     )
 
-    return makespan, jobs
+    return makespan, jobs, lp_instance
 
 
 @generate_schedule.register

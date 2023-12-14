@@ -82,18 +82,18 @@ def run_experiments(
 
             # Run the baseline model
             with Timer() as t0:
-                makespan, jobs = generate_schedule(problem, SchedulerType.BASELINE)
+                makespan, jobs, _ = generate_schedule(problem, SchedulerType.BASELINE)
             result["baseline"] = Result(makespan, jobs, t0.elapsed)
 
             # Run the simple model
 
             with Timer() as t1:
-                makespan, jobs = generate_schedule(problem, SchedulerType.SIMPLE)
+                makespan, jobs, _ = generate_schedule(problem, SchedulerType.SIMPLE)
             result["simple"] = Result(makespan, jobs, t1.elapsed)
 
             # Run the extended model
             with Timer() as t2:
-                makespan, jobs = generate_schedule(problem, SchedulerType.EXTENDED)
+                makespan, jobs, _ = generate_schedule(problem, SchedulerType.EXTENDED)
             result["extended"] = Result(makespan, jobs, t2.elapsed)
 
             # Store results
