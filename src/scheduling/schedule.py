@@ -9,10 +9,8 @@ from .baseline_schedule import (
     generate_bin_executable_schedule,
 )
 from .calculate_makespan import calculate_makespan, calculate_bin_makespan
-from .extended_schedule import generate_extended_lp
 from .extract_schedule import extract_info_schedule, extract_executable_schedule
-from .setup_lp import set_up_base_lp
-from .simple_schedule import generate_simple_lp
+from .setup_lp import set_up_base_lp, set_up_extended_lp, set_up_simple_lp
 from .solve_lp import solve_lp
 from .types import (
     ExecutableProblem,
@@ -31,6 +29,9 @@ def generate_schedule(
 ) -> None:
     """Generates the schedule for the given problem and schedule type.
 
+    Baseline: Generates a schedule using binpacking.
+    Else generates the schedule using MILP  and then calculates the makespan
+    by executing the schedule with the correct p_ij and s_ij values.
     Args:
         problem (InfoProblem | ExecutableProblem ): The full problem definition.
         schedule_type (SchedulerType): The type of schedule to use.
@@ -69,13 +70,13 @@ def generate_schedule(
     )
 
     if schedule_type == SchedulerType.EXTENDED:
-        lp_instance = generate_extended_lp(
+        lp_instance = set_up_extended_lp(
             lp_instance=lp_instance,
             process_times=problem.process_times,
             setup_times=problem.setup_times,
         )
     else:
-        lp_instance = generate_simple_lp(
+        lp_instance = set_up_simple_lp(
             lp_instance=lp_instance,
             process_times=problem.process_times,
             setup_times=problem.setup_times,
@@ -115,13 +116,13 @@ def generate_schedule(
     process_times = _get_processing_times(problem.base_jobs, problem.accelerators)
     setup_times = _get_setup_times(problem.base_jobs, problem.accelerators)
     if schedule_type == SchedulerType.EXTENDED:
-        lp_instance = generate_extended_lp(
+        lp_instance = set_up_extended_lp(
             lp_instance=lp_instance,
             process_times=process_times,
             setup_times=setup_times,
         )
     else:
-        lp_instance = generate_simple_lp(
+        lp_instance = set_up_simple_lp(
             lp_instance=lp_instance,
             process_times=process_times,
             setup_times=setup_times,
