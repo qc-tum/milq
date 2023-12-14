@@ -5,13 +5,13 @@ from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
 
 from .calculate_makespan import calculate_makespan
-from .generate_schedule import generate_info_schedule, generate_executable_schedule
+from .extract_schedule import extract_info_schedule, extract_executable_schedule
 from .setup_lp import set_up_base_lp
 from .solve_lp import solve_lp
 from .types import JobResultInfo, LPInstance, PTimes, STimes
 
 
-def _generate_simple_schedule(
+def generate_simple_lp(
     lp_instance: LPInstance,
     process_times: PTimes,
     setup_times: STimes,
@@ -59,19 +59,9 @@ def generate_simple_schedule(
         tuple[float, list[JobResultInfo]]: List of jobs with their assigned machine and
             start and completion times.
     """
-    lp_instance = _generate_simple_schedule(lp_instance, process_times, setup_times)
-    _, jobs = generate_info_schedule(solve_lp(lp_instance))
-    s_times = pulp.makeDict(
-        [lp_instance.jobs, lp_instance.jobs, lp_instance.machines],
-        setup_times,
-        0,
-    )
-    p_times = pulp.makeDict(
-        [lp_instance.jobs[1:], lp_instance.machines],
-        process_times,
-        0,
-    )
-    return calculate_makespan(jobs, p_times, s_times), jobs
+    lp_instance = generate_simple_lp(lp_instance, process_times, setup_times)
+    _, jobs = extract_info_schedule(solve_lp(lp_instance))
+    return calculate_makespan(lp_instance, jobs, process_times, setup_times), jobs
 
 
 def _get_simple_setup_times(
@@ -113,13 +103,13 @@ def generate_simple_schedule_provider(
     """
     lp_instance = set_up_base_lp(jobs, accelerators, big_m, list(range(t_max)))
     # (4) - (7), (9)
-    lp_instance = _generate_simple_schedule(
+    lp_instance = generate_simple_lp(
         lp_instance,
         _get_processing_times(jobs, accelerators),
         _get_simple_setup_times_provider(jobs, accelerators),
     )
 
-    return generate_executable_schedule(solve_lp(lp_instance), jobs, accelerators)
+    return extract_executable_schedule(solve_lp(lp_instance), jobs, accelerators)
 
 
 def _get_simple_setup_times_provider(

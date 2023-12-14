@@ -4,13 +4,13 @@ from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
 
 from .calculate_makespan import calculate_makespan
-from .generate_schedule import generate_info_schedule, generate_executable_schedule
+from .extract_schedule import extract_info_schedule, extract_executable_schedule
 from .setup_lp import set_up_base_lp
 from .solve_lp import solve_lp
 from .types import JobResultInfo, LPInstance, PTimes, STimes
 
 
-def _generate_extended_schedule(
+def generate_extended_lp(
     lp_instance: LPInstance,
     process_times: PTimes,
     setup_times: STimes,
@@ -167,21 +167,9 @@ def generate_extended_schedule(
         tuple[float, list[JobResultInfo]]: List of jobs with their assigned machine and
             start and completion times.
     """
-    lp_instance = _generate_extended_schedule(
-        lp_instance, process_times, setup_times, big_m
-    )
-    s_times = pulp.makeDict(
-        [lp_instance.jobs, lp_instance.jobs, lp_instance.machines],
-        setup_times,
-        0,
-    )
-    p_times = pulp.makeDict(
-        [lp_instance.jobs[1:], lp_instance.machines],
-        process_times,
-        0,
-    )
-    _, jobs = generate_info_schedule(solve_lp(lp_instance))
-    return calculate_makespan(jobs, p_times, s_times), jobs
+    lp_instance = generate_extended_lp(lp_instance, process_times, setup_times, big_m)
+    _, jobs = extract_info_schedule(solve_lp(lp_instance))
+    return calculate_makespan(lp.instance, jobs, process_times, setup_times), jobs
 
 
 def generate_extended_schedule_provider(
@@ -216,11 +204,11 @@ def generate_extended_schedule_provider(
         _get_setup_times(jobs, accelerators),
         0,
     )
-    lp_instance = _generate_extended_schedule(
+    lp_instance = generate_extended_lp(
         lp_instance=lp_instance, process_times=p_times, setup_times=s_times
     )
 
-    return generate_executable_schedule(solve_lp(lp_instance), jobs, accelerators)
+    return extract_executable_schedule(solve_lp(lp_instance), jobs, accelerators)
 
 
 def _get_setup_times(
