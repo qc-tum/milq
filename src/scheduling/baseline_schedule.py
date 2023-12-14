@@ -9,7 +9,7 @@ from src.tools import assemble_job
 from .types import Bin, JobResultInfo
 
 
-def generate_baseline_schedule(
+def generate_bin_info_schedule(
     jobs: list[QuantumCircuit],
     accelerators: dict[str, int],
 ) -> list[JobResultInfo]:

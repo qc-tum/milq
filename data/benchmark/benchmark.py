@@ -13,7 +13,7 @@ from src.scheduling import (
     set_up_base_lp,
     generate_extended_schedule,
     generate_simple_schedule,
-    generate_baseline_schedule,
+    generate_bin_info_schedule,
 )
 from utils.helpers import Timer
 
@@ -77,7 +77,7 @@ def run_experiments(
 
             # Run the baseline model
             with Timer() as t0:
-                makespan, jobs = generate_baseline_schedule(
+                makespan, jobs = generate_bin_info_schedule(
                     benchmark, setting, p_times, s_times
                 )
             result["baseline"] = Result(makespan, jobs, t0.elapsed)
