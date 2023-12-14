@@ -1,11 +1,12 @@
+"""Modlue for the example problem."""
 import json
 
+from qiskit import QuantumCircuit
 import numpy as np
 
 from src.scheduling import InfoProblem, generate_schedule, SchedulerType
 
 np.random.seed(42)
-
 
 
 def _calculate_exmaple_process_times(job_i, machine_k) -> float:
@@ -63,21 +64,32 @@ def _generate_problem(big_m: int, timesteps: int) -> tuple[InfoProblem, dict[str
         ]
         for job_j in jobs
     ]
-    return InfoProblem(
-        base_jobs=[],
-        accelerators=machine_capacities,
-        big_m=big_m,
-        timesteps=timesteps,
-        process_times=processing_times,
-        setup_times=setup_times,
-    ), job_capacities
+    return (
+        InfoProblem(
+            base_jobs=[QuantumCircuit(cap) for cap in job_capacities.values()],
+            accelerators=machine_capacities,
+            big_m=big_m,
+            timesteps=timesteps,
+            process_times=processing_times,
+            setup_times=setup_times,
+        ),
+        job_capacities,
+    )
 
 
 def example_problem(big_m: int, timesteps: int, filename: str = "scheduling"):
-    _problem, job_capacities: InfoProblem = _generate_problem(big_m, timesteps)
-    _,_,lp_instance = generate_schedule(_problem, SchedulerType.SIMPLE)
+    """Runs the example problem and saves the LP file and JSON file.
+    TODO should also run the solution explorer and produce the output pdf.
+
+    Args:
+        big_m (int): LP metavariable.
+        timesteps (int): LP metavariable.
+        filename (str, optional): Filename for .lp, .json and .pdf. Defaults to "scheduling".
+    """
+    _problem, job_capacities = _generate_problem(big_m, timesteps)
+    _, _, lp_instance = generate_schedule(_problem, SchedulerType.SIMPLE)
     lp_instance.problem.writeLP(f"{filename}.lp")
-    
+
     with open("{filename}.json", "w+", encoding="utf-8") as f:
         json.dump(
             {
