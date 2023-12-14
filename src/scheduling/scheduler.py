@@ -10,10 +10,10 @@ from src.common import (
     job_from_circuit,
     ScheduledJob,
 )
-from src.scheduling import ExecutableProblem, generate_schedule, SchedulerType
 from src.tools import cut_circuit
-
 from src.provider import Accelerator, AcceleratorGroup
+from .generate_schedule import generate_schedule
+from .types import ExecutableProblem, SchedulerType
 
 
 class Scheduler:

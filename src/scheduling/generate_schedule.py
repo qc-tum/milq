@@ -1,6 +1,4 @@
 """Wrapper for schedule generation."""
-from functools import singledispatch
-
 from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
 
@@ -23,11 +21,10 @@ from .types import (
 )
 
 
-@singledispatch
 def generate_schedule(
     problem: InfoProblem | ExecutableProblem,
     schedule_type: SchedulerType,
-) -> None:
+) -> tuple[float, list[JobResultInfo], LPInstance | None] | list[ScheduledJob]:
     """Generates the schedule for the given problem and schedule type.
 
     Baseline: Generates a schedule using binpacking.
@@ -37,14 +34,22 @@ def generate_schedule(
         problem (InfoProblem | ExecutableProblem ): The full problem definition.
         schedule_type (SchedulerType): The type of schedule to use.
 
+    Returns:
+        list[ScheduledJob]: List of ScheduledJobs. |
+        tuple[float, list[JobResultInfo]]: The makespan and the list of jobs with their
+        assigned machine and start and completion times.
+
     Raises:
         NotImplementedError: _description_
     """
+    if isinstance(problem, InfoProblem):
+        return _generate_schedule_info(problem, schedule_type)
+    if isinstance(problem, ExecutableProblem):
+        return _generate_schedule_exec(problem, schedule_type)
     raise NotImplementedError("Unsupported type")
 
 
-@generate_schedule.register
-def generate_schedule(
+def _generate_schedule_info(
     problem: InfoProblem,
     schedule_type: SchedulerType,
 ) -> tuple[float, list[JobResultInfo], LPInstance | None]:
@@ -91,9 +96,7 @@ def generate_schedule(
 
     return makespan, jobs, lp_instance
 
-
-@generate_schedule.register
-def generate_schedule(
+def _generate_schedule_exec(
     problem: ExecutableProblem,
     schedule_type: SchedulerType,
 ) -> list[ScheduledJob]:
