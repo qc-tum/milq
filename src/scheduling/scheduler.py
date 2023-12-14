@@ -13,8 +13,7 @@ from src.common import (
 from src.scheduling import ExecutableProblem, generate_schedule, SchedulerType
 from src.tools import cut_circuit
 
-from .accelerator import Accelerator
-from .accelerator_group import AcceleratorGroup
+from src.provider import Accelerator, AcceleratorGroup
 
 
 class Scheduler:

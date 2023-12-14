@@ -3,7 +3,8 @@ from unittest.mock import MagicMock, patch
 
 from src.circuits import create_ghz, create_quantum_only_ghz
 from src.common import CombinedJob, IBMQBackend
-from src.provider import Accelerator, Scheduler
+from src.provider import Accelerator
+from src.scheduling import Scheduler
 from src.tools import optimize_circuit_offline
 
 
