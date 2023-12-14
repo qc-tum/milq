@@ -1,10 +1,12 @@
 """A utility script to visualize a solution to the scheduling problem."""
 
+# TODO fix
+# TODO make usable with example_problem.py
 import argparse
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import milp
+import data.example.example_problem as example_problem
 import pandas as pd
 from matplotlib import ticker
 from matplotlib.patches import Patch
@@ -64,17 +66,17 @@ def list2binstr(l: list[int]) -> str:
 df = pd.DataFrame(
     columns=["job", "capacity", "machine", "start", "end", "duration", "zmask"]
 )
-for job in filter(lambda j: j != "0", milp.jobs):
+for job in filter(lambda j: j != "0", example_problem.jobs):
     start = round(values[f"s_j_{job}"])
     end = round(values[f"c_j_{job}"])
     [assigned_machine] = [
-        machine for machine in milp.machines if values[f"x_ik_{job}_{machine}"] >= 0.5
+        machine for machine in example_problem.machines if values[f"x_ik_{job}_{machine}"] >= 0.5
     ]
-    capacity = milp.job_capacities[job]
+    capacity = example_problem.job_capacities[job]
     duration = end - start + 1
     all_zs = [
-        [round(values[f"z_ikt_{job}_{machine}_{t}"]) for t in milp.timesteps]
-        for machine in milp.machines
+        [round(values[f"z_ikt_{job}_{machine}_{t}"]) for t in example_problem.timesteps]
+        for machine in example_problem.machines
     ]
     [zs] = [z for z in all_zs if sum(z) > 0]
     zs = list2binstr(zs)
@@ -85,7 +87,7 @@ print(df)
 # Create patches for the legend
 cmap = mpl.colormaps.get_cmap("tab10")
 color_mapping = {
-    m: cmap(i / (len(milp.machines) - 1)) for i, m in enumerate(milp.machines)
+    m: cmap(i / (len(example_problem.machines) - 1)) for i, m in enumerate(example_problem.machines)
 }
 patches = []
 for color in color_mapping.values():
