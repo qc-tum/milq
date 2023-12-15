@@ -72,7 +72,7 @@ def reconstruct_counts_from_job(job: CombinedJob) -> list[CircuitJob]:
                 circuit=None,
                 n_shots=job.n_shots,
                 observable=observable,
-                partition_lable=job.partition_lables[idx],
+                partition_label=job.partition_lables[idx],
                 result_counts=counts,
                 uuid=job.uuids[idx],
             )

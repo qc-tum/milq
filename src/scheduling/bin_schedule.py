@@ -35,7 +35,7 @@ def generate_bin_info_schedule(
             index=0,
             n_shots=1024,
             observable="",
-            partition_lable="",
+            partition_label="",
             result_counts={},
         )
         for job in jobs

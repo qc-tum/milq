@@ -36,7 +36,7 @@ class CircuitJob:
     circuit: QuantumCircuit | None
     n_shots: int
     observable: PauliList  # Should be single pauli
-    partition_lable: str
+    partition_label: str
     result_counts: dict[str, int] | None
     uuid: UUID
 
@@ -85,7 +85,7 @@ def job_from_circuit(circuit: QuantumCircuit) -> CircuitJob:
         circuit=circuit,
         n_shots=1024,
         observable=PauliList(""),
-        partition_lable="1",
+        partition_label="1",
         result_counts=None,
         uuid=uuid4(),
     )
@@ -109,7 +109,7 @@ def jobs_from_experiment(experiment: Experiment) -> list[CircuitJob]:
             n_shots=experiment.n_shots,
             # TODO this might need to change for proper observables
             observable=experiment.observables,
-            partition_lable=experiment.partition_label,
+            partition_label=experiment.partition_label,
             result_counts=None,
             uuid=experiment.uuid,
         )
