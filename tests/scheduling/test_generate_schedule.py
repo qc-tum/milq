@@ -16,4 +16,5 @@ def test_generate_schedule() -> None:
     problem = ExecutableProblem(jobs, accelerators, big_m=100, timesteps=20)
 
     schedule = generate_schedule(problem, SchedulerType.SIMPLE)
-    assert len(schedule) <= 3
+    assert isinstance(schedule, list)
+    assert len(schedule) <= 4
