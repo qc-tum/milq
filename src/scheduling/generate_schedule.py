@@ -1,4 +1,6 @@
 """Wrapper for schedule generation."""
+from uuid import uuid4
+
 from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
 
@@ -40,7 +42,7 @@ def generate_schedule(
         assigned machine and start and completion times.
 
     Raises:
-        NotImplementedError: _description_
+        NotImplementedError: Unsupported types.
     """
     if isinstance(problem, InfoProblem):
         return _generate_schedule_info(problem, schedule_type)
@@ -96,6 +98,7 @@ def _generate_schedule_info(
 
     return makespan, jobs, lp_instance
 
+
 def _generate_schedule_exec(
     problem: ExecutableProblem,
     schedule_type: SchedulerType,
@@ -141,17 +144,28 @@ def _generate_schedule_exec(
 def _get_setup_times(
     base_jobs: list[CircuitJob], accelerators: list[Accelerator]
 ) -> STimes:
+    job_0 = CircuitJob(
+        coefficient=None,
+        cregs=0,
+        index=0,
+        circuit=None,
+        n_shots=0,
+        observable="",
+        partition_label="",
+        result_counts=None,
+        uuid=uuid4(),
+    )
     return [
         [
             [
-                qpu.compute_setup_time(job_i.circuit, job_j.circuit)
+                50.0
+                if job_i.circuit is None or job_j.circuit is None
+                else qpu.compute_setup_time(job_i.circuit, job_j.circuit)
                 for qpu in accelerators
             ]
-            for job_i in base_jobs
-            if job_i.circuit is not None
+            for job_i in [job_0] + base_jobs
         ]
-        for job_j in base_jobs
-        if job_j.circuit is not None
+        for job_j in [job_0] + base_jobs
     ]
 
 
@@ -159,7 +173,7 @@ def _get_processing_times(
     base_jobs: list[CircuitJob],
     accelerators: list[Accelerator],
 ) -> PTimes:
-    return [
+    return [[0.0 for _ in accelerators]] + [
         [qpu.compute_processing_time(job.circuit) for qpu in accelerators]
         for job in base_jobs
         if job.circuit is not None

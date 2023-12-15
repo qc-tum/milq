@@ -68,12 +68,18 @@ def _set_up_base_lp_exec(
         for job in base_jobs
         if job.circuit is not None
     }
-    job_capacities["0"] = 0
+    job_capacities = {"0": 0} | job_capacities
     machine_capacities = {str(qpu.uuid): qpu.qubits for qpu in accelerators}
 
-    return _set_up_base_lp(
+    lp_instance = _set_up_base_lp(
         job_capacities, machine_capacities, list(range(timesteps)), big_m
     )
+    lp_instance.named_circuits = [JobHelper("0", None)] + [
+        JobHelper(str(job.uuid), job.circuit)
+        for job in base_jobs
+        if job.circuit is not None
+    ]
+    return lp_instance
 
 
 def _set_up_base_lp_info(

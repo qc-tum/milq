@@ -105,8 +105,8 @@ def _extract_gurobi_results(
     }
     for var in lp_instance.problem.variables():
         if var.name.startswith("x_") and var.varValue > 0.0:
-            name = name_function(var.name)
-            assigned_jobs[name[0]].machine = name[1]
+            names = name_function(var.name)
+            assigned_jobs[names[0]].machine = names[1]
         elif var.name.startswith("s_"):
             name = "-".join(var.name.split("_")[2:])
             assigned_jobs[name].start_time = float(var.varValue)
@@ -169,12 +169,16 @@ def _form_bins(
         if len(open_jobs) == 0:
             # no open jobs -> add simply add to new bin
             _append_if_exists(job, _bin, jobs, open_jobs=open_jobs)
-
+            current_bin = _bin
+            current_time = job.start_time
         elif open_jobs[0].completion_time > job.start_time:
             # noone finishes before job starts -> add to new bin which includes all open jobs
             _append_if_exists(
                 job, _bin, jobs, current_bin=current_bin, open_jobs=open_jobs
             )
+            bins.append(current_bin)
+            current_bin = _bin
+            current_time = job.start_time
         else:
             # someone finishes before job starts
             # -> add bin for each job that finishes before job starts
@@ -192,6 +196,8 @@ def _form_bins(
                 # remove the last job and all that end at the same time
                 _bin.jobs = current_bin.jobs
                 for second_job in open_jobs_copy:
+                    if second_job == open_job:
+                        continue
                     if second_job.completion_time == open_job.completion_time:
                         _append_if_exists(
                             second_job, _bin, jobs, open_jobs=open_jobs, do_remove=True
@@ -200,9 +206,9 @@ def _form_bins(
                 counter += 1
                 _bin = Bin(capacity=machine_capacity, index=counter, qpu=machine_id)
 
-            bins.append(_bin)
-            current_time = job.start_time
+            bins.append(current_bin)
             current_bin = _bin
+            current_time = job.start_time
 
     return bins
 
@@ -228,11 +234,11 @@ def _append_if_exists(
 
 def _first_name_func(name: str) -> tuple[str, str]:
     # For single character jobs
-    name = name.split("_")[2:]
-    return name[0], name[1]
+    names = name.split("_")[2:]
+    return names[0], names[1]
 
 
 def _second_name_func(name: str) -> tuple[str, str]:
     # For UUIDS
-    name = name.split("_")[2:]
-    return "-".join(name[:5]), "-".join(name[-5:])
+    names = name.split("_")[2:]
+    return "-".join(names[:5]), "-".join(names[-5:])
