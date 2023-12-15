@@ -48,6 +48,8 @@ def assemble_job(circuit_jobs: list[CircuitJob]) -> CombinedJob:
     Returns:
         CombinedJob: The combined job
     """
+    if len(circuit_jobs) == 0:
+        return CombinedJob()
     combined_job = CombinedJob(n_shots=circuit_jobs[0].n_shots)
     circuits = []
     qubit_count = 0
@@ -61,7 +63,7 @@ def assemble_job(circuit_jobs: list[CircuitJob]) -> CombinedJob:
         )
         qubit_count += job.circuit.num_qubits
         observable = observable.expand(job.observable)
-        combined_job.partition_lables.append(job.partition_lable)
+        combined_job.partition_lables.append(job.partition_label)
         combined_job.uuids.append(job.uuid)
         combined_job.cregs.append(job.cregs)
     combined_job.circuit = assemble_circuit(circuits)
