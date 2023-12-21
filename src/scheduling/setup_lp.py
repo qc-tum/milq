@@ -105,7 +105,7 @@ def _set_up_base_lp_info(
     """
     # Set up input params
     job_capacities = {str(idx + 1): job.num_qubits for idx, job in enumerate(base_jobs)}
-    job_capacities["0"] = 0
+    job_capacities = {"0": 0} | job_capacities
 
     machine_capacities = accelerators
 
