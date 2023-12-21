@@ -62,10 +62,18 @@ def calculate_bin_makespan(
     accelerators: dict[str, int],
 ) -> float:
     """Calculates the actual makespan from the list of jobs.
-    By executing the schedule with the corret p_ij and s_ij values.
-    TODO see generate_bin_info_schedule
+    By executing the schedule with the corret p_im and s_ijm values.
+
+    Args:
+        jobs (list[JobResultInfo]): The scheduled jobs.
+        process_times (PTimes): The processing times.
+        setup_times (STimes): The setup times.
+        accelerators (dict[str, int]): The list of available accelerators.
+
+    Returns:
+        float: Makespan according to the given schedule.
     """
-    lp_jobs = ["0"] + [job.name for job in jobs]  # TODO
+    lp_jobs = ["0"] + [job.name for job in jobs]
     machines = list(accelerators.keys())
     return _calc_makespan(jobs, process_times, setup_times, lp_jobs, machines, True)
 
