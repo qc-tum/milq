@@ -64,6 +64,7 @@ def _generate_problem(big_m: int, timesteps: int) -> tuple[InfoProblem, dict[str
         ]
         for job_j in jobs
     ]
+    del job_capacities["0"]
     return (
         InfoProblem(
             base_jobs=[QuantumCircuit(cap) for cap in job_capacities.values()],
@@ -94,7 +95,7 @@ def example_problem(big_m: int, timesteps: int, filename: str = "scheduling"):
         json.dump(
             {
                 "params": {
-                    "jobs": _problem.base_jobs,
+                    "jobs": list(job_capacities.keys()),
                     "machines": list(_problem.accelerators.keys()),
                     "job_capcities": job_capacities,
                     "machine_capacities": _problem.accelerators,
