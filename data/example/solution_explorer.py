@@ -1,7 +1,10 @@
 """A utility script to visualize a solution to the scheduling problem."""
 
-# TODO fix
 # TODO make usable with example_problem.py
+# - Globals of milp are not available anymore
+# - Need to read the json solution file
+# - Move argparse to main
+# - Make it into a function
 import argparse
 
 import matplotlib as mpl
@@ -70,7 +73,9 @@ for job in filter(lambda j: j != "0", example_problem.jobs):
     start = round(values[f"s_j_{job}"])
     end = round(values[f"c_j_{job}"])
     [assigned_machine] = [
-        machine for machine in example_problem.machines if values[f"x_ik_{job}_{machine}"] >= 0.5
+        machine
+        for machine in example_problem.machines
+        if values[f"x_ik_{job}_{machine}"] >= 0.5
     ]
     capacity = example_problem.job_capacities[job]
     duration = end - start + 1
@@ -87,7 +92,8 @@ print(df)
 # Create patches for the legend
 cmap = mpl.colormaps.get_cmap("tab10")
 color_mapping = {
-    m: cmap(i / (len(example_problem.machines) - 1)) for i, m in enumerate(example_problem.machines)
+    m: cmap(i / (len(example_problem.machines) - 1))
+    for i, m in enumerate(example_problem.machines)
 }
 patches = []
 for color in color_mapping.values():
