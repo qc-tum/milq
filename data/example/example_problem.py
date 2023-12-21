@@ -90,7 +90,7 @@ def example_problem(big_m: int, timesteps: int, filename: str = "scheduling"):
     _, _, lp_instance = generate_schedule(_problem, SchedulerType.SIMPLE)
     lp_instance.problem.writeLP(f"{filename}.lp")
 
-    with open("{filename}.json", "w+", encoding="utf-8") as f:
+    with open(f"{filename}.json", "w+", encoding="utf-8") as f:
         json.dump(
             {
                 "params": {
