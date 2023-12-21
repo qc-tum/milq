@@ -93,9 +93,10 @@ class ExecutableProblem:
 
 @dataclass
 class InfoProblem:
-    """Defines an infor prolbem
+    """Defines an "InfoProblem" whis is used for evaluation purposes.
 
-    This requires setup and process times to be defined.
+    This requires setup and process times to be defined as they are
+    not calculated from the accelerators.
     """
 
     base_jobs: list[QuantumCircuit]
