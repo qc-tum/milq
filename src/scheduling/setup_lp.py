@@ -14,7 +14,7 @@ def set_up_base_lp(
     big_m: int,
     timesteps: int,
 ) -> LPInstance:
-    """Sets up the base LP instance base method. This method is not implemented!
+    """Wrapper to set up the base LP instance through one function.
 
     Generates a base LP instance with the given jobs and accelerators.
     It contains all the default constraints and variables.
@@ -71,7 +71,7 @@ def _set_up_base_lp_exec(
     job_capacities = {"0": 0} | job_capacities
     machine_capacities = {str(qpu.uuid): qpu.qubits for qpu in accelerators}
 
-    lp_instance = _set_up_base_lp(
+    lp_instance = _define_lp(
         job_capacities, machine_capacities, list(range(timesteps)), big_m
     )
     lp_instance.named_circuits = [JobHelper("0", None)] + [
@@ -109,7 +109,7 @@ def _set_up_base_lp_info(
 
     machine_capacities = accelerators
 
-    lp_instance = _set_up_base_lp(
+    lp_instance = _define_lp(
         job_capacities, machine_capacities, list(range(timesteps)), big_m
     )
     lp_instance.named_circuits = [JobHelper("0", None)] + [
@@ -118,7 +118,7 @@ def _set_up_base_lp_info(
     return lp_instance
 
 
-def _set_up_base_lp(
+def _define_lp(
     job_capacities: dict[str, int],
     machine_capacities: dict[str, int],
     timesteps: list[int],
