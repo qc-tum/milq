@@ -10,7 +10,7 @@ from .types import Bin, JobResultInfo
 
 
 def generate_bin_info_schedule(
-    jobs: list[QuantumCircuit],
+    circuits: list[QuantumCircuit],
     accelerators: dict[str, int],
 ) -> list[JobResultInfo]:
     """Generates a baseline schedule for the given jobs and accelerators using binpacking.
@@ -19,14 +19,14 @@ def generate_bin_info_schedule(
     by executing the schedule with the correct p_ij and s_ij values.
 
     Args:
-        jobs (list[QuantumCircuit]): The list of circuits (jobs) to schedule.
+        circuits (list[QuantumCircuit]): The list of circuits (jobs) to schedule.
         accelerators (dict[str, int]): The list of accelerators to schedule on (bins).
 
     Returns:
         tuple[float, list[JobResultInfo]]: List of jobs with their assigned machine and
             start and completion times.
     """
-    new_jobs = [
+    jobs = [
         CircuitJob(
             uuid=uuid4(),
             circuit=job,
@@ -38,10 +38,10 @@ def generate_bin_info_schedule(
             partition_label="",
             result_counts={},
         )
-        for job in jobs
+        for job in circuits
     ]
     # Build combined jobs from bins
-    closed_bins = _do_bin_pack(new_jobs, list(accelerators.values()))
+    closed_bins = _do_bin_pack(jobs, list(accelerators.values()))
     combined_jobs: list[JobResultInfo] = []
     for _bin in sorted(closed_bins, key=lambda x: x.index):
         for job in _bin.jobs:
