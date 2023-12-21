@@ -39,20 +39,17 @@ def _find_last_completed(
     job_name: str, jobs: list[JobResultInfo], machine: str
 ) -> JobResultInfo:
     """Finds the last completed job before the given job from the original schedule."""
-    original_starttime = next(
-        (j.start_time for j in jobs if job_name == j.name),
-        0,
-    )
+    for job in jobs:
+        if job.name == job_name:
+            original_starttime = job.start_time
+            break
+    else:
+        raise ValueError(f"Job {job_name} not found in {jobs}")
     completed_before = [j for j in jobs if j.completion_time <= original_starttime]
     if len(completed_before) == 0:
         return JobResultInfo("0", machine, 0.0, 0.0, 0)
 
-    completed_before = sorted(
-        completed_before,
-        key=lambda x: x.completion_time,
-        reverse=True,
-    )
-    return completed_before[0]
+    return max(completed_before, key=lambda x: x.completion_time)
 
 
 def calculate_bin_makespan(
