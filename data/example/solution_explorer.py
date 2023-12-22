@@ -4,7 +4,6 @@
 # - Globals of milp are not available anymore
 # - Need to read the json solution file
 # - Move argparse to main
-# - Make it into a function
 import argparse
 
 import matplotlib as mpl
@@ -14,46 +13,8 @@ import pandas as pd
 from matplotlib import ticker
 from matplotlib.patches import Patch
 
-# Parse the command line arguments
-parser = argparse.ArgumentParser(
-    description="Visualize a solution to the scheduling problem"
-)
-parser.add_argument(
-    "solution",
-    type=str,
-    help="The solution file to visualize",
-    nargs="?",
-    default="scheduling.sol",
-)
-parser.add_argument(
-    "--no-z",
-    help="Do not consider the z variables, just use start and completion times",
-    action="store_true",
-)
-parser.add_argument(
-    "--pdf",
-    type=str,
-    help="Write the plot to a PDF file",
-    nargs="?",
-    metavar="FILE",
-)
-args = parser.parse_args()
 
-# Read the solution
-values: dict[str, float] = {}
-with open(args.solution, encoding="utf-8") as f:
-    for line in f:
-        if line.startswith("#"):
-            continue
-        [name, value] = line.split(" ")
-        values[name] = float(value)
-
-# General comment: The completion time of a job is the last time step in which it is processed
-# Similarily, the start time of a job is the first time step in which it is processed
-# The duration is the number of time steps in which it is processed
-
-
-def list2binstr(l: list[int]) -> str:
+def _list2binstr(l: list[int]) -> str:
     """Converts a list of 0 or 1 to a binary string.
 
     Args:
@@ -65,55 +26,7 @@ def list2binstr(l: list[int]) -> str:
     return "".join(map(str, l))
 
 
-# Create a dataframe with the job schedule
-df = pd.DataFrame(
-    columns=["job", "capacity", "machine", "start", "end", "duration", "zmask"]
-)
-for job in filter(lambda j: j != "0", example_problem.jobs):
-    start = round(values[f"s_j_{job}"])
-    end = round(values[f"c_j_{job}"])
-    [assigned_machine] = [
-        machine
-        for machine in example_problem.machines
-        if values[f"x_ik_{job}_{machine}"] >= 0.5
-    ]
-    capacity = example_problem.job_capacities[job]
-    duration = end - start + 1
-    all_zs = [
-        [round(values[f"z_ikt_{job}_{machine}_{t}"]) for t in example_problem.timesteps]
-        for machine in example_problem.machines
-    ]
-    [zs] = [z for z in all_zs if sum(z) > 0]
-    zs = list2binstr(zs)
-    df.loc[len(df)] = [job, capacity, assigned_machine, start, end, duration, zs]
-
-print(df)
-
-# Create patches for the legend
-cmap = mpl.colormaps.get_cmap("tab10")
-color_mapping = {
-    m: cmap(i / (len(example_problem.machines) - 1))
-    for i, m in enumerate(example_problem.machines)
-}
-patches = []
-for color in color_mapping.values():
-    p = Patch(color=color)
-    p.set_edgecolor("black")
-    p.set_linewidth(1)
-    patches.append(p)
-
-# Create tick points (where a job starts or ends)
-tick_points = df["start"].values.tolist() + (df["end"] + 1).values.tolist()
-tick_points = list(set(tick_points))
-tick_points.sort()
-
-# Plot the jobs
-# The grid lines are at the start of a time step.
-# Hence, if a job ends in time step 11, the bar ends at 12.
-fig, ax = plt.subplots()
-
-
-def collect_binary_one_runs(s: str) -> list[tuple[int, int]]:
+def _collect_binary_one_runs(s: str) -> list[tuple[int, int]]:
     """Given a binary string, returns the start and length of all runs of
     consecutive ones.
 
@@ -140,38 +53,148 @@ def collect_binary_one_runs(s: str) -> list[tuple[int, int]]:
     return runs
 
 
-for i, row in df.iterrows():
-    color = color_mapping[row["machine"]]
-    bar_color = color if args.no_z else "none"
-    PADDING = 0.1
-    HEIGHT = 1 - 2 * PADDING
-    if not args.no_z:
-        zruns = collect_binary_one_runs(row["zmask"])
-        ax.broken_barh(zruns, (i - 0.5 + PADDING, HEIGHT), color=color)
+def generate_schedule_plot(
+    solution_file: str, plot_z: bool = False, pdf_name: str | None = None
+):
+    """Generates a plot of the schedule in the solution file.
 
-    ax.barh(
-        i,
-        row["duration"],
-        left=row["start"],
-        height=HEIGHT,
-        edgecolor="black",
-        linewidth=2,
-        color=bar_color,
+    By default, this plot shows the start and completion times of the jobs.
+    If `plot_z` is set to `True`, the plot also shows the z variables.
+    This can be used to verify that the z variables and the start and completion times
+    are consistent.
+
+    Args:
+        solution_file (str): The schedule to visualize.
+        plot_z (bool, optional): Whether to plot the individual z variables. Defaults
+            to False.
+        pdf_name (str | None, optional): The name of the output PDF to write. If not
+            provided, the plot is instead opened with `plt.show()`. Defaults to None.
+    """
+
+    # Read the solution
+    values: dict[str, float] = {}
+    with open(solution_file, encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("#"):
+                continue
+            [name, value] = line.split(" ")
+            values[name] = float(value)
+
+    # General comment: The completion time of a job is the last time step in which it is processed
+    # Similarily, the start time of a job is the first time step in which it is processed
+    # The duration is the number of time steps in which it is processed
+
+    # Create a dataframe with the job schedule
+    df = pd.DataFrame(
+        columns=["job", "capacity", "machine", "start", "end", "duration", "zmask"]
     )
+    for job in filter(lambda j: j != "0", example_problem.jobs):
+        start = round(values[f"s_j_{job}"])
+        end = round(values[f"c_j_{job}"])
+        [assigned_machine] = [
+            machine
+            for machine in example_problem.machines
+            if values[f"x_ik_{job}_{machine}"] >= 0.5
+        ]
+        capacity = example_problem.job_capacities[job]
+        duration = end - start + 1
+        all_zs = [
+            [
+                round(values[f"z_ikt_{job}_{machine}_{t}"])
+                for t in example_problem.timesteps
+            ]
+            for machine in example_problem.machines
+        ]
+        [zs] = [z for z in all_zs if sum(z) > 0]
+        zs = _list2binstr(zs)
+        df.loc[len(df)] = [job, capacity, assigned_machine, start, end, duration, zs]
 
-yticks = list(range(len(df)))
-ax.set_yticks(yticks)
-ax.set_yticklabels(df["job"])
-ax.invert_yaxis()
-ax.xaxis.set_minor_locator(ticker.MultipleLocator(base=1.0))
-# plt.rc("font", family="serif")
-plt.xlabel("Time")
-plt.grid(axis="x", which="major")
-plt.grid(axis="x", which="minor", alpha=0.4)
-plt.legend(handles=patches, labels=color_mapping.keys())
+    # print(df)
 
-if args.pdf:
-    plt.tight_layout()
-    plt.savefig(args.pdf, format="pdf", bbox_inches="tight")
-else:
-    plt.show()
+    # Create patches for the legend
+    cmap = mpl.colormaps.get_cmap("tab10")
+    color_mapping = {
+        m: cmap(i / (len(example_problem.machines) - 1))
+        for i, m in enumerate(example_problem.machines)
+    }
+    patches = []
+    for color in color_mapping.values():
+        p = Patch(color=color)
+        p.set_edgecolor("black")
+        p.set_linewidth(1)
+        patches.append(p)
+
+    # Create tick points (where a job starts or ends)
+    tick_points = df["start"].values.tolist() + (df["end"] + 1).values.tolist()
+    tick_points = list(set(tick_points))
+    tick_points.sort()
+
+    # Plot the jobs
+    # The grid lines are at the start of a time step.
+    # Hence, if a job ends in time step 11, the bar ends at 12.
+    _, ax = plt.subplots()
+
+    for i, row in df.iterrows():
+        color = color_mapping[row["machine"]]
+        bar_color = "none" if plot_z else color
+        padding = 0.1
+        height = 1 - 2 * padding
+        if plot_z:
+            zruns = _collect_binary_one_runs(row["zmask"])
+            ax.broken_barh(zruns, (i - 0.5 + padding, height), color=color)
+
+        ax.barh(
+            i,
+            row["duration"],
+            left=row["start"],
+            height=height,
+            edgecolor="black",
+            linewidth=2,
+            color=bar_color,
+        )
+
+    yticks = list(range(len(df)))
+    ax.set_yticks(yticks)
+    ax.set_yticklabels(df["job"])
+    ax.invert_yaxis()
+    ax.xaxis.set_minor_locator(ticker.MultipleLocator(base=1.0))
+    # plt.rc("font", family="serif")
+    plt.xlabel("Time")
+    plt.grid(axis="x", which="major")
+    plt.grid(axis="x", which="minor", alpha=0.4)
+    plt.legend(handles=patches, labels=color_mapping.keys())
+
+    if pdf_name:
+        plt.tight_layout()
+        plt.savefig(pdf_name, format="pdf", bbox_inches="tight")
+    else:
+        plt.show()
+
+
+if __name__ == "__main__":
+    # Parse the command line arguments
+    parser = argparse.ArgumentParser(
+        description="Visualize a solution to the scheduling problem"
+    )
+    parser.add_argument(
+        "solution",
+        type=str,
+        help="The solution file to visualize",
+        nargs="?",
+        default="scheduling.sol",
+    )
+    parser.add_argument(
+        "--plot-z",
+        help="Plot the inidividual z values, not just use start and completion times",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--pdf",
+        type=str,
+        help="Write the plot to a PDF file",
+        nargs="?",
+        metavar="FILE",
+    )
+    args = parser.parse_args()
+
+    generate_schedule_plot(args.solution, args.plot_z, args.pdf)
