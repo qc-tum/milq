@@ -42,7 +42,7 @@ def test_reconstruct_counts_from_job() -> None:
         jobs += jobs_from_experiment(experiment)
 
     combined_job = assemble_job([jobs[2], jobs[10]])
-    combined_job.result_counts = accelerator.run_and_get_counts(combined_job.instance)
+    combined_job.result_counts = accelerator.run_and_get_counts(combined_job.circuit)
     jobs = reconstruct_counts_from_job(combined_job)
     assert len(jobs[0].result_counts) == 8
     assert len(jobs[1].result_counts) == 16
@@ -62,7 +62,7 @@ def test_reconstruct_experiments_from_circuits() -> None:
     for job_1, job_2 in zip(jobs[:6], jobs[6:]):
         combined_job = assemble_job([job_1, job_2])
         combined_job.result_counts = accelerator.run_and_get_counts(
-            combined_job.instance
+            combined_job.circuit
         )
         job_results += reconstruct_counts_from_job(combined_job)
     # TODO how do I know that all circuits from an experiment have run?

@@ -171,9 +171,7 @@ def _run_job(
         return None
     run_job = job.job
     try:
-        run_job.result_counts = accs[pool_id].run_and_get_counts(
-            run_job.instance, run_job.n_shots
-        )
+        run_job.result_counts = accs[pool_id].run_and_get_counts(run_job.circuit, run_job.n_shots)
     except Exception as exc:
         print(exc)
     return run_job
