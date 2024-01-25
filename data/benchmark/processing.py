@@ -66,18 +66,19 @@ def analyze_benchmarks(in_file: str) -> dict[str, ImprovementResult]:
         # Loop through each benchmark
         for benchmark in benchmarks:
             # Extract the makespan values
+            results = benchmark["results"]
             makespans.append(
                 MakespanResult(
-                    baseline=benchmark["baseline"]["makespan"],
-                    simple=benchmark["simple"]["makespan"],
-                    extended=benchmark["extended"]["makespan"],
+                    baseline=results["baseline"]["makespan"],
+                    simple=results["simple"]["makespan"],
+                    extended=results["extended"]["makespan"],
                 )
             )
             times.append(
                 TimingResult(
-                    baseline=benchmark["baseline"]["time"],
-                    simple=benchmark["simple"]["time"],
-                    extended=benchmark["extended"]["time"],
+                    baseline=results["baseline"]["time"],
+                    simple=results["simple"]["time"],
+                    extended=results["extended"]["time"],
                 )
             )
 

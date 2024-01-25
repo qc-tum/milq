@@ -22,15 +22,16 @@ def cut_circuit(
     Args:
         circuit (QuantumCircuit): The circuit to cut
         partitions (list[int]): The partitions to cut the circuit into (given as a list of qubits)
-        observables (PauliList  |  None, optional): The observables for each qubit. Defaults to None (= Z measurements).
+        observables (PauliList  |  None, optional): The observables for each qubit.
+            Defaults to None (= Z measurements).
 
     Returns:
         tuple[list[Experiment], UUID]: _description_
     """
     if observables is None:
         observables = PauliList("Z" * circuit.num_qubits)
-    partitions = _generate_partition_labels(partitions)
-    partitioned_problem = partition_problem(circuit, partitions, observables)
+    gen_partitions = _generate_partition_labels(partitions)
+    partitioned_problem = partition_problem(circuit, gen_partitions, observables)
     experiments, coefficients = generate_cutting_experiments(
         partitioned_problem.subcircuits,
         partitioned_problem.subobservables,

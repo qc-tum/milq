@@ -29,5 +29,5 @@ def test_assemble_and_reconstruct_job() -> None:
         jobs += jobs_from_experiment(experiment)
 
     combined_job = assemble_job([jobs[0], jobs[6]])
-    assert combined_job.instance.num_qubits == 5
+    assert combined_job.circuit.num_qubits == 5
     assert len(combined_job.observable[0]) == 5
