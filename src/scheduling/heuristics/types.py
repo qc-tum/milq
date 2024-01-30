@@ -21,9 +21,10 @@ class Machine:
     One bucket represents one timestep.
     """
 
-    #
+    capacity: int
+    id: str
     jobs: list[CircuitJob]
-    buckets: list[Bucket]
+    buckets: list[Bucket]  # Has to be ordered
 
 
 @dataclass
@@ -31,3 +32,4 @@ class Schedule:
     """A schedule is a list of machines, and their jobs."""
 
     machines: list[Machine]
+    makespan: int
