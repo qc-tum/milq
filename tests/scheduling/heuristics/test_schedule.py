@@ -8,4 +8,4 @@ def test_generate_heuristic_info_schedule():
     """Test for generate_heuristic_info_schedule."""
     circuits = [create_quantum_only_ghz(qubits) for qubits in range(2, 6)]
     accelerators = {"a": 5, "b": 5}
-    assert len(generate_heuristic_info_schedule(circuits, accelerators)) == 0
+    assert len(generate_heuristic_info_schedule(circuits, accelerators)) > 0
