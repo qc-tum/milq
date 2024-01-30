@@ -6,6 +6,8 @@ from .types import Schedule
 def select_elite_solutions(
     population: list[Schedule], num_solutions: int
 ) -> list[Schedule]:
+    if len(population) == 0:
+        return [Schedule([], -1)]
     return population[:num_solutions]
 
 
