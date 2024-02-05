@@ -1,5 +1,9 @@
 """_summary_"""
+
+from collections import Counter
+
 from qiskit import QuantumCircuit
+import numpy as np
 
 from src.common import CircuitJob, jobs_from_experiment, job_from_circuit, ScheduledJob
 from src.provider import Accelerator
@@ -30,7 +34,9 @@ def initialize_population(
 
 
 def _greedy_partitioning(
-    circuits: list[QuantumCircuit], accelerators: list[Accelerator]
+    circuits: list[QuantumCircuit],
+    accelerators: list[Accelerator],
+    **kwargs,
 ) -> list[list[int]]:
     """taken from scheduler.py"""
     partitions = []
@@ -82,21 +88,164 @@ def _partition_big_to_small(size: int, qpu_sizes: list[int]) -> list[int]:
 
 
 def _even_partitioning(
-    circuits: list[QuantumCircuit], accelerators: list[Accelerator]
-) -> list[Schedule]:
-    return []
+    circuits: list[QuantumCircuit],
+    accelerators: list[Accelerator],
+    **kwargs,
+) -> list[list[int]]:
+    """Partition circuit in similar sized chunks"""
+    partitions = []
+    partition_size = sum(acc.qubits for acc in accelerators) // len(accelerators)
+    circuit_sizes = [
+        circ.circuit.num_qubits for circ in circuits if circ.circuit is not None
+    ]
+    for circuit_size in sorted(circuit_sizes, reverse=True):
+        if circuit_size > partition_size:
+            partition = [partition_size] * (circuit_size // partition_size)
+            if circuit_size % partition_size != 0:
+                partition.append(circuit_size % partition_size)
+            if partition[-1] == 1:
+                partition[-1] = 2
+                partition[-2] -= 1
+            partitions.append(partition)
+        else:
+            partitions.append([circuit_size])
+    return partitions
 
 
 def _informed_partitioning(
-    circuits: list[QuantumCircuit], accelerators: list[Accelerator]
-) -> list[Schedule]:
-    return []
+    circuits: list[QuantumCircuit], accelerators: list[Accelerator], **kwargs
+) -> list[list[int]]:
+    """Finds cuts by recursively cutting the line with the least cnots"""
+    partitions = []
+    max_qpu_sizes = max(acc.qubits for acc in accelerators)
+
+    for circuit in sorted(
+        circuits,
+        key=lambda circ: circ.num_qubits,
+        reverse=True,
+    ):
+        counts = _count_cnots(circuit)
+        partitions.append(
+            sorted(_find_cuts(counts, 0, circuit.num_qubits, max_qpu_sizes))
+        )
+
+    return partitions
+
+
+def _count_cnots(circuit: QuantumCircuit) -> Counter[tuple[int, int]]:
+    counter: Counter[tuple[int, int]] = Counter()
+    for instruction in circuit.data:
+        if instruction.operation.name == "cx":
+            first_qubit = circuit.find_bit(instruction.qubits[0]).index
+            second_qubit = circuit.find_bit(instruction.qubits[1]).index
+            if abs(first_qubit - second_qubit) <= 1:
+                counter[(first_qubit, second_qubit)] += 1
+    return counter
+
+
+def _find_cuts(
+    counts: Counter[tuple[int, int]], start: int, end: int, max_qpu_sizes: int
+) -> list[int]:
+    if end - start <= max_qpu_sizes:
+        return []
+    possible_cuts = [_calulate_cut(counts, cut) for cut in range(start + 1, end - 1)]
+    best_cut = min(possible_cuts, key=lambda cut: cut[1])[0]
+    partitions = (
+        [best_cut]
+        + _find_cuts(counts, start, best_cut, max_qpu_sizes)
+        + _find_cuts(counts, best_cut + 1, end, max_qpu_sizes)
+    )
+
+    return partitions
+
+
+def _calulate_cut(counts: Counter[tuple[int, int]], cut: int) -> tuple[int, int]:
+    left = sum(
+        count for (first, second), count in counts.items() if first <= cut < second
+    )
+    right = sum(
+        count for (first, second), count in counts.items() if second <= cut < first
+    )
+    return cut, left + right
+
+
+def _choice_partitioning(
+    circuits: list[QuantumCircuit],
+    accelerators: list[Accelerator],
+    **kwargs,
+) -> list[list[int]]:
+    partitions = []
+    qpu_sizes = [acc.qubits for acc in accelerators]
+    circuit_sizes = [
+        circ.circuit.num_qubits for circ in circuits if circ.circuit is not None
+    ]
+    for circuit_size in sorted(circuit_sizes, reverse=True):
+        partition = []
+        remaining_size = circuit_size
+        while remaining_size > 0:
+            qpu = np.random.choice(qpu_sizes)
+            take_qubits = min(remaining_size, qpu)
+            if remaining_size - take_qubits == 1:
+                # We can't have a partition of size 1
+                # So in this case we take one qubit less to leave a partition of two
+                take_qubits -= 1
+            partition.append(take_qubits)
+            remaining_size -= take_qubits
+        partitions.append(partition)
+    return partitions
 
 
 def _random_partitioning(
-    circuits: list[QuantumCircuit], accelerators: list[Accelerator]
-) -> list[Schedule]:
-    return []
+    circuits: list[QuantumCircuit],
+    accelerators: list[Accelerator],
+    **kwargs,
+) -> list[list[int]]:
+    partitions = []
+    max_qpu_size = max(acc.qubits for acc in accelerators) + 1
+    circuit_sizes = [
+        circ.circuit.num_qubits for circ in circuits if circ.circuit is not None
+    ]
+    for circuit_size in sorted(circuit_sizes, reverse=True):
+        partition = []
+        remaining_size = circuit_size
+        while remaining_size > 0:
+            qpu = np.random.randint(2, max_qpu_size)
+            take_qubits = min(remaining_size, qpu)
+            if remaining_size - take_qubits == 1:
+                # We can't have a partition of size 1
+                # So in this case we take one qubit less to leave a partition of two
+                take_qubits -= 1
+            partition.append(take_qubits)
+            remaining_size -= take_qubits
+        partitions.append(partition)
+    return partitions
+
+
+def _fixed_partitioning(
+    circuits: list[QuantumCircuit],
+    accelerators: list[Accelerator],
+    **kwargs,
+) -> list[list[int]]:
+    if "partition_size" not in kwargs:
+        partition_size = 10
+    else:
+        partition_size = kwargs["partition_size"]
+    partitions = []
+    circuit_sizes = [
+        circ.circuit.num_qubits for circ in circuits if circ.circuit is not None
+    ]
+    for circuit_size in sorted(circuit_sizes, reverse=True):
+        if circuit_size > partition_size:
+            partition = [partition_size] * (circuit_size // partition_size)
+            if circuit_size % partition_size != 0:
+                partition.append(circuit_size % partition_size)
+            if partition[-1] == 1:
+                partition[-1] = 2
+                partition[-2] -= 1
+            partitions.append(partition)
+        else:
+            partitions.append([circuit_size])
+    return partitions
 
 
 def _convert_to_jobs(circuits, partitions) -> list[CircuitJob]:
@@ -125,4 +274,6 @@ OPTIONS = [
     _even_partitioning,
     _informed_partitioning,
     _random_partitioning,
+    _choice_partitioning,
+    _fixed_partitioning,
 ]
