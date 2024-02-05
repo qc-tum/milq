@@ -26,10 +26,11 @@ def initialize_population(
     scheduled_jobs = []
     for option in OPTIONS:
         partitions = option(circuits, accelerators)
-        jobs = _convert_to_jobs(circuits, partitions)
-        schedule = bin_schedule(jobs, accelerators)
-        if schedule is not None:
-            scheduled_jobs.append(schedule)
+        print(partitions)
+        # jobs = _convert_to_jobs(circuits, partitions)
+        # schedule = bin_schedule(jobs, accelerators)
+        # if schedule is not None:
+        #     scheduled_jobs.append(schedule)
     return [_convert_to_schedule(schedule) for schedule in scheduled_jobs]
 
 
@@ -42,19 +43,20 @@ def _greedy_partitioning(
     partitions = []
     qpu_sizes = [acc.qubits for acc in accelerators]
     total_qubits = sum(qpu_sizes)
-    circuit_sizes = [
-        circ.circuit.num_qubits for circ in circuits if circ.circuit is not None
-    ]
+    circuit_sizes = [circ.num_qubits for circ in circuits]
     for circuit_size in sorted(circuit_sizes, reverse=True):
         if circuit_size > total_qubits:
-            partition = qpu_sizes
+            partition = qpu_sizes.copy()
             remaining_size = circuit_size - total_qubits
             while remaining_size > total_qubits:
                 partition += qpu_sizes
                 remaining_size -= total_qubits
             if remaining_size == 1:
-                partition[-1] = partition[-1] - 1
-                partition.append(2)
+                if partition[-1] <= 2:
+                    partition[-1] += 1
+                else:
+                    partition[-1] = partition[-1] - 1
+                    partition.append(2)
             else:
                 partition += _partition_big_to_small(remaining_size, qpu_sizes)
             partitions.append(partition)
@@ -95,9 +97,7 @@ def _even_partitioning(
     """Partition circuit in similar sized chunks"""
     partitions = []
     partition_size = sum(acc.qubits for acc in accelerators) // len(accelerators)
-    circuit_sizes = [
-        circ.circuit.num_qubits for circ in circuits if circ.circuit is not None
-    ]
+    circuit_sizes = [circ.num_qubits for circ in circuits]
     for circuit_size in sorted(circuit_sizes, reverse=True):
         if circuit_size > partition_size:
             partition = [partition_size] * (circuit_size // partition_size)
@@ -117,7 +117,7 @@ def _informed_partitioning(
 ) -> list[list[int]]:
     """Finds cuts by recursively cutting the line with the least cnots"""
     partitions = []
-    max_qpu_sizes = max(acc.qubits for acc in accelerators)
+    max_qpu_size = max(acc.qubits for acc in accelerators)
 
     for circuit in sorted(
         circuits,
@@ -125,10 +125,17 @@ def _informed_partitioning(
         reverse=True,
     ):
         counts = _count_cnots(circuit)
-        partitions.append(
-            sorted(_find_cuts(counts, 0, circuit.num_qubits, max_qpu_sizes))
-        )
-
+        cuts = sorted(_find_cuts(counts, 0, circuit.num_qubits, max_qpu_size))
+        if len(cuts) == 0:
+            partitions.append([circuit.num_qubits])
+        else:
+            partition = []
+            current = -1
+            for cut in cuts:
+                partition.append(cut - current)
+                current = cut
+            partition.append(circuit.num_qubits - current - 1)
+            partitions.append(partition)
     return partitions
 
 
@@ -144,16 +151,16 @@ def _count_cnots(circuit: QuantumCircuit) -> Counter[tuple[int, int]]:
 
 
 def _find_cuts(
-    counts: Counter[tuple[int, int]], start: int, end: int, max_qpu_sizes: int
+    counts: Counter[tuple[int, int]], start: int, end: int, max_qpu_size: int
 ) -> list[int]:
-    if end - start <= max_qpu_sizes:
+    if end - start <= max_qpu_size:
         return []
-    possible_cuts = [_calulate_cut(counts, cut) for cut in range(start + 1, end - 1)]
+    possible_cuts = [_calulate_cut(counts, cut) for cut in range(start + 1, end - 2)]
     best_cut = min(possible_cuts, key=lambda cut: cut[1])[0]
     partitions = (
         [best_cut]
-        + _find_cuts(counts, start, best_cut, max_qpu_sizes)
-        + _find_cuts(counts, best_cut + 1, end, max_qpu_sizes)
+        + _find_cuts(counts, start, best_cut, max_qpu_size)
+        + _find_cuts(counts, best_cut + 1, end, max_qpu_size)
     )
 
     return partitions
@@ -176,9 +183,7 @@ def _choice_partitioning(
 ) -> list[list[int]]:
     partitions = []
     qpu_sizes = [acc.qubits for acc in accelerators]
-    circuit_sizes = [
-        circ.circuit.num_qubits for circ in circuits if circ.circuit is not None
-    ]
+    circuit_sizes = [circ.num_qubits for circ in circuits]
     for circuit_size in sorted(circuit_sizes, reverse=True):
         partition = []
         remaining_size = circuit_size
@@ -202,12 +207,13 @@ def _random_partitioning(
 ) -> list[list[int]]:
     partitions = []
     max_qpu_size = max(acc.qubits for acc in accelerators) + 1
-    circuit_sizes = [
-        circ.circuit.num_qubits for circ in circuits if circ.circuit is not None
-    ]
+    circuit_sizes = [circ.num_qubits for circ in circuits]
     for circuit_size in sorted(circuit_sizes, reverse=True):
         partition = []
         remaining_size = circuit_size
+        if circuit_size <= 3:
+            partitions.append([circuit_size])
+            continue
         while remaining_size > 0:
             qpu = np.random.randint(2, max_qpu_size)
             take_qubits = min(remaining_size, qpu)
@@ -231,9 +237,7 @@ def _fixed_partitioning(
     else:
         partition_size = kwargs["partition_size"]
     partitions = []
-    circuit_sizes = [
-        circ.circuit.num_qubits for circ in circuits if circ.circuit is not None
-    ]
+    circuit_sizes = [circ.num_qubits for circ in circuits]
     for circuit_size in sorted(circuit_sizes, reverse=True):
         if circuit_size > partition_size:
             partition = [partition_size] * (circuit_size // partition_size)
@@ -270,10 +274,10 @@ def _convert_to_schedule(jobs: list[ScheduledJob]) -> Schedule:
 
 
 OPTIONS = [
-    _greedy_partitioning,
-    _even_partitioning,
+    # _greedy_partitioning,
+    # _even_partitioning,
     _informed_partitioning,
-    _random_partitioning,
-    _choice_partitioning,
-    _fixed_partitioning,
+    # _random_partitioning,
+    # _choice_partitioning,
+    # _fixed_partitioning,
 ]
