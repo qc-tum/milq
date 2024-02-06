@@ -59,10 +59,10 @@ def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> f
         # assumption: jobs take the longer of both circuits to execute and to set up
         jobs += [
             MakespanInfo(
-                job=job,
+                job=job.circuit,
                 start_time=idx,
                 completion_time=-1.0,
-                capacity=job.num_qubits,
+                capacity=job.circuit.num_qubits,
             )
             for job in bucket.jobs
         ]
