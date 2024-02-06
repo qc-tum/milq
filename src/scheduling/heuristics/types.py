@@ -33,4 +33,14 @@ class Schedule:
     """A schedule is a list of machines, and their jobs."""
 
     machines: list[Machine]
-    makespan: int
+    makespan: float
+
+
+@dataclass
+class MakespanInfo:
+    """Dataclass to track job completion times for makespan calc"""
+
+    job: QuantumCircuit | None
+    start_time: float
+    completion_time: float
+    capacity: int
