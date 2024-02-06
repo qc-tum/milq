@@ -5,7 +5,7 @@ from collections import Counter
 from qiskit import QuantumCircuit
 import numpy as np
 
-from src.common import CircuitJob, jobs_from_experiment, job_from_circuit, ScheduledJob
+from src.common import CircuitJob, jobs_from_experiment, job_from_circuit
 from src.provider import Accelerator
 
 from src.tools import cut_circuit
