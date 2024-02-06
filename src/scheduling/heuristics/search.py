@@ -15,6 +15,7 @@ def scatter_search(
     accelerators: list[Accelerator],
     num_iterations: int = 100,
     num_elite_solutions: int = 10,
+    **kwargs,
 ) -> Schedule:
     """Scatter search heuristic for scheduling problems.
 
@@ -28,9 +29,8 @@ def scatter_search(
     Returns:
         Schedule: The approximate best schedule found by the heuristic.
     """
-    # TODO find good default values for parameters (also in subfunctions)
     # TODO maybe decrease num_elite_solutions/diversificaiton over time? (similar to SA)
-    population = initialize_population(circuits, accelerators)
+    population = initialize_population(circuits, accelerators, **kwargs)
     best_solution = select_best_solution(population, accelerators)
 
     # Main loop

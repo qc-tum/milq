@@ -15,7 +15,7 @@ from ..bin_schedule import _do_bin_pack
 
 
 def initialize_population(
-    circuits: list[QuantumCircuit], accelerators: list[Accelerator]
+    circuits: list[QuantumCircuit], accelerators: list[Accelerator], **kwargs
 ) -> list[Schedule]:
     """Initializes a population of schedules for the given circuits and accelerators.
 
@@ -39,7 +39,7 @@ def initialize_population(
 
     machines = []
     for option in OPTIONS:
-        partitions = option(circuits, accelerators)
+        partitions = option(circuits, accelerators, **kwargs)
         jobs = _convert_to_jobs(circuits, partitions)
         machines.append(_bin_schedule(jobs, accelerators))
     return [Schedule(machine, 0) for machine in machines]

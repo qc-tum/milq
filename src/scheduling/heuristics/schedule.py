@@ -12,8 +12,7 @@ from .search import scatter_search
 def generate_heuristic_info_schedule(
     circuits: list[QuantumCircuit],
     accelerators: list[Accelerator],
-    num_iterations: int = 100,
-    num_elite_solutions: int = 10,
+    **kwargs,
 ) -> tuple[list[ScheduledJob], float]:
     """Generates a schedule for the given jobs and accelerators using a scatter search heuristic.
 
@@ -27,17 +26,13 @@ def generate_heuristic_info_schedule(
     Args:
         circuits (list[QuantumCircuit]): List of circuits (jobs) to schedule.
         accelerators (list[Accelerator]): List of accelerators to schedule on.
-        num_iterations (int, optional): Number of search iterations. Defaults to 100.
-        num_elite_solutions (int, optional): Max number of solutions to keep each round.
-            Defaults to 10.
+
 
     Returns:
         tuple[list[ScheduledJob], float]: The list of jobs with their assigned machine and
             the makespan of the schedule.
     """
-    schedule = scatter_search(
-        circuits, accelerators, num_iterations, num_elite_solutions
-    )
+    schedule = scatter_search(circuits, accelerators, **kwargs)
     combined_jobs = []
     for machine in schedule.machines:
 

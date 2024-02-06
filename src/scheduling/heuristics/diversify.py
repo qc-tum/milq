@@ -5,9 +5,7 @@ import numpy as np
 from .types import Schedule, Bucket
 
 
-def generate_new_solutions(
-    population: list[Schedule], num_solutions: int = 1
-) -> list[Schedule]:
+def generate_new_solutions(population: list[Schedule], **kwargs) -> list[Schedule]:
     """Generates new solutions by local search and diversification.
 
     Local search swaps jobs or buckets within the same machine.
@@ -21,7 +19,6 @@ def generate_new_solutions(
     Returns:
         list[Schedule]: local and global candidates for the next generation.
     """
-    # TODO: Implement logic to generate new solutions
 
     local_candidates = _local_search(population)
     global_candidates = _diversify(population)
