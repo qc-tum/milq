@@ -60,15 +60,15 @@ def _swap_jobs(
     candidates: list[tuple[int, int]] = []
     if machine2_capacity is None:
         machine2_capacity = machine1_capacity
-    bucket1_capacity = sum(job.num_qubits for job in bucket1.jobs)
-    bucket2_capacity = sum(job.num_qubits for job in bucket2.jobs)
+    bucket1_capacity = sum(job.circuit.num_qubits for job in bucket1.jobs)
+    bucket2_capacity = sum(job.circuit.num_qubits for job in bucket2.jobs)
     for idx1, job1 in enumerate(bucket1.jobs):
         for idx2, job2 in enumerate(bucket2.jobs):
             if (
-                bucket1_capacity - job1.num_qubits + job2.num_qubits
+                bucket1_capacity - job1.circuit.num_qubits + job2.circuit.num_qubits
                 <= machine1_capacity
                 and (
-                    bucket2_capacity - job2.num_qubits + job1.num_qubits
+                    bucket2_capacity - job2.circuit.num_qubits + job1.circuit.num_qubits
                     <= machine2_capacity
                 )
             ):

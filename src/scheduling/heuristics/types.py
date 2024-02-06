@@ -4,13 +4,15 @@ from dataclasses import dataclass, field
 
 from qiskit import QuantumCircuit
 
+from src.common import CircuitJob
+
 
 @dataclass
 class Bucket:
     """A bucket is a list of jobs that are performed on the same machine at one timestep."""
 
     # All
-    jobs: list[QuantumCircuit] = field(default_factory=list)
+    jobs: list[CircuitJob] = field(default_factory=list)
     # max_duration: int
     # start_time: int
     # end_time: int
@@ -24,7 +26,6 @@ class Machine:
 
     capacity: int
     id: str
-    jobs: list[QuantumCircuit]
     buckets: list[Bucket]  # Has to be ordered
 
 
