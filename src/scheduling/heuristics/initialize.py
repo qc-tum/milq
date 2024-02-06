@@ -10,8 +10,8 @@ from src.provider import Accelerator
 
 from src.tools import cut_circuit
 
-from .types import Schedule
-from ..bin_schedule import generate_bin_executable_schedule as bin_schedule
+from .types import Schedule, Machine, Bucket
+from ..bin_schedule import _do_bin_pack
 
 
 def initialize_population(
@@ -23,15 +23,12 @@ def initialize_population(
     - even cutting
     - "informed cuts"""
 
-    scheduled_jobs = []
+    machines = []
     for option in OPTIONS:
         partitions = option(circuits, accelerators)
-        print(partitions)
-        # jobs = _convert_to_jobs(circuits, partitions)
-        # schedule = bin_schedule(jobs, accelerators)
-        # if schedule is not None:
-        #     scheduled_jobs.append(schedule)
-    return [_convert_to_schedule(schedule) for schedule in scheduled_jobs]
+        jobs = _convert_to_jobs(circuits, partitions)
+        machines.append(_bin_schedule(jobs, accelerators))
+    return [Schedule(machine, 0) for machine in machines]
 
 
 def _greedy_partitioning(
@@ -252,9 +249,13 @@ def _fixed_partitioning(
     return partitions
 
 
-def _convert_to_jobs(circuits, partitions) -> list[CircuitJob]:
+def _convert_to_jobs(
+    circuits: list[QuantumCircuit], partitions: list[list[int]]
+) -> list[CircuitJob]:
     jobs = []
-    for idx, circuit in enumerate(circuits):
+    for idx, circuit in enumerate(
+        sorted(circuits, key=lambda circ: circ.num_qubits, reverse=True)
+    ):
         if len(partitions[idx]) > 1:
             experiments, _ = cut_circuit(circuit, partitions[idx])
             jobs += [
@@ -269,15 +270,33 @@ def _convert_to_jobs(circuits, partitions) -> list[CircuitJob]:
     return jobs
 
 
-def _convert_to_schedule(jobs: list[ScheduledJob]) -> Schedule:
-    return Schedule([], 0)
+def _bin_schedule(
+    jobs: list[CircuitJob], accelerators: list[Accelerator]
+) -> list[Machine]:
+    closed_bins = _do_bin_pack(jobs, [qpu.qubits for qpu in accelerators])
+    # Build combined jobs from bins
+    machines = []
+    for acc in accelerators:
+        machines.append(
+            Machine(
+                capacity=acc.qubits,
+                id=str(acc.uuid),
+                jobs=[],
+                buckets=[],
+            )
+        )
+
+    for _bin in sorted(closed_bins, key=lambda x: x.index):
+        machines[_bin.qpu].jobs += _bin.jobs
+        machines[_bin.qpu].buckets.append(Bucket(jobs=_bin.jobs))
+    return machines
 
 
 OPTIONS = [
     # _greedy_partitioning,
     # _even_partitioning,
-    _informed_partitioning,
+    # _informed_partitioning,
     # _random_partitioning,
-    # _choice_partitioning,
+    _choice_partitioning,
     # _fixed_partitioning,
 ]
