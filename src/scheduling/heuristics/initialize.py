@@ -305,10 +305,10 @@ def _bin_schedule(
 
 
 OPTIONS = [
-    # _greedy_partitioning,
-    # _even_partitioning,
-    # _informed_partitioning,
-    # _random_partitioning,
+    _greedy_partitioning,
+    _even_partitioning,
+    _informed_partitioning,
+    _random_partitioning,
     _choice_partitioning,
-    # _fixed_partitioning,
+    _fixed_partitioning,
 ]
