@@ -1,7 +1,8 @@
 """Data structures for population-based heuristics."""
-from dataclasses import dataclass
 
-from src.common import CircuitJob
+from dataclasses import dataclass, field
+
+from qiskit import QuantumCircuit
 
 
 @dataclass
@@ -9,7 +10,7 @@ class Bucket:
     """A bucket is a list of jobs that are performed on the same machine at one timestep."""
 
     # All
-    jobs: list[CircuitJob] | None = None
+    jobs: list[QuantumCircuit] = field(default_factory=list)
     # max_duration: int
     # start_time: int
     # end_time: int
@@ -23,7 +24,7 @@ class Machine:
 
     capacity: int
     id: str
-    jobs: list[CircuitJob]
+    jobs: list[QuantumCircuit]
     buckets: list[Bucket]  # Has to be ordered
 
 
