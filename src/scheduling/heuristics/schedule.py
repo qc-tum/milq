@@ -1,41 +1,42 @@
 """Schedule wrapper for population-based heuristics."""
-from uuid import uuid4
 
 from qiskit import QuantumCircuit
 
-from src.common import CircuitJob, ScheduledJob
+from src.common import ScheduledJob
 from src.provider import Accelerator
+from src.tools import assemble_job
 
 from .search import scatter_search
-from ..types import JobResultInfo
 
 
 def generate_heuristic_info_schedule(
     circuits: list[QuantumCircuit],
-    accelerators: dict[str, int],
-) -> list[JobResultInfo]:
-    jobs = [
-        CircuitJob(
-            uuid=uuid4(),
-            circuit=job,
-            coefficient=None,
-            cregs=1,
-            index=0,
-            n_shots=1024,
-            observable="",
-            partition_label="",
-            result_counts={},
+    accelerators: list[Accelerator],
+) -> tuple[list[ScheduledJob], float]:
+    """Generates a schedule for the given jobs and accelerators using a scatter search heuristic.
+
+    TODO:
+    - Adapt to the existing interface of info/exec schedule
+    - (Parallelize scatter search?)
+    - Find meta-parameters for scatter search
+    - Improve the heuristic (temperature, tabu list)
+    - Find a good way to implement init options
+    
+    Args:
+        circuits (list[QuantumCircuit]): List of circuits (jobs) to schedule.
+        accelerators (list[Accelerator]): List of accelerators to schedule on.
+
+    Returns:
+        tuple[list[ScheduledJob], float]: The list of jobs with their assigned machine and
+            the makespan of the schedule.
+    """
+    schedule = scatter_search(circuits, accelerators)
+    combined_jobs = []
+    for machine in schedule.machines:
+
+        machind_idx = next(
+            idx for idx, acc in enumerate(accelerators) if str(acc.uuid) == machine.id
         )
-        for job in circuits
-    ]
-    schedule = scatter_search(jobs, accelerators)
-    # TODO create scheduled jobs from schedule
-    return []
-
-
-def generate_heuristic_exec_schedule(
-    jobs: list[CircuitJob], accelerators: list[Accelerator]
-) -> list[ScheduledJob]:
-    schedule = scatter_search(jobs, {str(acc.uuid): acc.qubits for acc in accelerators})
-    # TODO create scheduled jobs from schedule
-    return []
+        for bucket in machine.buckets:
+            combined_jobs.append(ScheduledJob(assemble_job(bucket.jobs), machind_idx))
+    return combined_jobs, schedule.makespan
