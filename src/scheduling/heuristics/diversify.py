@@ -8,6 +8,19 @@ from .types import Schedule, Bucket
 def generate_new_solutions(
     population: list[Schedule], num_solutions: int = 1
 ) -> list[Schedule]:
+    """Generates new solutions by local search and diversification.
+
+    Local search swaps jobs or buckets within the same machine.
+    Diversification swaps jobs between different machines.
+
+    Args:
+        population (list[Schedule]): List of schedules to generate new solutions from.
+        num_solutions (int, optional): Controls the number of solutions to add. Defaults to 1.
+            Not used yet.
+
+    Returns:
+        list[Schedule]: local and global candidates for the next generation.
+    """
     # TODO: Implement logic to generate new solutions
 
     local_candidates = _local_search(population)

@@ -17,11 +17,25 @@ from ..bin_schedule import _do_bin_pack
 def initialize_population(
     circuits: list[QuantumCircuit], accelerators: list[Accelerator]
 ) -> list[Schedule]:
+    """Initializes a population of schedules for the given circuits and accelerators.
+
+    At the moment supports following partitioning methods:
+    - greedy_partitioning: Partitions the circuits in a greedy way, by trying to fit the biggest
+        circuits first.
+    - even_partitioning: Partitions the circuits in similar sized chunks.
+    - informed_partitioning: Finds cuts by recursively cutting the line with the least cnots.
+    - choice_partitioning: Randomly chooses a qpu and cuts the current circuit according
+        to qpu size.
+    - random_partitioning: Randomly chooses the cutsize between 1 - max(qpu_sizes).
+    - fixed_partitioning: Partitions the circuits in chunks of a fixed size.
+
+    Args:
+        circuits (list[QuantumCircuit]): The initial batch of circuits to schedule.
+        accelerators (list[Accelerator]): The available accelerators to schedule the circuits on.
+
+    Returns:
+        list[Schedule]: Initial scheduel candidates.
     """
-    TODO: use bin packing with the following parameters:
-    - greedy cutting
-    - even cutting
-    - "informed cuts"""
 
     machines = []
     for option in OPTIONS:
@@ -289,7 +303,9 @@ def _bin_schedule(
     for _bin in sorted(closed_bins, key=lambda x: x.index):
         machines[_bin.qpu].jobs += _bin.jobs
         # TODO: check if we need circuit or job
-        machines[_bin.qpu].buckets.append(Bucket(jobs=[job.circuit for job in  _bin.jobs]))
+        machines[_bin.qpu].buckets.append(
+            Bucket(jobs=[job.circuit for job in _bin.jobs])
+        )
     return machines
 
 
