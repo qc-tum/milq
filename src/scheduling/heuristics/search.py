@@ -1,7 +1,8 @@
 """Scatter search heuristic for scheduling problems."""
 
+from qiskit import QuantumCircuit
 
-from src.common import CircuitJob
+from src.provider import Accelerator
 
 from .diversify import generate_new_solutions
 from .initialize import initialize_population
@@ -10,15 +11,27 @@ from .types import Schedule
 
 
 def scatter_search(
-    circuits: list[CircuitJob],
-    accelerator_capacities: dict[str, int],
+    circuits: list[QuantumCircuit],
+    accelerators: list[Accelerator],
     num_iterations: int = 100,
     num_elite_solutions: int = 10,
 ) -> Schedule:
-    # TODO find good default values for parameters
+    """Scatter search heuristic for scheduling problems.
+
+    Args:
+        circuits (list[QuantumCircuit]): Batch of circuits to schedule.
+        accelerators (list[Accelerator]): List of accelerators to schedule on.
+        num_iterations (int, optional): Number of search iterations. Defaults to 100.
+        num_elite_solutions (int, optional): Max number of solutions to keep each round.
+        Defaults to 10.
+
+    Returns:
+        Schedule: The approximate best schedule found by the heuristic.
+    """
+    # TODO find good default values for parameters (also in subfunctions)
     # TODO maybe decrease num_elite_solutions/diversificaiton over time? (similar to SA)
-    population = initialize_population(circuits, accelerator_capacities)
-    best_solution = select_best_solution(population)
+    population = initialize_population(circuits, accelerators)
+    best_solution = select_best_solution(population, accelerators)
 
     # Main loop
     for _ in range(num_iterations):
@@ -27,11 +40,13 @@ def scatter_search(
         population += new_solutions
 
         # Intensification
-        elite_solutions = select_elite_solutions(population, num_elite_solutions)
+        elite_solutions = select_elite_solutions(
+            population, num_elite_solutions, accelerators
+        )
         population = elite_solutions
 
         # Update best solution
-        current_best_solution = select_best_solution(population)
+        current_best_solution = select_best_solution(population, accelerators)
         if current_best_solution.makespan < best_solution.makespan:
             best_solution = current_best_solution
 
