@@ -288,7 +288,8 @@ def _bin_schedule(
 
     for _bin in sorted(closed_bins, key=lambda x: x.index):
         machines[_bin.qpu].jobs += _bin.jobs
-        machines[_bin.qpu].buckets.append(Bucket(jobs=_bin.jobs))
+        # TODO: check if we need circuit or job
+        machines[_bin.qpu].buckets.append(Bucket(jobs=[job.circuit for job in  _bin.jobs]))
     return machines
 
 
