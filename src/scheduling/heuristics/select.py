@@ -53,7 +53,6 @@ def _evaluate_solution(schedule: Schedule, accelerators: list[Accelerator]) -> S
 
 
 def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> float:
-    makespan = 0
     jobs: list[MakespanInfo] = []
     for idx, bucket in enumerate(buckets):
         # assumption: jobs take the longer of both circuits to execute and to set up
@@ -80,5 +79,4 @@ def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> f
             + accelerator.compute_processing_time(job.job)
             + accelerator.compute_setup_time(last_completed.job, job.job)
         )
-
-    return makespan
+    return max(jobs, key=lambda j: j.completion_time).completion_time
