@@ -2,7 +2,7 @@
 
 from src.provider import Accelerator
 
-from .types import Schedule, Bucket, MakespanInfo
+from .types import Schedule, Bucket, MakespanInfo, is_feasible
 
 
 def select_elite_solutions(
@@ -40,7 +40,10 @@ def select_best_solution(
     Returns:
         Schedule: The schedule with the lowest makespan.
     """
-    return select_elite_solutions(population, 1, accelerators)[0]
+    for solution in select_elite_solutions(population, len(population), accelerators):
+        if is_feasible(solution):
+            return solution
+    return population[0]
 
 
 def _evaluate_solution(schedule: Schedule, accelerators: list[Accelerator]) -> Schedule:
