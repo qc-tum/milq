@@ -24,7 +24,7 @@ def select_elite_solutions(
     if len(population) == 0:
         raise ValueError("Population must not be empty.")
 
-    population = [_evaluate_solution(schedule, accelerators) for schedule in population]
+    population = [evaluate_solution(schedule, accelerators) for schedule in population]
     return sorted(population, key=lambda x: x.makespan)[:num_solutions]
 
 
@@ -46,11 +46,12 @@ def select_best_solution(
     return population[0]
 
 
-def _evaluate_solution(schedule: Schedule, accelerators: list[Accelerator]) -> Schedule:
+def evaluate_solution(schedule: Schedule, accelerators: list[Accelerator]) -> Schedule:
     makespans = []
     for machine in schedule.machines:
         accelerator = next(acc for acc in accelerators if str(acc.uuid) == machine.id)
         makespans.append(_calc_machine_makespan(machine.buckets, accelerator))
+        machine.makespan = makespans[-1]
     schedule.makespan = max(makespans)
     return schedule
 

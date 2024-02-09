@@ -27,6 +27,7 @@ class Machine:
     capacity: int
     id: str
     buckets: list[Bucket]  # Has to be ordered
+    makespan: float = 0.0
 
 
 @dataclass
