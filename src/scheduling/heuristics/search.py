@@ -5,8 +5,13 @@ from qiskit import QuantumCircuit
 from src.provider import Accelerator
 
 from .diversify import generate_new_solutions
+from .improve import improve_solutions
 from .initialize import initialize_population
-from .select import select_best_solution, select_elite_solutions
+from .select import (
+    select_best_solution,
+    select_elite_solutions,
+    select_diverse_solutions,
+)
 from .types import Schedule
 
 
@@ -37,13 +42,17 @@ def scatter_search(
     for _ in range(num_iterations):
         # Diversification
         new_solutions = generate_new_solutions(population)
-        population += new_solutions
+        improved_population = improve_solutions(population, accelerators)
+
+        # ensure we don't add duplicates
+        population = _combine_solutions(population, new_solutions, improved_population)
 
         # Intensification
         elite_solutions = select_elite_solutions(
             population, num_elite_solutions, accelerators
         )
-        population = elite_solutions
+        diverse_solutions = select_diverse_solutions(population, num_elite_solutions)
+        population = _combine_solutions(elite_solutions, diverse_solutions)
 
         # Update best solution
         current_best_solution = select_best_solution(population, accelerators)
@@ -51,3 +60,13 @@ def scatter_search(
             best_solution = current_best_solution
 
     return best_solution
+
+
+def _combine_solutions(
+    population: list[Schedule],
+    *args: list[Schedule],
+) -> list[Schedule]:
+    """Combines solutions and removes duplicates."""
+    return list(
+        set(population + [solution for solutions in args for solution in solutions])
+    )
