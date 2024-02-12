@@ -15,7 +15,7 @@ def test_generate_heuristic_info_schedule():
         Accelerator(IBMQBackend.NAIROBI, shot_time=1, reconfiguration_time=1),
     ]
     schedule, makespan = generate_heuristic_info_schedule(
-        circuits, accelerators, num_iterations=2, partition_size=3
+        circuits, accelerators, num_iterations=32, partition_size=3
     )
     assert 5 < len(schedule) < 13
     assert 45 < makespan < 100

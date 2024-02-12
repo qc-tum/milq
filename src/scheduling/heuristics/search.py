@@ -1,5 +1,9 @@
 """Scatter search heuristic for scheduling problems."""
 
+from functools import partial
+from multiprocessing import Pool, cpu_count, current_process
+import logging
+
 from qiskit import QuantumCircuit
 
 from src.provider import Accelerator
@@ -35,10 +39,29 @@ def scatter_search(
         Schedule: The approximate best schedule found by the heuristic.
     """
     # TODO maybe decrease num_elite_solutions/diversificaiton over time? (similar to SA)
+    num_cores = kwargs.get("num_cores", cpu_count())
     population = initialize_population(circuits, accelerators, **kwargs)
-    best_solution = select_best_solution(population, accelerators)
+    kwargs["num_iterations"] = num_iterations // num_cores
+    kwargs["num_elite_solutions"] = num_elite_solutions
+    with Pool(processes=num_cores) as pool:
+        work = partial(
+            _task,
+            accelerators=accelerators,
+            **kwargs,
+        )
+        solutions = pool.map(work, [population for _ in range(num_cores)])
 
-    # Main loop
+    return select_best_solution(solutions, accelerators)
+
+
+def _task(
+    population: list[Schedule],
+    accelerators: list[Accelerator],
+    num_iterations: int,
+    num_elite_solutions: int,
+    **kwargs,
+) -> Schedule:
+    best_solution = select_best_solution(population, accelerators)
     for _ in range(num_iterations):
         # Diversification
         new_solutions = generate_new_solutions(population)
@@ -58,7 +81,11 @@ def scatter_search(
         current_best_solution = select_best_solution(population, accelerators)
         if current_best_solution.makespan < best_solution.makespan:
             best_solution = current_best_solution
-
+            logging.debug(
+                "Update best solution on process %s: New value %d ",
+                current_process().name,
+                current_best_solution.makespan,
+            )
     return best_solution
 
 
