@@ -1,7 +1,9 @@
 """Wrapper for IBMs backend simulator."""
+
 from uuid import UUID, uuid4
 
 from qiskit import QuantumCircuit, transpile
+from qiskit.providers.fake_provider import FakeSherbrooke
 from qiskit_aer import AerSimulator
 
 from src.common import IBMQBackend
@@ -68,7 +70,11 @@ class Accelerator:
         # TODO: doing a full hardware-aware compilation just to get the processing
         # time is not efficient. An approximation would be better.
         be = self._backend.value()
-        transpiled_circuit = transpile(circuit, be, scheduling_method="alap")
+        if circuit.num_qubits > self._qubits:
+            # Workaround to get time estiamte for circuits bigger then the backend
+            transpiled_circuit = transpile(circuit, FakeSherbrooke(), scheduling_method="alap")
+        else:
+            transpiled_circuit = transpile(circuit, be, scheduling_method="alap")
         return Accelerator._time_conversion(
             transpiled_circuit.duration, transpiled_circuit.unit, dt=be.dt
         )

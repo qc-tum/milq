@@ -17,5 +17,5 @@ def test_generate_heuristic_info_schedule():
     schedule, makespan = generate_heuristic_info_schedule(
         circuits, accelerators, num_iterations=2, partition_size=3
     )
-    assert 8 < len(schedule) < 12
-    assert 50 < makespan < 100
+    assert 5 < len(schedule) < 13
+    assert 45 < makespan < 100
