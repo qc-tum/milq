@@ -13,14 +13,18 @@ class Bucket:
 
     # All
     jobs: list[CircuitJob] = field(default_factory=list)
+
     # max_duration: int
     # start_time: int
     # end_time: int
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Bucket):
             return False
-        return [job.uuid for job in self.jobs] == [job.uuid for job in __value.jobs]
-    
+        return sorted([job.uuid for job in self.jobs]) == sorted(
+            [job.uuid for job in __value.jobs]
+        )
+
+
 @dataclass
 class Machine:
     """A machine has a list of jobs, which are performed in buckets over several timesteps.
@@ -32,6 +36,14 @@ class Machine:
     buckets: list[Bucket]  # Has to be ordered
     makespan: float = 0.0
 
+    def __eq__(self, __value: object) -> bool:
+        if not isinstance(__value, Machine) or self.id != __value.id:
+            return False
+        for bucket_self, bucket_other in zip(self.buckets, __value.buckets):
+            if bucket_self != bucket_other:
+                return False
+        return True
+
 
 @dataclass
 class Schedule:
@@ -40,21 +52,16 @@ class Schedule:
     machines: list[Machine]
     makespan: float
 
-    # def __eq__(self, __value: object) -> bool:
-    #     if not isinstance(__value, Schedule):
-    #         return False
-    #     other_machiens = {machine.id: machine for machine in __value.machines}
-    #     for machine in self.machines:
-    #         if machine.id not in other_machiens:
-    #             return False
-    #         for bucket_self, bucket_other in zip(
-    #             machine.buckets, other_machiens[machine.id].buckets
-    #         ):
-    #             if [job.uuid for job in bucket_self.jobs] != [
-    #                 job.uuid for job in bucket_other.jobs
-    #             ]:
-    #                 return False
-    #     return True
+    def __eq__(self, __value: object) -> bool:
+        if not isinstance(__value, Schedule):
+            return False
+        other_machines = {machine.id: machine for machine in __value.machines}
+        for machine in self.machines:
+            if machine.id not in other_machines:
+                return False
+            if machine != other_machines[machine.id]:
+                return False
+        return True
 
 
 @dataclass

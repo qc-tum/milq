@@ -67,6 +67,9 @@ def _combine_solutions(
     *args: list[Schedule],
 ) -> list[Schedule]:
     """Combines solutions and removes duplicates."""
-    return list(
-        set(population + [solution for solutions in args for solution in solutions])
-    )
+    combined_solution = []
+    for solution in population + [schedule for other in args for schedule in other]:
+        if solution not in combined_solution:
+            combined_solution.append(solution)
+
+    return combined_solution
