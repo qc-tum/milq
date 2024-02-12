@@ -1,6 +1,9 @@
 """_summary_"""
 
 from collections import Counter
+from functools import partial
+from multiprocessing import Pool, cpu_count
+from typing import Protocol
 
 from qiskit import QuantumCircuit
 import numpy as np
@@ -12,6 +15,14 @@ from src.tools import cut_circuit
 
 from .types import Schedule, Machine, Bucket
 from ..bin_schedule import _do_bin_pack
+
+
+class Option(Protocol):
+    """Helper to typehint init options"""
+
+    def __call__(
+        self, circuits: QuantumCircuit, accelerators: list[Accelerator], **kwargs
+    ) -> list[list[int]]: ...
 
 
 def initialize_population(
@@ -37,12 +48,23 @@ def initialize_population(
         list[Schedule]: Initial scheduel candidates.
     """
 
-    machines = []
-    for option in OPTIONS:
-        partitions = option(circuits, accelerators, **kwargs)
-        jobs = _convert_to_jobs(circuits, partitions)
-        machines.append(_bin_schedule(jobs, accelerators))
-    return [Schedule(machine, 0) for machine in machines]
+    schedules = []
+    num_cores = max(len(OPTIONS), cpu_count())
+    with Pool(processes=num_cores) as pool:
+        work = partial(_task, circuits=circuits, accelerators=accelerators, **kwargs)
+        schedules = pool.map(work, OPTIONS)
+    return schedules
+
+
+def _task(
+    option: Option,
+    circuits: QuantumCircuit,
+    accelerators: list[Accelerator],
+    **kwargs,
+) -> Schedule:
+    partitions = option(circuits, accelerators, **kwargs)
+    jobs = _convert_to_jobs(circuits, partitions)
+    return Schedule(_bin_schedule(jobs, accelerators), 0.0)
 
 
 def _greedy_partitioning(
