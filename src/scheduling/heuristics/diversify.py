@@ -32,7 +32,11 @@ def _local_search(population: list[Schedule]) -> list[Schedule]:
     for schedule in local_population:
         for machine in schedule.machines:
             swap_buckets = np.random.randint(1, dtype=bool)
-            number_of_swaps = np.random.randint(1, len(machine.buckets))
+            number_of_swaps = (
+                np.random.randint(1, len(machine.buckets))
+                if len(machine.buckets) > 1
+                else 1
+            )
             for _ in range(number_of_swaps):
                 idx1, idx2 = np.random.choice(len(machine.buckets), 2)
                 if swap_buckets:
