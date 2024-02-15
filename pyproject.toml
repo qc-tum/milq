@@ -17,6 +17,7 @@ dependencies = [
     "pandas>=2.1.1",
     "mqt-bench>=1.0.5",
     "matplotlib>=3.8.2",
+    "tqdm>=4.66.2",
 ]
 requires-python = ">=3.10, <3.12"
 readme = "README.md"
