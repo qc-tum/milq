@@ -48,7 +48,7 @@ def select_best_solution(
     for solution in select_elite_solutions(population, len(population), accelerators):
         if is_feasible(solution):
             return solution
-    return population[0]
+    return population[-1]
 
 
 def select_diverse_solutions(
