@@ -18,6 +18,8 @@ dependencies = [
     "mqt-bench>=1.0.5",
     "matplotlib>=3.8.2",
     "tqdm>=4.66.2",
+    "stable-baselines[mpi]>=2.10.2",
+    "gymnasium>=0.29.1",
 ]
 requires-python = ">=3.10, <3.12"
 readme = "README.md"
