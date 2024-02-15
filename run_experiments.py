@@ -1,11 +1,20 @@
 """Generates the benchmark data."""
+
+import logging
+
 from dataclasses import is_dataclass, asdict
 from typing import Any
 import json
 
 # import numpy as np
 
-from data.benchmark import run_experiments, analyze_benchmarks
+from src.provider import Accelerator, IBMQBackend
+
+from data.benchmark import (
+    run_experiments,
+    analyze_benchmarks,
+    run_heuristic_experiments,
+)
 
 
 class DataclassJSONEncoder(json.JSONEncoder):
@@ -27,8 +36,21 @@ SETTINGS = [
     {"A": 5, "B": 5},
     {"A": 5, "B": 6, "C": 20},
 ]
-T_MAX = 2**6
-if __name__ == "__main__":
+T_MAX = 200
+ACC_SETTINGS = [
+    [
+        Accelerator(IBMQBackend.BELEM, shot_time=5, reconfiguration_time=12),
+        Accelerator(IBMQBackend.NAIROBI, shot_time=7, reconfiguration_time=12),
+    ],
+    # [
+    #     Accelerator(IBMQBackend.BELEM, shot_time=5, reconfiguration_time=12),
+    #     Accelerator(IBMQBackend.NAIROBI, shot_time=7, reconfiguration_time=12),
+    #     Accelerator(IBMQBackend.QUITO, shot_time=2, reconfiguration_time=16),
+    # ],
+]
+
+
+def run_default() -> None:
     experiment_results = run_experiments(
         CIRCUITS_PER_BATCH, SETTINGS, T_MAX, NUM_BATCHES
     )
@@ -54,3 +76,22 @@ if __name__ == "__main__":
     for setting, result in numbers.items():
         print(f"Setting: {setting}")
         print(result)
+
+
+def run_heuristic() -> None:
+    experiment_results = run_heuristic_experiments(
+        CIRCUITS_PER_BATCH, ACC_SETTINGS, T_MAX, NUM_BATCHES
+    )
+    if len(experiment_results) < 1:
+        return
+    with open(
+        "./data/results/benchmark_results_heuristic.json", "w+", encoding="utf-8"
+    ) as f:
+        json.dump(experiment_results, f, cls=DataclassJSONEncoder)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger("qiskit").setLevel(logging.WARNING)
+    logging.getLogger("circuit_knitting").setLevel(logging.WARNING)
+    run_heuristic()
