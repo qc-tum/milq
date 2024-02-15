@@ -1,6 +1,7 @@
 """Evaluation and selection of solutions."""
 
 from uuid import UUID
+import logging
 
 from src.provider import Accelerator
 
@@ -23,10 +24,12 @@ def select_elite_solutions(
     Returns:
         list[Schedule]: The #num_solutions best schedules with lowest makespan.
     """
+    logging.info("Selecting elite solutions...")
     if len(population) == 0:
         raise ValueError("Population must not be empty.")
 
     population = [evaluate_solution(schedule, accelerators) for schedule in population]
+    logging.info("Evaluation done.")
     return sorted(population, key=lambda x: x.makespan)[:num_solutions]
 
 
@@ -42,6 +45,7 @@ def select_best_solution(
     Returns:
         Schedule: The schedule with the lowest makespan.
     """
+    logging.info("Selecting best solution.")
     for solution in select_elite_solutions(population, len(population), accelerators):
         if is_feasible(solution):
             return solution
@@ -78,6 +82,7 @@ def evaluate_solution(schedule: Schedule, accelerators: list[Accelerator]) -> Sc
     Returns:
         Schedule: The schedule with updated makespan and machine makespans.
     """
+    logging.info("Evaluating makespan...")
     makespans = []
     for machine in schedule.machines:
         accelerator = next(acc for acc in accelerators if str(acc.uuid) == machine.id)

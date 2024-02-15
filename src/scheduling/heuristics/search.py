@@ -5,6 +5,7 @@ from multiprocessing import Pool, cpu_count, current_process
 import logging
 
 from qiskit import QuantumCircuit
+import tqdm
 
 from src.provider import Accelerator
 
@@ -43,6 +44,9 @@ def scatter_search(
     population = initialize_population(circuits, accelerators, **kwargs)
     kwargs["num_iterations"] = num_iterations // num_cores
     kwargs["num_elite_solutions"] = num_elite_solutions
+    logging.info("Starting scatter search with %d cores", num_cores)
+    if num_cores == 1:
+        return _task(population, accelerators, **kwargs)
     with Pool(processes=num_cores) as pool:
         work = partial(
             _task,
@@ -61,8 +65,10 @@ def _task(
     num_elite_solutions: int,
     **kwargs,
 ) -> Schedule:
+    logging.info("Starting new task on process %s", current_process().name)
     best_solution = select_best_solution(population, accelerators)
     for _ in range(num_iterations):
+        logging.info("Starting new iteration on process %s", current_process().name)
         # Diversification
         new_solutions = generate_new_solutions(population)
         improved_population = improve_solutions(population, accelerators)
@@ -81,7 +87,7 @@ def _task(
         current_best_solution = select_best_solution(population, accelerators)
         if current_best_solution.makespan < best_solution.makespan:
             best_solution = current_best_solution
-            logging.debug(
+            logging.info(
                 "Update best solution on process %s: New value %d ",
                 current_process().name,
                 current_best_solution.makespan,
