@@ -7,9 +7,10 @@ from src.provider import Accelerator
 from src.tools import assemble_job
 
 from .search import scatter_search
+from ..types import JobResultInfo
 
 
-def generate_heuristic_info_schedule(
+def generate_heuristic_exec_schedule(
     circuits: list[QuantumCircuit],
     accelerators: list[Accelerator],
     **kwargs,
@@ -36,9 +37,35 @@ def generate_heuristic_info_schedule(
     combined_jobs = []
     for machine in schedule.machines:
 
-        machind_idx = next(
+        machin_idx = next(
             idx for idx, acc in enumerate(accelerators) if str(acc.uuid) == machine.id
         )
         for bucket in machine.buckets:
-            combined_jobs.append(ScheduledJob(assemble_job(bucket.jobs), machind_idx))
+            combined_jobs.append(ScheduledJob(assemble_job(bucket.jobs), machin_idx))
     return combined_jobs, schedule.makespan
+
+
+def generate_heuristic_info_schedule(
+    circuits: list[QuantumCircuit],
+    accelerators: list[Accelerator],
+    **kwargs,
+) -> tuple[float, list[JobResultInfo]]:
+    """tmp workaround"""
+    schedule = scatter_search(circuits, accelerators, **kwargs)
+    combined_jobs = []
+    for machine in schedule.machines:
+        for idx, bucket in enumerate(machine.buckets):
+            for job in bucket.jobs:
+                if job is None or job.circuit is None:
+                    continue
+                combined_jobs.append(
+                    JobResultInfo(
+                        name=str(job.uuid),
+                        machine=machine.id,
+                        start_time=idx,
+                        completion_time=-1.0,
+                        capacity=job.circuit.num_qubits,
+                    )
+                )
+
+    return schedule.makespan, combined_jobs
