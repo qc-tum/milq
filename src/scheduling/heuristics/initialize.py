@@ -4,6 +4,7 @@ from collections import Counter
 from functools import partial
 from multiprocessing import Pool, cpu_count
 from typing import Protocol
+import logging
 
 from qiskit import QuantumCircuit
 import numpy as np
@@ -62,8 +63,10 @@ def _task(
     accelerators: list[Accelerator],
     **kwargs,
 ) -> Schedule:
+    logging.debug("Starting init on... %s", option.__name__)
     partitions = option(circuits, accelerators, **kwargs)
-    jobs = _convert_to_jobs(circuits, partitions)
+    jobs: list[CircuitJob] = _convert_to_jobs(circuits, partitions)
+    logging.debug("%s  init done.", option.__name__)
     return Schedule(_bin_schedule(jobs, accelerators), 0.0)
 
 

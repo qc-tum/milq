@@ -1,5 +1,7 @@
 """Circuit cutting using the CTK library."""
+
 from uuid import UUID, uuid4
+import logging
 
 from circuit_knitting.cutting import (
     partition_problem,
@@ -15,7 +17,7 @@ from src.common import Experiment
 def cut_circuit(
     circuit: QuantumCircuit,
     partitions: list[int],
-    observables: (PauliList | None) = None,
+    observables: PauliList | None = None,
 ) -> tuple[list[Experiment], UUID]:
     """Cut a circuit into multiple subcircuits.
 
@@ -31,12 +33,17 @@ def cut_circuit(
     if observables is None:
         observables = PauliList("Z" * circuit.num_qubits)
     gen_partitions = _generate_partition_labels(partitions)
+    logging.debug("Partitioning circuit into... %s", gen_partitions)
     partitioned_problem = partition_problem(circuit, gen_partitions, observables)
+    logging.debug("Cutting done, generating experiments...")
+    logging.debug("Number of subcircuits: %d", len(partitioned_problem.subcircuits))
+    logging.debug("Number of bases: %d", len(partitioned_problem.bases))
     experiments, coefficients = generate_cutting_experiments(
         partitioned_problem.subcircuits,
         partitioned_problem.subobservables,
         num_samples=np.inf,
     )
+    logging.debug("Experiments generated.")
     uuid = uuid4()
     return [
         Experiment(

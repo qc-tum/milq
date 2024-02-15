@@ -1,6 +1,7 @@
 """Wrapper for IBMs backend simulator."""
 
 from uuid import UUID, uuid4
+import logging
 
 from qiskit import QuantumCircuit, transpile
 from qiskit.providers.fake_provider import FakeSherbrooke
@@ -67,6 +68,7 @@ class Accelerator:
         Returns:
             float: The processing time in µs.
         """
+        logging.debug("Computing processing time for circuit...")
         # TODO: doing a full hardware-aware compilation just to get the processing
         # time is not efficient. An approximation would be better.
         be = self._backend.value()
@@ -75,6 +77,7 @@ class Accelerator:
             transpiled_circuit = transpile(circuit, FakeSherbrooke(), scheduling_method="alap")
         else:
             transpiled_circuit = transpile(circuit, be, scheduling_method="alap")
+            logging.info("Done.")
         return Accelerator._time_conversion(
             transpiled_circuit.duration, transpiled_circuit.unit, dt=be.dt
         )
@@ -92,6 +95,7 @@ class Accelerator:
         Returns:
             float: Set up time from circuit_from to circuit_to in µs.
         """
+        logging.debug("Computing setup time for circuit...")
         if circuit_from is None:
             return self._reconfiguration_time
         if circuit_to is None:
