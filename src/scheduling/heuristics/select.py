@@ -4,7 +4,6 @@ from uuid import UUID
 import logging
 
 from src.provider import Accelerator
-
 from .types import Schedule, Machine, Bucket, MakespanInfo, is_feasible
 
 
@@ -119,6 +118,8 @@ def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> f
             + accelerator.compute_processing_time(job.job)
             + accelerator.compute_setup_time(last_completed.job, job.job)
         )
+    if len(jobs) == 0:
+        return 0.0
     return max(jobs, key=lambda j: j.completion_time).completion_time
 
 

@@ -77,7 +77,7 @@ class Accelerator:
             transpiled_circuit = transpile(circuit, FakeSherbrooke(), scheduling_method="alap")
         else:
             transpiled_circuit = transpile(circuit, be, scheduling_method="alap")
-            logging.info("Done.")
+            logging.debug("Done.")
         return Accelerator._time_conversion(
             transpiled_circuit.duration, transpiled_circuit.unit, dt=be.dt
         )

@@ -31,6 +31,8 @@ def _local_search(population: list[Schedule]) -> list[Schedule]:
     local_population = population.copy()
     for schedule in local_population:
         for machine in schedule.machines:
+            if len(machine.buckets) == 0:
+                continue
             swap_buckets = np.random.randint(1, dtype=bool)
             number_of_swaps = (
                 np.random.randint(1, len(machine.buckets))
