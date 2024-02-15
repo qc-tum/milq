@@ -67,8 +67,8 @@ def _task(
 ) -> Schedule:
     logging.info("Starting new task on process %s", current_process().name)
     best_solution = select_best_solution(population, accelerators)
-    for _ in range(num_iterations):
-        logging.info("Starting new iteration on process %s", current_process().name)
+    for idx in range(num_iterations):
+        logging.info("Starting iteration %d on process %s", idx, current_process().name)
         # Diversification
         new_solutions = generate_new_solutions(population)
         improved_population = improve_solutions(population, accelerators)

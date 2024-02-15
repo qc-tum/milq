@@ -89,6 +89,8 @@ def _diversify(population: list[Schedule]) -> list[Schedule]:
         for _ in range(number_of_swaps):
             idx1, idx2 = np.random.choice(len(schedule.machines), 2)
             machine1, machine2 = schedule.machines[idx1], schedule.machines[idx2]
+            if len(machine1.buckets) == 0 or len(machine2.buckets) == 0:
+                continue
             _swap_jobs(
                 np.random.choice(machine1.buckets),
                 np.random.choice(machine2.buckets),
