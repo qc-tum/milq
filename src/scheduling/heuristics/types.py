@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 from qiskit import QuantumCircuit
 
-from src.common import CircuitJob
+from src.common import CircuitJob, CombinedJob
 
 
 @dataclass
@@ -12,7 +12,7 @@ class Bucket:
     """A bucket is a list of jobs that are performed on the same machine at one timestep."""
 
     # All
-    jobs: list[CircuitJob] = field(default_factory=list)
+    jobs: list[CircuitJob | CombinedJob] = field(default_factory=list)
 
     # max_duration: int
     # start_time: int
