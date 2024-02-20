@@ -4,17 +4,18 @@ from mqt.bench import get_benchmark
 from qiskit import QuantumCircuit
 import numpy as np
 
+from src.common import CircuitJob, job_from_circuit
 from src.provider import Accelerator, IBMQBackend
 from src.scheduling.learning import train_for_settings
 
 
-def _generate_batch(max_qubits: int, circuits_per_batch: int) -> list[QuantumCircuit]:
+def _generate_batch(max_qubits: int, circuits_per_batch: int) -> list[CircuitJob]:
     # Generate a random circuit
     batch = []
     for _ in range(circuits_per_batch):
         size = np.random.randint(2, max_qubits + 1)
         circuit = get_benchmark(benchmark_name="random", level=0, circuit_size=size)
-        batch.append(circuit)
+        batch.append(job_from_circuit(circuit))
 
     return batch
 
