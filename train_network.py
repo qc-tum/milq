@@ -1,7 +1,7 @@
 """Generates the benchmark data."""
+import logging
 
 from mqt.bench import get_benchmark
-from qiskit import QuantumCircuit
 import numpy as np
 
 from src.common import CircuitJob, job_from_circuit
@@ -39,6 +39,10 @@ CIRC_PER_BATCH = 5
 MAX_QUBITS = 25
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger("qiskit").setLevel(logging.WARNING)
+    logging.getLogger("circuit_knitting").setLevel(logging.WARNING)
+    logging.getLogger("stevedore").setLevel(logging.WARNING)
     settings = [
         {"accelerators": accs, "circuits": _generate_batch(MAX_QUBITS, CIRC_PER_BATCH)}
         for accs in ACCELERATORS
