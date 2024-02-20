@@ -37,4 +37,4 @@ class ActionSpace(Dict):
         )  # 0: cut, 1: combine, 2: move, 3: swap, 4: terminate
 
     def disable_terminate(self) -> None:
-        self.spaces["terminate"] = Discrete(4)
+        self.spaces["action"] = Discrete(4)
