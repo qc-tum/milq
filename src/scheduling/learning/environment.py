@@ -2,8 +2,8 @@ from enum import Enum
 from typing import Any
 
 from gymnasium import spaces
-
 import gymnasium as gym
+from gymnasium.core import RenderFrame
 import numpy as np
 
 from src.common import CircuitJob
@@ -46,7 +46,7 @@ class SchedulingEnv(gym.Env):
         self.steps = 0
         self.max_steps = max_steps
         self.accelerators = accelerators
-        self.circuits = circuits
+        self.circuits: list[CircuitJob] = circuits
 
         self._schedule = Schedule(
             [
@@ -55,48 +55,85 @@ class SchedulingEnv(gym.Env):
             ],
             np.inf,
         )  # Initialize with empty schedules for each device
-
+        for circuit in self.circuits:
+            choice = np.random.choice(len(self._schedule.machines))
+            self._schedule.machines[choice].buckets.append(Bucket([circuit]))
         # Define the action and observation spaces
-        self.action_space = ActionSpace(circuits)
-        self.observation_space = spaces.Discrete(2)  # Makespan + noise
+        self._action_space = ActionSpace(circuits, self._schedule)
+        self.action_space = spaces.flatten_space(self._action_space)
+        self.observation_space = spaces.Dict(
+            {
+                "makespan": spaces.Box(0, np.inf, dtype=np.float64),
+                "noise": spaces.Box(0, np.inf, dtype=np.float64),
+            }
+        )
 
-    def step(
-        self, action: dict[str, Any]
-    ) -> tuple[Any, float, bool, bool, dict[str, Any]]:
+    def step(self, action: np.ndarray) -> tuple[Any, float, bool, bool, dict[str, Any]]:
         terminated = False
         truncated = False
         penalty = 1.0  # multiplcative penalty for invalid cuts
         # Perform the specified action and update the schedule
-        match action["action"]:
+        dict_action = self._unflatten_action(action)
+        match dict_action["action"]:
             case Actions.CUT_CIRCUIT:
-                penalty = self._cut(*action["params"])
+                penalty = self._cut(*dict_action["params"])
             case Actions.COMBINE_CIRCUIT:
-                self._combine(*action["params"])
+                self._combine(*dict_action["params"])
             case Actions.MOVE_CIRCUIT:
-                self._move(*action["params"])
+                self._move(*dict_action["params"])
             case Actions.SWAP_CIRCUITS:
-                self._swap(*action["params"])
+                self._swap(*dict_action["params"])
             case Actions.TERMINATE:
                 terminated = True
 
         # Calculate the completion time and noise based on the updated schedule
         # Return the new schedule, completion time, noise, and whether the task is done
-        self.action_space.update_actions(self._schedule)
+        self._action_space.update_actions(self._schedule)
         if is_feasible(self._schedule):
-            self.action_space.enable_terminate()
+            self._action_space.enable_terminate()
         else:
-            self.action_space.disable_terminate()
-
+            self._action_space.disable_terminate()
+        self.action_space = spaces.flatten_space(self._action_space)
         if self.steps >= self.max_steps:
             truncated = True
         self.steps += 1
 
-        makespan, noise = self._get_observation()
-        reward = self._calculate_reward(makespan, noise) * penalty
+        obs = self._get_observation()
+        reward = (
+            self._calculate_reward(float(obs["makespan"]), float(obs["noise"]))
+            * penalty
+        )
         if terminated and not is_feasible(self._schedule):
             reward = -np.inf
 
-        return (makespan, noise), reward, terminated, truncated, self._get_info()
+        return (
+            obs,
+            reward,
+            terminated,
+            truncated,
+            self._get_info(),
+        )
+
+    def _unflatten_action(self, sample: np.ndarray) -> dict[str, Any]:
+        unflattened_sample = {}
+        current_index = 0
+        for key, space_i in self._action_space.items():
+            space_i_shape = spaces.utils.flatdim(space_i)
+            space_i_sample = sample[current_index : current_index + space_i_shape]
+            if isinstance(space_i, spaces.MultiDiscrete):
+                multi_sample = ()
+                sub_index = 0
+                for space_j in space_i.nvec:
+                    multi_sample += (
+                        space_i_sample[sub_index : sub_index + space_j].astype(np.int8),
+                    )
+                    current_index += space_j
+                unflattened_sample[key] = space_i.sample(multi_sample)
+
+            else:
+                unflattened_sample[key] = space_i.sample(space_i_sample.astype(np.int8))
+            current_index += space_i_shape
+        return unflattened_sample
 
     def reset(
         self, *, seed: int | None = None, options: dict[str, Any] | None = None
@@ -113,13 +150,21 @@ class SchedulingEnv(gym.Env):
             choice = np.random.choice(len(schedule.machines))
             schedule.machines[choice].buckets.append(Bucket([circuit]))
 
-        return self._get_observation(), self._get_info()
+        obs = self._get_observation()
+        info = self._get_info()
+        return (obs, info)
 
-    def _get_observation(self) -> tuple[float, float]:
+    def render(self) -> RenderFrame | list[RenderFrame] | None:
+        return None
+
+    def _get_observation(self) -> dict[str, float]:
         # Return the current observation of the environment
         # Example observation: (makespan, noise)
         self._schedule = evaluate_solution(self._schedule, self.accelerators)
-        return (self._schedule.makespan, 0.0)
+        return {
+            "makespan": np.array([self._schedule.makespan]),
+            "noise": np.array([0.0]),
+        }
 
     def _get_info(self) -> dict[str, Any]:
         # Return the current information of the environment
