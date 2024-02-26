@@ -8,6 +8,7 @@ from qiskit.providers.fake_provider import FakeSherbrooke
 from qiskit_aer import AerSimulator
 
 from src.common import IBMQBackend
+from src.resource_estimation import estimate_runtime
 from src.tools import optimize_circuit_online
 
 
@@ -69,18 +70,11 @@ class Accelerator:
             float: The processing time in µs.
         """
         logging.debug("Computing processing time for circuit...")
-        # TODO: doing a full hardware-aware compilation just to get the processing
-        # time is not efficient. An approximation would be better.
-        be = self._backend.value()
-        if circuit.num_qubits > self._qubits:
-            # Workaround to get time estiamte for circuits bigger then the backend
-            transpiled_circuit = transpile(circuit, FakeSherbrooke(), scheduling_method="alap")
-        else:
-            transpiled_circuit = transpile(circuit, be, scheduling_method="alap")
-            logging.debug("Done.")
-        return Accelerator._time_conversion(
-            transpiled_circuit.duration, transpiled_circuit.unit, dt=be.dt
-        )
+        # TODO: should define real gate params in resource estimation
+        time_in_ns = estimate_runtime(circuit)
+
+        logging.debug("Done.")
+        return Accelerator._time_conversion(time_in_ns, "ns", target_unit="us")
 
     def compute_setup_time(
         self, circuit_from: QuantumCircuit | None, circuit_to: QuantumCircuit | None
