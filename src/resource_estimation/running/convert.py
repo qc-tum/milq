@@ -13,5 +13,5 @@ def convert_to_qir(circuit: QuantumCircuit) -> bytes:
     Returns:
         bytes: The QIR program as bytecode.
     """
-    modlue, _ = to_qir_module(circuit)
-    return modlue.bitcode
+    module, _ = to_qir_module(circuit)
+    return module.bitcode
