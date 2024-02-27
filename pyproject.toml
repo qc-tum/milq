@@ -23,6 +23,7 @@ dependencies = [
     "azure-quantum>=1.1.1",
     "pyqir>=0.10.0",
     "qiskit-qir>=0.4.0",
+    "qiskit-ionq>=0.4.7",
 ]
 requires-python = ">=3.10, <3.12"
 readme = "README.md"
