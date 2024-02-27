@@ -3,6 +3,7 @@
 from os import environ
 import multiprocessing
 
+from azure.identity import EnvironmentCredential
 from azure.quantum import Workspace
 from azure.quantum.qiskit import AzureQuantumProvider
 
@@ -39,7 +40,9 @@ class WorkspaceManager:
 def _load_workspace() -> Workspace:
     resource_id = environ.get("AZURE_QUANTUM_WORKSPACE_RESOURCE_ID", "")
     location = environ.get("AZURE_QUANTUM_WORKSPACE_LOCATION", "")
+    credential = EnvironmentCredential()
     return Workspace(
         resource_id=resource_id,
         location=location,
+        credential=credential
     )
