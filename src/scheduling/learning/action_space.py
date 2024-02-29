@@ -3,7 +3,7 @@
 from gymnasium.spaces import Discrete, Dict, MultiDiscrete
 
 from src.common import CircuitJob
-from src.scheduling.common.types import Schedule
+from src.scheduling.common import Schedule
 
 
 class ActionSpace(Dict):
