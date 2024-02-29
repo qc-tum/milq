@@ -9,6 +9,7 @@ import tqdm
 
 from src.provider import Accelerator
 
+from src.scheduling.common.types import Schedule
 from .diversify import generate_new_solutions
 from .improve import improve_solutions
 from .initialize import initialize_population
@@ -17,7 +18,6 @@ from .select import (
     select_elite_solutions,
     select_diverse_solutions,
 )
-from .types import Schedule
 
 
 def scatter_search(

@@ -4,8 +4,8 @@ import numpy as np
 
 from src.provider import Accelerator
 
+from src.scheduling.common.types import Schedule
 from .select import evaluate_solution
-from .types import Schedule
 
 
 def improve_solutions(

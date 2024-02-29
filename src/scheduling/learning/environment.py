@@ -8,9 +8,9 @@ import numpy as np
 
 from src.common import CircuitJob
 from src.provider import Accelerator
+from src.scheduling.common.types import Machine, Schedule, Bucket, is_feasible
 from src.tools import assemble_job
 from .action_space import ActionSpace
-from ..heuristics.types import Machine, Schedule, Bucket, is_feasible
 from ..heuristics.select import evaluate_solution
 from ..heuristics.initialize import _convert_to_jobs
 

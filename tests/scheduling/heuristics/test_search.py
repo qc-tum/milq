@@ -1,7 +1,7 @@
 """_summary_"""
 
 from src.scheduling.heuristics.search import _combine_solutions
-from src.scheduling.heuristics.types import Bucket, Machine, Schedule
+from src.scheduling.common.types import Bucket, Machine, Schedule
 
 
 from src.circuits import create_quantum_only_ghz

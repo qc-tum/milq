@@ -1,6 +1,7 @@
 """Data structures for population-based heuristics."""
 
 from dataclasses import dataclass, field
+from uuid import UUID
 
 from qiskit import QuantumCircuit
 
@@ -8,11 +9,22 @@ from src.common import CircuitJob, CombinedJob
 
 
 @dataclass
+class CircuitProxy:
+    """A proxy for a quantum circuit to be used in the population-based heuristics."""
+
+    origin: QuantumCircuit
+    processing_time: float
+    num_qubits: int
+    indices: list[int] | None = None
+    uuid: UUID
+
+
+@dataclass
 class Bucket:
     """A bucket is a list of jobs that are performed on the same machine at one timestep."""
 
     # All
-    jobs: list[CircuitJob | CombinedJob] = field(default_factory=list)
+    jobs: list[CircuitProxy] = field(default_factory=list)
 
     # max_duration: int
     # start_time: int
@@ -68,7 +80,7 @@ class Schedule:
 class MakespanInfo:
     """Dataclass to track job completion times for makespan calc"""
 
-    job: QuantumCircuit | None
+    job: CircuitProxy | None
     start_time: float
     completion_time: float
     capacity: int

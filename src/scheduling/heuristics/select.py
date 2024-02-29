@@ -4,7 +4,7 @@ from uuid import UUID
 import logging
 
 from src.provider import Accelerator
-from .types import Schedule, Machine, Bucket, MakespanInfo, is_feasible
+from src.scheduling.common.types import Schedule, Machine, Bucket, MakespanInfo, is_feasible
 
 
 def select_elite_solutions(

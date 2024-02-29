@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from .types import Schedule, Bucket
+from src.scheduling.common.types import Schedule, Bucket
 
 
 def generate_new_solutions(population: list[Schedule], **kwargs) -> list[Schedule]:
