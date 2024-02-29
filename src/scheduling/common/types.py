@@ -15,6 +15,7 @@ class CircuitProxy:
     num_qubits: int
     indices: list[int] | None = None
     uuid: UUID
+    n_shots: int = 1024 # Not sure if needed
 
 
 @dataclass
@@ -30,8 +31,8 @@ class Bucket:
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Bucket):
             return False
-        return sorted([job.uuid for job in self.jobs]) == sorted(
-            [job.uuid for job in __value.jobs]
+        return sorted([(job.uuid, job.indices) for job in self.jobs]) == sorted(
+            [(job.uuid, job.indices) for job in __value.jobs]
         )
 
 
