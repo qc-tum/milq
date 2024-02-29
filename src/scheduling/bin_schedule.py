@@ -1,12 +1,14 @@
 """Generate baseline schedules."""
+
 from uuid import uuid4
 
 from qiskit import QuantumCircuit
 
 from src.common import CircuitJob, ScheduledJob
 from src.provider import Accelerator
+from src.scheduling.common import do_bin_pack
 from src.tools import assemble_job
-from .types import Bin, JobResultInfo
+from .types import JobResultInfo
 
 
 def generate_bin_info_schedule(
@@ -41,7 +43,7 @@ def generate_bin_info_schedule(
         for job in circuits
     ]
     # Build combined jobs from bins
-    closed_bins = _do_bin_pack(jobs, list(accelerators.values()))
+    closed_bins = do_bin_pack(jobs, list(accelerators.values()))
     combined_jobs: list[JobResultInfo] = []
     for _bin in sorted(closed_bins, key=lambda x: x.index):
         for job in _bin.jobs:
@@ -84,65 +86,9 @@ def generate_bin_executable_schedule(
     # TODO set a flag when an experiment is done
     # TODO consider number of shots
     # Assumption: bins should be equally loaded and take same amount of time
-    closed_bins = _do_bin_pack(jobs, [qpu.qubits for qpu in accelerators])
+    closed_bins = do_bin_pack(jobs, [qpu.qubits for qpu in accelerators])
     # Build combined jobs from bins
     combined_jobs = []
     for _bin in sorted(closed_bins, key=lambda x: x.index):
         combined_jobs.append(ScheduledJob(job=assemble_job(_bin.jobs), qpu=_bin.qpu))
     return combined_jobs
-
-
-def _do_bin_pack(
-    jobs: list[CircuitJob], accelerator_capacities: list[int]
-) -> list[Bin]:
-    open_bins = [
-        Bin(index=0, capacity=qpu, qpu=idx)
-        for idx, qpu in enumerate(accelerator_capacities)
-    ]
-    closed_bins = []
-    index = 1
-    for job in jobs:
-        if job.circuit is None:
-            continue
-        # Find the index of a fitting bin
-        bin_idx = _find_fitting_bin(job, open_bins)
-
-        if bin_idx is None:
-            # Open new bins
-            new_bins = [
-                Bin(index=index, capacity=qpu, qpu=idx)
-                for idx, qpu in enumerate(accelerator_capacities)
-            ]
-            index += 1
-
-            # Search for a fitting bin among the new ones
-            bin_idx = _find_fitting_bin(job, new_bins)
-            assert bin_idx is not None, "Job doesn't fit onto any qpu"
-            bin_idx += len(open_bins)
-            open_bins += new_bins
-
-        # Add job to selected bin
-        selected_bin = open_bins[bin_idx]
-        selected_bin.jobs.append(job)
-        selected_bin.capacity -= job.circuit.num_qubits
-
-        # Close bin if full
-        if selected_bin.capacity == 0:
-            selected_bin.full = True
-            closed_bins.append(selected_bin)
-            del open_bins[bin_idx]
-
-    # Close all open bins
-    for obin in open_bins:
-        if len(obin.jobs) > 0:
-            closed_bins.append(obin)
-    return closed_bins
-
-
-def _find_fitting_bin(job: CircuitJob, bins: list[Bin]) -> int | None:
-    if job.circuit is None:
-        raise ValueError("Job has no circuit")
-    for idx, b in enumerate(bins):
-        if b.capacity >= job.circuit.num_qubits:
-            return idx
-    return None

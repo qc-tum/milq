@@ -17,8 +17,8 @@ from src.scheduling.common import (
     Bucket,
     CircuitProxy,
     convert_to_jobs,
+    do_bin_pack,
 )
-from ..bin_schedule import _do_bin_pack
 
 
 class Option(Protocol):
@@ -294,7 +294,7 @@ def _fixed_partitioning(
 def _bin_schedule(
     jobs: list[CircuitProxy], accelerators: list[Accelerator]
 ) -> list[Machine]:
-    closed_bins = _do_bin_pack(jobs, [qpu.qubits for qpu in accelerators])
+    closed_bins = do_bin_pack(jobs, [qpu.qubits for qpu in accelerators])
     # Build combined jobs from bins
     machines = []
     for acc in accelerators:
