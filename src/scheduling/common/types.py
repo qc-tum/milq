@@ -13,8 +13,8 @@ class CircuitProxy:
     origin: QuantumCircuit
     processing_time: float
     num_qubits: int
-    indices: list[int] | None = None
     uuid: UUID
+    indices: list[int] | None = None
     n_shots: int = 1024 # Not sure if needed
 
 
