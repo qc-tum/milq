@@ -6,7 +6,7 @@ from qiskit import QuantumCircuit
 
 from src.resource_estimation import estimate_runtime
 
-from .fake_cut import fake_cut
+from .fake_cut import cut_proxies
 from .types import CircuitProxy
 
 
@@ -31,30 +31,6 @@ def convert_circuits(
         return [convert_to_proxy(circuit) for circuit in circuits]
     proxies = [convert_to_proxy(circuit) for circuit in circuits]
     return cut_proxies(proxies, partitions)
-
-
-def cut_proxies(
-    circuits: list[CircuitProxy], partitions: list[list[int]]
-) -> list[CircuitProxy]:
-    """Cuts the proxies according to their partitions.
-
-    Args:
-        circuits (list[CircuitProxy]): The proxies to cut.
-        partitions (list[list[int]]): THe partitions to cut the proxies into.
-
-    Returns:
-        list[CircuitProxy]: The resulting proxies.
-    """
-    jobs = []
-    for idx, circuit in enumerate(
-        sorted(circuits, key=lambda circ: circ.num_qubits, reverse=True)
-    ):
-        if len(partitions[idx]) > 1:
-            jobs += fake_cut(circuit, partitions[idx])
-
-        else:
-            jobs.append(circuit)
-    return jobs
 
 
 def convert_to_proxy(circuit: QuantumCircuit, n_shots: int = 1024) -> CircuitProxy:
