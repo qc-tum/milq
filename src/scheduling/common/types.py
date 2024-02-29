@@ -5,8 +5,6 @@ from uuid import UUID
 
 from qiskit import QuantumCircuit
 
-from src.common import CircuitJob, CombinedJob
-
 
 @dataclass
 class CircuitProxy:

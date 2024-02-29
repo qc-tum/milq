@@ -17,7 +17,7 @@ from src.scheduling.common import (
     Bucket,
     CircuitProxy,
     convert_to_jobs,
-    do_bin_pack,
+    do_bin_pack_proxy as do_bin_pack,
 )
 
 
