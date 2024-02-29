@@ -18,7 +18,6 @@ def convert_circuits(
     This adds the runtime information.
     If partitions are given, the circuits are cut into the partitions
     And new proxies are created instead of new circuits.
-    TODO: So far only works with a two partitions per circuit.
 
     Args:
         circuits (list[QuantumCircuit]): The circuits to convert.
