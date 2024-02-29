@@ -6,7 +6,7 @@ from qiskit import QuantumCircuit
 
 from src.resource_estimation import estimate_runtime
 
-from .fake_cut import cut_proxies
+from .partition import cut_proxies
 from .types import CircuitProxy
 
 
