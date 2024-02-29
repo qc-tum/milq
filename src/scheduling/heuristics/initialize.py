@@ -9,12 +9,15 @@ import logging
 from qiskit import QuantumCircuit
 import numpy as np
 
-from src.common import CircuitJob, jobs_from_experiment, job_from_circuit
+from src.common import CircuitJob
 from src.provider import Accelerator
-
-from src.tools import cut_circuit
-
-from .types import Schedule, Machine, Bucket
+from src.scheduling.common import (
+    Schedule,
+    Machine,
+    Bucket,
+    CircuitProxy,
+    convert_to_jobs,
+)
 from ..bin_schedule import _do_bin_pack
 
 
@@ -65,7 +68,7 @@ def _task(
 ) -> Schedule:
     logging.debug("Starting init on... %s", option.__name__)
     partitions = option(circuits, accelerators, **kwargs)
-    jobs: list[CircuitJob] = _convert_to_jobs(circuits, partitions)
+    jobs: list[CircuitJob] = convert_to_jobs(circuits, partitions)
     logging.debug("%s  init done.", option.__name__)
     return Schedule(_bin_schedule(jobs, accelerators), 0.0)
 
@@ -288,29 +291,8 @@ def _fixed_partitioning(
     return partitions
 
 
-def _convert_to_jobs(
-    circuits: list[QuantumCircuit], partitions: list[list[int]]
-) -> list[CircuitJob]:
-    jobs = []
-    for idx, circuit in enumerate(
-        sorted(circuits, key=lambda circ: circ.num_qubits, reverse=True)
-    ):
-        if len(partitions[idx]) > 1:
-            experiments, _ = cut_circuit(circuit, partitions[idx])
-            jobs += [
-                job
-                for experiment in experiments
-                for job in jobs_from_experiment(experiment)
-            ]
-        else:
-            # assumption for now dont cut to any to smaller
-            circuit = job_from_circuit(circuit)
-            jobs.append(circuit)
-    return jobs
-
-
 def _bin_schedule(
-    jobs: list[CircuitJob], accelerators: list[Accelerator]
+    jobs: list[CircuitProxy], accelerators: list[Accelerator]
 ) -> list[Machine]:
     closed_bins = _do_bin_pack(jobs, [qpu.qubits for qpu in accelerators])
     # Build combined jobs from bins

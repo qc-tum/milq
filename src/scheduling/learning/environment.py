@@ -14,10 +14,10 @@ from src.scheduling.common import (
     Bucket,
     is_feasible,
     evaluate_solution,
+    convert_to_jobs,
 )
 from src.tools import assemble_job
 from .action_space import ActionSpace
-from ..heuristics.initialize import _convert_to_jobs
 
 
 class Actions(Enum):
@@ -199,7 +199,7 @@ class SchedulingEnv(gym.Env):
             or cut_index < 2
         ):
             return self.penalty
-        new_jobs = _convert_to_jobs(
+        new_jobs = convert_to_jobs(
             [job.circuit],
             [[0] * cut_index + [1] * (job.circuit.num_qubits - cut_index)],
         )
