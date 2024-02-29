@@ -2,11 +2,11 @@ from enum import Enum
 from typing import Any
 
 from gymnasium import spaces
-import gymnasium as gym
 from gymnasium.core import RenderFrame
+import gymnasium as gym
+from qiskit import QuantumCircuit
 import numpy as np
 
-from src.common import CircuitJob
 from src.provider import Accelerator
 from src.scheduling.common import (
     Machine,
@@ -14,7 +14,8 @@ from src.scheduling.common import (
     Bucket,
     is_feasible,
     evaluate_solution,
-    convert_to_jobs,
+    convert_circuits,
+    cut_proxies,
 )
 from src.tools import assemble_job
 from .action_space import ActionSpace
@@ -42,7 +43,7 @@ class SchedulingEnv(gym.Env):
     def __init__(
         self,
         accelerators: list[Accelerator],
-        circuits: list[CircuitJob],  # TODO generate CircuitJob from QuantumCircuit
+        circuits: list[QuantumCircuit],  # TODO generate CircuitJob from QuantumCircuit
         max_steps: int = 1000,  # max number of steps in an episode
         penalty: float = 5.0,  # penalty for invalid cuts
     ):
@@ -51,7 +52,7 @@ class SchedulingEnv(gym.Env):
         self.steps = 0
         self.max_steps = max_steps
         self.accelerators = accelerators
-        self.circuits: list[CircuitJob] = circuits
+        self.circuits: list[QuantumCircuit] = circuits
 
         self._schedule = Schedule(
             [
@@ -61,8 +62,9 @@ class SchedulingEnv(gym.Env):
             np.inf,
         )  # Initialize with empty schedules for each device
         for circuit in self.circuits:
+            proxy = convert_circuits([circuit])[0]
             choice = np.random.choice(len(self._schedule.machines))
-            self._schedule.machines[choice].buckets.append(Bucket([circuit]))
+            self._schedule.machines[choice].buckets.append(Bucket([proxy]))
         # Define the action and observation spaces
         self._action_space = ActionSpace(circuits, self._schedule)
         self.action_space = spaces.flatten_space(self._action_space)
@@ -175,7 +177,7 @@ class SchedulingEnv(gym.Env):
         # Return the current information of the environment
         return {
             machine.id: [
-                [(job.circuit.num_qubits, str(job.uuid)) for job in bucket.jobs]
+                [(job.num_qubits, str(job.uuid)) for job in bucket.jobs]
                 for bucket in machine.buckets
             ]
             for machine in self._schedule.machines
@@ -191,16 +193,11 @@ class SchedulingEnv(gym.Env):
         # adds to the end
         (machine_id, bucket_id, job_id) = _find_job(self._schedule, index)
         job = self._schedule.machines[machine_id].buckets[bucket_id].jobs.pop(job_id)
-        if job.circuit is None:
-            raise ValueError("Job has no circuit")
-        if (
-            job.circuit.num_qubits < 3
-            or job.circuit.num_qubits - cut_index < 2
-            or cut_index < 2
-        ):
+
+        if job.num_qubits < 3 or job.num_qubits - cut_index < 2 or cut_index < 2:
             return self.penalty
-        new_jobs = convert_to_jobs(
-            [job.circuit],
+        new_jobs = cut_proxies(
+            [job],
             [[0] * cut_index + [1] * (job.circuit.num_qubits - cut_index)],
         )
         self._schedule.machines[machine_id].buckets[bucket_id].jobs += new_jobs

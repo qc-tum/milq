@@ -16,7 +16,7 @@ from src.scheduling.common import (
     Machine,
     Bucket,
     CircuitProxy,
-    convert_to_jobs,
+    convert_circuits,
     do_bin_pack_proxy as do_bin_pack,
 )
 
@@ -68,7 +68,7 @@ def _task(
 ) -> Schedule:
     logging.debug("Starting init on... %s", option.__name__)
     partitions = option(circuits, accelerators, **kwargs)
-    jobs: list[CircuitJob] = convert_to_jobs(circuits, partitions)
+    jobs: list[CircuitJob] = convert_circuits(circuits, partitions)
     logging.debug("%s  init done.", option.__name__)
     return Schedule(_bin_schedule(jobs, accelerators), 0.0)
 

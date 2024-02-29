@@ -1,8 +1,8 @@
 """Custom action space for the scheduling environment."""
 
 from gymnasium.spaces import Discrete, Dict, MultiDiscrete
+from qiskit import QuantumCircuit
 
-from src.common import CircuitJob
 from src.scheduling.common import Schedule
 
 
@@ -10,7 +10,7 @@ class ActionSpace(Dict):
     """The action space for the scheduling environment.
     It contains the spaces for the following actions:"""
 
-    def __init__(self, circuits: list[CircuitJob], schedule: Schedule) -> None:
+    def __init__(self, circuits: list[QuantumCircuit], schedule: Schedule) -> None:
         n_circuits = len(circuits)
         n_buckets = sum(
             len(machine.buckets) + 1 for machine in schedule.machines
