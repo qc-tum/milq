@@ -62,3 +62,32 @@ def cut_circuit(
 def _generate_partition_labels(partitions: list[int]) -> str:
     # TODO find a smart way to communicate partition information
     return "".join(str(i) * value for i, value in enumerate(partitions))
+
+
+def cut_according_to_partition(
+    circuit: QuantumCircuit,
+    partition: list[int],
+    observables: PauliList | None = None,
+) -> list[QuantumCircuit]:
+    """Cuts a circuit according to a partition.
+
+    The partition indicates which qubits belong together
+    e.g. [0, 0, 1, 1, 2, 2]
+    Args:
+        circuit (QuantumCircuit): Circuit to cut.
+        partition (list[int]): The partition to cut the circuit into.
+        observables (PauliList | None, optional): Observable for each qubit.
+            Defaults to None.
+
+    Returns:
+        list[QuantumCircuit]: A list of subcircuits.
+    """
+    if observables is None:
+        observables = PauliList("Z" * circuit.num_qubits)
+    partitioned_problem = partition_problem(circuit, partition, observables)
+    experiments, _ = generate_cutting_experiments(
+        partitioned_problem.subcircuits,
+        partitioned_problem.subobservables,
+        num_samples=np.inf,
+    )
+    return [circuit for _, circuits in experiments.items() for circuit in circuits]
