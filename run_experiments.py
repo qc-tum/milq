@@ -94,4 +94,5 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     logging.getLogger("qiskit").setLevel(logging.WARNING)
     logging.getLogger("circuit_knitting").setLevel(logging.WARNING)
+    logging.getLogger("azure").setLevel(logging.WARNING)
     run_heuristic()
