@@ -28,6 +28,7 @@ ACCELERATORS = [
     [
         Accelerator(IBMQBackend.BELEM, shot_time=5, reconfiguration_time=12),
         Accelerator(IBMQBackend.NAIROBI, shot_time=7, reconfiguration_time=12),
+        None,
     ],
     [
         Accelerator(IBMQBackend.BELEM, shot_time=5, reconfiguration_time=12),
@@ -44,6 +45,7 @@ if __name__ == "__main__":
     logging.getLogger("qiskit").setLevel(logging.WARNING)
     logging.getLogger("circuit_knitting").setLevel(logging.WARNING)
     logging.getLogger("stevedore").setLevel(logging.WARNING)
+    logging.getLogger("azure").setLevel(logging.WARNING)
     settings = [
         {"accelerators": accs, "circuits": _generate_batch(MAX_QUBITS, CIRC_PER_BATCH)}
         for accs in ACCELERATORS

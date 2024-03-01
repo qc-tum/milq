@@ -42,7 +42,7 @@ class SchedulingEnv(gym.Env):
 
     def __init__(
         self,
-        accelerators: list[Accelerator],
+        accelerators: list[Accelerator | None],
         circuits: list[QuantumCircuit],  # TODO generate CircuitJob from QuantumCircuit
         max_steps: int = 1000,  # max number of steps in an episode
         penalty: float = 5.0,  # penalty for invalid cuts
@@ -56,7 +56,11 @@ class SchedulingEnv(gym.Env):
 
         self._schedule = Schedule(
             [
-                Machine(accelerator.qubits, str(accelerator.uuid), [], np.inf)
+                (
+                    Machine(accelerator.qubits, str(accelerator.uuid), [], np.inf)
+                    if accelerator is not None
+                    else Machine(0, "None", [], 0)
+                )
                 for accelerator in accelerators
             ],
             np.inf,
@@ -148,7 +152,11 @@ class SchedulingEnv(gym.Env):
         super().reset(seed=seed)
         schedule = Schedule(
             [
-                Machine(accelerator.qubits, str(accelerator.uuid), [], np.inf)
+                (
+                    Machine(accelerator.qubits, str(accelerator.uuid), [], np.inf)
+                    if accelerator is not None
+                    else Machine(0, "None", [], 0)
+                )
                 for accelerator in self.accelerators
             ],
             np.inf,
@@ -167,7 +175,7 @@ class SchedulingEnv(gym.Env):
     def _get_observation(self) -> dict[str, float]:
         # Return the current observation of the environment
         # Example observation: (makespan, noise)
-        self._schedule = evaluate_solution(self._schedule, self.accelerators)
+        self._schedule = evaluate_solution(self._schedule)
         return {
             "makespan": np.array([self._schedule.makespan]),
             "noise": np.array([0.0]),

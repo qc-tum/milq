@@ -88,7 +88,7 @@ class MakespanInfo:
 def is_feasible(schedule: Schedule) -> bool:
     """Checks if a schedule is feasible."""
     return all(
-        sum(job.circuit.num_qubits for job in bucket.jobs) <= machine.capacity
+        sum(job.num_qubits for job in bucket.jobs) <= machine.capacity
         for machine in schedule.machines
         for bucket in machine.buckets
     )
