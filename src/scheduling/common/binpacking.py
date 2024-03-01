@@ -95,7 +95,7 @@ def do_bin_pack_proxy(
     index = 1
     for job in jobs:
         # Find the index of a fitting bin
-        bin_idx = _find_fitting_bin(job, open_bins)
+        bin_idx = _find_fitting_bin_proxy(job, open_bins)
 
         if bin_idx is None:
             # Open new bins
@@ -106,7 +106,7 @@ def do_bin_pack_proxy(
             index += 1
 
             # Search for a fitting bin among the new ones
-            bin_idx = _find_fitting_bin(job, new_bins)
+            bin_idx = _find_fitting_bin_proxy(job, new_bins)
             assert bin_idx is not None, "Job doesn't fit onto any qpu"
             bin_idx += len(open_bins)
             open_bins += new_bins
