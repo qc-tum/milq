@@ -16,7 +16,7 @@ def partion_circuit(circuit: CircuitProxy, partitions: list[int]) -> list[Circui
     Repeateadly cuts the circuit into subcircuits based on the partitions.
     Update the number of shots for each subcircuit.
     # TODO: Check if the number of shots is correct.
-    
+
     Args:
         circuit (CircuitProxy): _description_
         partitions (list[int]): _description_
@@ -158,6 +158,8 @@ def _subcircuit(circuit: QuantumCircuit, indices: list[int]) -> QuantumCircuit:
 def estimate_runtime_proxy(circuit: CircuitProxy, indices: list[int]) -> float:
     """Calculate runtime based on original circuit."""
     quantum_circuit = _subcircuit(circuit.origin, indices)
+    if circuit.origin.depth() == 0:
+        return circuit.processing_time
     return circuit.processing_time * quantum_circuit.depth() / circuit.origin.depth()
 
 
