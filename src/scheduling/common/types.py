@@ -15,7 +15,7 @@ class CircuitProxy:
     num_qubits: int
     uuid: UUID
     indices: list[int] | None = None
-    n_shots: int = 1024 # Not sure if needed
+    n_shots: int = 1024  # Not sure if needed
 
 
 @dataclass
@@ -24,6 +24,8 @@ class Bucket:
 
     # All
     jobs: list[CircuitProxy] = field(default_factory=list)
+    # For the final schedule 
+    circuits: list[QuantumCircuit] = field(default_factory=list)
 
     # max_duration: int
     # start_time: int
@@ -62,6 +64,7 @@ class Schedule:
 
     machines: list[Machine]
     makespan: float
+    noise: float = 0.0
 
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Schedule):
