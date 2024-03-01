@@ -1,21 +1,22 @@
 """Generates the benchmark data."""
+
 import logging
 
 from mqt.bench import get_benchmark
+from qiskit import QuantumCircuit
 import numpy as np
 
-from src.common import CircuitJob, job_from_circuit
 from src.provider import Accelerator, IBMQBackend
 from src.scheduling.learning import train_for_settings
 
 
-def _generate_batch(max_qubits: int, circuits_per_batch: int) -> list[CircuitJob]:
+def _generate_batch(max_qubits: int, circuits_per_batch: int) -> list[QuantumCircuit]:
     # Generate a random circuit
     batch = []
     for _ in range(circuits_per_batch):
-        size = np.random.randint(2, max_qubits + 1)
-        circuit = get_benchmark(benchmark_name="random", level=0, circuit_size=size)
-        batch.append(job_from_circuit(circuit))
+        size = np.random.randint(1, max_qubits + 1)
+        circuit = get_benchmark(benchmark_name="random", level=2, circuit_size=size)
+        batch.append(circuit)
 
     return batch
 
@@ -39,7 +40,7 @@ CIRC_PER_BATCH = 5
 MAX_QUBITS = 25
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     logging.getLogger("qiskit").setLevel(logging.WARNING)
     logging.getLogger("circuit_knitting").setLevel(logging.WARNING)
     logging.getLogger("stevedore").setLevel(logging.WARNING)
