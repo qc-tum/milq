@@ -56,7 +56,7 @@ def generate_heuristic_info_schedule(
     for machine in schedule.machines:
         for idx, bucket in enumerate(machine.buckets):
             for job in bucket.jobs:
-                if job is None or job.circuit is None:
+                if job is None:
                     continue
                 combined_jobs.append(
                     JobResultInfo(
@@ -64,7 +64,7 @@ def generate_heuristic_info_schedule(
                         machine=machine.id,
                         start_time=idx,
                         completion_time=-1.0,
-                        capacity=job.circuit.num_qubits,
+                        capacity=job.num_qubits,
                     )
                 )
 

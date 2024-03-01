@@ -8,14 +8,13 @@ from src.scheduling.common import Schedule, Machine, is_feasible, evaluate_solut
 
 
 def select_elite_solutions(
-    population: list[Schedule], num_solutions: int, accelerators: list[Accelerator]
+    population: list[Schedule], num_solutions: int
 ) -> list[Schedule]:
     """Selects the #num_solutions best solutions from the population by makespan.
 
     Args:
         population (list[Schedule]): List of schedules to select from.
         num_solutions (int): Number of solutions to select.
-        accelerators (list[Accelerator]): Reference to the accelerators for makespan calculation.
 
     Raises:
         ValueError: If the population is empty.
@@ -27,27 +26,25 @@ def select_elite_solutions(
     if len(population) == 0:
         raise ValueError("Population must not be empty.")
 
-    population = [evaluate_solution(schedule, accelerators) for schedule in population]
+    population = [evaluate_solution(schedule) for schedule in population]
     logging.debug("Evaluation done.")
     return sorted(population, key=lambda x: x.makespan)[:num_solutions]
 
 
-def select_best_solution(
-    population: list[Schedule], accelerators: list[Accelerator]
-) -> Schedule:
+def select_best_solution(population: list[Schedule]) -> Schedule:
     """Selects the best solution from the population by makespan.
 
     Args:
         population (list[Schedule]): List of schedules to select from.
-        accelerators (list[Accelerator]): Reference to the accelerators for makespan calculation.
 
     Returns:
         Schedule: The schedule with the lowest makespan.
     """
     logging.debug("Selecting best solution.")
-    for solution in select_elite_solutions(population, len(population), accelerators):
+    for solution in select_elite_solutions(population, len(population)):
         if is_feasible(solution):
             return solution
+    logging.info("No feasible solution found.")
     return population[-1]
 
 
