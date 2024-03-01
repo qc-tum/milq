@@ -12,12 +12,12 @@ from src.scheduling.common import (
     Machine,
     Schedule,
     Bucket,
+    CircuitProxy,
     is_feasible,
     evaluate_solution,
     convert_circuits,
     cut_proxies,
 )
-from src.tools import assemble_job
 from .action_space import ActionSpace
 
 
@@ -215,7 +215,19 @@ class SchedulingEnv(gym.Env):
         job_2 = (
             self._schedule.machines[machine_id2].buckets[bucket_id2].jobs.pop(job_id2)
         )
-        combined_circuit = assemble_job([job_1, job_2])
+        # TODO keep track of origins / indices properly
+        combined_circuit = CircuitProxy(
+            origin=job_1.origin,
+            processing_time=(
+                job_1.processing_time
+                if job_1.processing_time > job_2.processing_time
+                else job_2.processing_time
+            ),
+            num_qubits=job_1.num_qubits + job_2.num_qubits,
+            uuid=job_1.uuid,
+            indices=job_1.indices + job_2.indices,
+            n_shots=job_1.n_shots if job_1.n_shots > job_2.n_shots else job_2.n_shots,
+        )
 
         self._schedule.machines[machine_id1].buckets[bucket_id1].jobs.append(
             combined_circuit
