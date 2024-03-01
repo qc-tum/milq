@@ -14,7 +14,5 @@ def test_estimate_runtime() -> None:
     if environ.get("AZURE_CLIENT_ID", None) is None:
         pytest.skip("Azure Quantum is not available in the CI environment.")
     circuit = create_quantum_only_ghz(10)
-    circuit.t([0])  # Resource Estimation requires a magic state source
-    circuit.cx([0], [1])
     runtime = estimate_runtime(circuit)
     assert runtime == 28800
