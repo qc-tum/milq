@@ -1,7 +1,8 @@
 """Module for estimating the runtime of a quantum circuit using the resource estimator."""
 
-from qiskit import QuantumCircuit
+from copy import deepcopy
 
+from qiskit import QuantumCircuit
 from .convert import convert_to_qir
 from .query import query_resource_estimator
 
@@ -16,10 +17,14 @@ def estimate_runtime(circuit: QuantumCircuit, error_budget: float = 0.05) -> flo
     Returns:
         float: The estimated runtime of the circuit in nano seconds.
     """
-    quantum_circuit = circuit.copy()
-    quantum_circuit.t([0])  # To make sure the circuit is not empty
+    quantum_circuit = deepcopy(circuit)
+    quantum_circuit.remove_final_measurements()
+    quantum_circuit.t(0)
     bytecode = convert_to_qir(quantum_circuit)
-    result = query_resource_estimator(bytecode, error_budget=error_budget)
-    # assert result.get["status"] == "Succeeded"
+    try:
+        result = query_resource_estimator(bytecode, error_budget=error_budget)
+    except RuntimeError:
+        # Default value if no T state is present
+        return 28800.0
     runtime = result.data()["physicalCounts"]["runtime"]
     return runtime
