@@ -53,10 +53,21 @@ def initialize_population(
     """
 
     schedules = []
-    num_cores = max(len(OPTIONS), cpu_count())
-    with Pool(processes=num_cores) as pool:
-        work = partial(_task, circuits=circuits, accelerators=accelerators, **kwargs)
-        schedules = pool.map(work, OPTIONS)
+    # Azure resource estimator doesn't work correctly with pool
+    # num_cores = max(len(OPTIONS), cpu_count())
+    # with Pool(processes=1) as pool:
+    #     work = partial(_task, circuits=circuits, accelerators=accelerators, **kwargs)
+    #     schedules = pool.map(work, OPTIONS)
+    for option in OPTIONS:
+        logging.info("Starting init on... %s", option.__name__)
+        schedules.append(
+            _task(
+                option,
+                circuits,
+                accelerators,
+                **kwargs,
+            )
+        )
     return schedules
 
 
@@ -68,9 +79,20 @@ def _task(
 ) -> Schedule:
     logging.debug("Starting init on... %s", option.__name__)
     partitions = option(circuits, accelerators, **kwargs)
+    partitions = _reformat(partitions)
     jobs: list[CircuitJob] = convert_circuits(circuits, partitions)
     logging.debug("%s  init done.", option.__name__)
     return Schedule(_bin_schedule(jobs, accelerators), 0.0)
+
+
+def _reformat(partitions: list[list[int]]) -> list[list[int]]:
+    new_partitions = []
+    for partition in partitions:
+        new_partition = []
+        for idx, part in enumerate(partition):
+            new_partition += [idx] * part
+        new_partitions.append(new_partition)
+    return new_partitions
 
 
 def _greedy_partitioning(
