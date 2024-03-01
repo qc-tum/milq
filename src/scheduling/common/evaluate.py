@@ -1,26 +1,33 @@
 """Evaluation and selection of solutions."""
 
+from dataclasses import dataclass
 import logging
 
+from qiskit import QuantumCircuit
+
+from src.tools import cut_according_to_partition
 from src.provider import Accelerator
-from src.scheduling.common.types import Schedule, Bucket, MakespanInfo
+from src.scheduling.common.types import Schedule, Bucket, MakespanInfo, CircuitProxy
 
 
 def evaluate_final_solution(
-    schedule: Schedule, accelerators: list[Accelerator]
+    schedule: Schedule, accelerators: list[Accelerator], circuits: list[QuantumCircuit]
 ) -> Schedule:
     """Calculates and updates the makespan of a schedule.
 
     Uses the values provided by the accelerators to calculate the makespan.
+    Cuts the circuits according to the schedule.
     Args:
         schedule (Schedule): A schedule to evaluate.
         accelerators (list[Accelerator]): The list of accelerators to schedule on.
+        circuits (list[QuantumCircuit]): The orginal list of circuits to schedule.
 
     Returns:
         Schedule: The schedule with updated makespan and machine makespans.
     """
     logging.debug("Evaluating makespan...")
     makespans = []
+    _cut_according_to_schedule(schedule, circuits)
     for machine in schedule.machines:
         accelerator = next(acc for acc in accelerators if str(acc.uuid) == machine.id)
         makespans.append(_calc_machine_makespan(machine.buckets, accelerator))
@@ -59,6 +66,47 @@ def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> f
     if len(jobs) == 0:
         return 0.0
     return max(jobs, key=lambda j: j.completion_time).completion_time
+
+
+@dataclass
+class BucketHelper:
+
+    bucket: Bucket
+    job: CircuitProxy
+    idx: int
+    new_circuit: QuantumCircuit | None = None
+
+
+def _cut_according_to_schedule(schedule: Schedule, circuits: list[QuantumCircuit]) -> None:
+    """Cuts the circuits according to the schedule."""
+    for circuit in circuits:
+        helpers: list[BucketHelper] = []
+        for machine in schedule.machines:
+            for bucket in machine.buckets:
+                for job_index, job in enumerate(bucket.jobs):
+                    if isinstance(job, QuantumCircuit):
+                        continue
+                    if job.origin == circuit:
+                        helpers.append(BucketHelper(bucket, job, job_index))
+        partition = [0] * circuit.num_qubits
+        for idx, helper in enumerate(helpers):
+            for i in helper.job.indices:
+                partition[i] = idx
+        new_circuits = cut_according_to_partition(circuit, partition)
+        for idx, helper in enumerate(helpers):
+            new_circuit = next(
+                (
+                    idx
+                    for idx, c in enumerate(new_circuits)
+                    if c.num_qubits == helper.job.num_qubits
+                ),
+                None,
+            )
+            # TODO: check if this is inplace
+            if new_circuit is None:
+                helper.bucket.jobs.pop(helper.idx)
+            else:
+                helper.bucket.jobs[helper.idx] = new_circuits.pop(new_circuit)
 
 
 def evaluate_solution(schedule: Schedule) -> Schedule:
