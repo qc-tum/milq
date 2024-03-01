@@ -42,5 +42,5 @@ def query_resource_estimator(bitcode: bytes, **kwargs) -> MicrosoftEstimatorResu
             input_params=kwargs,
             metadata={},
         )
-    job_monitor(job)
+    job_monitor(job, quiet=True)
     return job.result()
