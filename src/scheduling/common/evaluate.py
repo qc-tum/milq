@@ -42,12 +42,12 @@ def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> f
         # assumption: jobs take the longer of both circuits to execute and to set up
         jobs += [
             MakespanInfo(
-                job=job.circuit,
+                job=circuit,
                 start_time=idx,
                 completion_time=-1.0,
-                capacity=job.circuit.num_qubits,
+                capacity=circuit.num_qubits,
             )
-            for job in bucket.jobs
+            for circuit in bucket.circuits
         ]
 
     assigned_jobs = jobs.copy()
@@ -77,7 +77,9 @@ class BucketHelper:
     new_circuit: QuantumCircuit | None = None
 
 
-def _cut_according_to_schedule(schedule: Schedule, circuits: list[QuantumCircuit]) -> None:
+def _cut_according_to_schedule(
+    schedule: Schedule, circuits: list[QuantumCircuit]
+) -> None:
     """Cuts the circuits according to the schedule."""
     for circuit in circuits:
         helpers: list[BucketHelper] = []
@@ -106,7 +108,7 @@ def _cut_according_to_schedule(schedule: Schedule, circuits: list[QuantumCircuit
             if new_circuit is None:
                 helper.bucket.jobs.pop(helper.idx)
             else:
-                helper.bucket.jobs[helper.idx] = new_circuits.pop(new_circuit)
+                helper.bucket.circuits.append(new_circuits[new_circuit])
 
 
 def evaluate_solution(schedule: Schedule) -> Schedule:
