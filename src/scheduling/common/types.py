@@ -24,7 +24,7 @@ class Bucket:
 
     # All
     jobs: list[CircuitProxy] = field(default_factory=list)
-    # For the final schedule 
+    # For the final schedule
     circuits: list[QuantumCircuit] = field(default_factory=list)
 
     # max_duration: int
@@ -82,7 +82,7 @@ class Schedule:
 class MakespanInfo:
     """Dataclass to track job completion times for makespan calc"""
 
-    job: CircuitProxy | None
+    job: QuantumCircuit | None
     start_time: float
     completion_time: float
     capacity: int
