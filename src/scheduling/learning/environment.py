@@ -12,7 +12,6 @@ from src.scheduling.common import (
     Machine,
     Schedule,
     Bucket,
-    CircuitProxy,
     is_feasible,
     evaluate_solution,
     convert_circuits,
@@ -27,7 +26,7 @@ class Actions(Enum):
     """
 
     CUT_CIRCUIT = 0
-    #COMBINE_CIRCUIT = 1
+    # COMBINE_CIRCUIT = 1
     MOVE_CIRCUIT = 1
     SWAP_CIRCUITS = 2
     TERMINATE = 3
@@ -46,6 +45,7 @@ class SchedulingEnv(gym.Env):
         circuits: list[QuantumCircuit],  # TODO generate CircuitJob from QuantumCircuit
         max_steps: int = 1000,  # max number of steps in an episode
         penalty: float = 5.0,  # penalty for invalid cuts
+        noise_weight: float = 10.0,  # weight of noise in reward
     ):
         super().__init__()
         self.penalty = penalty
@@ -53,6 +53,7 @@ class SchedulingEnv(gym.Env):
         self.max_steps = max_steps
         self.accelerators = accelerators
         self.circuits: list[QuantumCircuit] = circuits
+        self.noise_weight = noise_weight
 
         self._schedule = Schedule(
             [
@@ -66,7 +67,7 @@ class SchedulingEnv(gym.Env):
             np.inf,
         )  # Initialize with empty schedules for each device
         for circuit in self.circuits:
-            proxy = convert_circuits([circuit])[0]
+            proxy = convert_circuits([circuit], accelerators)[0]
             choice = np.random.choice(len(self._schedule.machines))
             self._schedule.machines[choice].buckets.append(Bucket([proxy]))
         # Define the action and observation spaces
@@ -178,7 +179,7 @@ class SchedulingEnv(gym.Env):
         self._schedule = evaluate_solution(self._schedule)
         return {
             "makespan": np.array([self._schedule.makespan]),
-            "noise": np.array([0.0]),
+            "noise": np.array([self._schedule.noise]),
         }
 
     def _get_info(self) -> dict[str, Any]:
@@ -193,7 +194,7 @@ class SchedulingEnv(gym.Env):
 
     def _calculate_reward(self, completion_time: float, expected_noise: float) -> float:
         # Calculate the reward based on the completion time and expected noise
-        return -completion_time + expected_noise
+        return -completion_time + (expected_noise * self.noise_weight)
 
     def _cut(self, index: int, cut_index: int, *_) -> float:
         # Cut the circuit into two smaller circuits
