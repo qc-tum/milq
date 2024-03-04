@@ -53,28 +53,29 @@ def run_heuristic_experiments(
         ]
         benchmark_results: list[Result] = []
         for benchmark in benchmarks:
-            problme_circuits = _cut_circuits(benchmark, setting)
-            logging.info("Setting up times...")
-
-            p_times = _get_benchmark_processing_times(problme_circuits, setting)
-            s_times = _get_benchmark_setup_times(
-                problme_circuits,
-                setting,
-                default_value=2**5,
-            )
-            logging.info("Setting up problems...")
-            problem = InfoProblem(
-                base_jobs=problme_circuits,
-                accelerators={str(acc.uuid): acc.qubits for acc in setting},
-                big_m=1000,
-                timesteps=t_max,
-                process_times=p_times,
-                setup_times=s_times,
-            )
             result: dict[str, Result] = {}
+
             logging.info("Running benchmark for setting.")
             # Run the baseline model
             with Timer() as t0:
+                problme_circuits = _cut_circuits(benchmark, setting)
+                logging.info("Setting up times...")
+
+                p_times = _get_benchmark_processing_times(problme_circuits, setting)
+                s_times = _get_benchmark_setup_times(
+                    problme_circuits,
+                    setting,
+                    default_value=2**5,
+                )
+                logging.info("Setting up problems...")
+                problem = InfoProblem(
+                    base_jobs=problme_circuits,
+                    accelerators={str(acc.uuid): acc.qubits for acc in setting},
+                    big_m=1000,
+                    timesteps=t_max,
+                    process_times=p_times,
+                    setup_times=s_times,
+                )
                 makespan, jobs, _ = generate_schedule(problem, SchedulerType.BASELINE)
             result["baseline"] = Result(makespan, jobs, t0.elapsed)
             logging.info("Baseline model done: Makespan: %d.", makespan)
@@ -90,14 +91,23 @@ def run_heuristic_experiments(
             with Timer() as t2:
                 # TODO convert ScheduledJob to JobResultInfo
                 makespan, jobs = heuristic_schedule(
-                    benchmark, setting, num_iterations=128, partition_size=4, num_cores=1
+                    benchmark,
+                    setting,
+                    num_iterations=128,
+                    partition_size=4,
+                    num_cores=16,
                 )
             result["heuristic"] = Result(makespan, jobs, t2.elapsed)
             logging.info("Heuristic model done: Makespan: %d.", makespan)
             # Store results
-            benchmark_results.append(results)
+            benchmark_results.append(result)
         if len(benchmark_results) > 0:
-            results.append({"setting": setting, "benchmarks": benchmark_results})
+            results.append(
+                {
+                    "setting": {str(acc.uuid): acc.qubits for acc in setting},
+                    "benchmarks": benchmark_results,
+                }
+            )
     return results
 
 
