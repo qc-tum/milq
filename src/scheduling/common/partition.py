@@ -1,12 +1,12 @@
 """_summary_"""
 
-from bisect import bisect_left
 from functools import reduce
 from operator import mul
 from qiskit import QuantumCircuit
 
 from src.resource_estimation import ResourceEstimator
 
+from .estimate import estimate_noise_proxy, estimate_runtime_proxy, subcircuit
 from .types import CircuitProxy
 
 
@@ -56,7 +56,7 @@ def partion_circuit(circuit: CircuitProxy, partitions: list[int]) -> list[Circui
         multiplier *= len(additional_proxies)
         samples.append(proxies[-1].n_shots)
         # remove all qubits from the current partition
-        circuit.origin = _subcircuit(
+        circuit.origin = subcircuit(
             circuit.origin,
             [idx for idx, value in enumerate(partitions) if value > partition],
         )
@@ -134,33 +134,11 @@ def _partition(
             indices=indices,
             uuid=circuit.uuid,
             n_shots=n_shots,
+            noise=estimate_noise_proxy(circuit, indices),
         )
         proxies.append(proxy)
 
     return proxies
-
-
-def _subcircuit(circuit: QuantumCircuit, indices: list[int]) -> QuantumCircuit:
-    """Builds a new subcircuit. only retain the qubits in the indices"""
-    quantum_circuit = QuantumCircuit(len(indices))
-    for gate in circuit.data:
-        if all(circuit.find_bit(qubit).index in indices for qubit in gate[1]):
-            quantum_circuit.append(
-                gate[0],
-                [
-                    bisect_left(indices, circuit.find_bit(qubit).index)
-                    for qubit in gate[1]
-                ],
-            )
-    return quantum_circuit
-
-
-def estimate_runtime_proxy(circuit: CircuitProxy, indices: list[int]) -> float:
-    """Calculate runtime based on original circuit."""
-    quantum_circuit = _subcircuit(circuit.origin, indices)
-    if circuit.origin.depth() == 0:
-        return circuit.processing_time
-    return circuit.processing_time * quantum_circuit.depth() / circuit.origin.depth()
 
 
 def cut_proxies(
