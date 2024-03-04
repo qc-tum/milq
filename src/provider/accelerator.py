@@ -4,11 +4,10 @@ from uuid import UUID, uuid4
 import logging
 
 from qiskit import QuantumCircuit, transpile
-from qiskit.providers.fake_provider import FakeSherbrooke
 from qiskit_aer import AerSimulator
 
 from src.common import IBMQBackend
-from src.resource_estimation import estimate_runtime
+from src.resource_estimation import estimate_runtime, estimate_noise
 from src.tools import optimize_circuit_online
 
 
@@ -95,6 +94,17 @@ class Accelerator:
         if circuit_to is None:
             return self._reconfiguration_time
         return self._reconfiguration_time
+
+    def compute_noise(self, quantum_circuit: QuantumCircuit) -> float:
+        """Estimates the noise of a circuit on an accelerator.
+
+        Args:
+            circuit (QuantumCircuit): The circuit to estimate the noise for.
+
+        Returns:
+            float: The estimated noise of the circuit on the accelerator.
+        """
+        return estimate_noise(quantum_circuit, self.simulator)
 
     @property
     def shot_time(self) -> int:
