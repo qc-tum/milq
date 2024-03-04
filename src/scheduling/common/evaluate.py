@@ -70,6 +70,8 @@ def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> f
 
 @dataclass
 class BucketHelper:
+    """Keeps track of the bucket and job index.
+    Used of reconstructing circuits and cutting them properly"""
 
     bucket: Bucket
     job: CircuitProxy
@@ -112,20 +114,23 @@ def _cut_according_to_schedule(
 
 
 def evaluate_solution(schedule: Schedule) -> Schedule:
-    """Calculates and updates the makespan of a schedule using the proxy values.
+    """Calculates and updates the makespan and noise of a schedule using the proxy values.
 
     Args:
         schedule (Schedule): A schedule to evaluate.
 
     Returns:
-        Schedule: The schedule with updated makespan and machine makespans.
+        Schedule: The schedule with updated makespan, noise and machine makespans.
     """
     logging.debug("Evaluating proxy makespan...")
     makespans = []
+    noises = []
     for machine in schedule.machines:
         makespans.append(_calc_proxy_makespan(machine.buckets))
         machine.makespan = makespans[-1]
+        noises.append(_calc_proxy_noise(machine.buckets))
     schedule.makespan = max(makespans)
+    schedule.noise = sum(noises)
     return schedule
 
 
@@ -169,3 +174,7 @@ def _calc_proxy_makespan(
         )
 
     return max(jobs, key=lambda j: j.completion_time).completion_time
+
+
+def _calc_proxy_noise(buckets: list[Bucket]) -> float:
+    return sum(job.noise for bucket in buckets for job in bucket.jobs)
