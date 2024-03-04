@@ -2,7 +2,6 @@
 
 import numpy as np
 
-from src.provider import Accelerator
 
 from src.scheduling.common.types import Schedule
 from .select import evaluate_solution
@@ -29,7 +28,7 @@ def improve_solutions(population: list[Schedule]) -> list[Schedule]:
         # Remove bucket from worst machine
         for job in bucket.jobs:
             for machine in sorted(schedule.machines, key=lambda m: m.makespan):
-                if machine == worst_machine:
+                if machine == worst_machine or len(machine.buckets) == 0:
                     continue
                 # Find the bucket with the biggest remaining capacity
                 smallest_bucket = min(
