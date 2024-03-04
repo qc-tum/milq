@@ -27,10 +27,10 @@ class Actions(Enum):
     """
 
     CUT_CIRCUIT = 0
-    COMBINE_CIRCUIT = 1
-    MOVE_CIRCUIT = 2
-    SWAP_CIRCUITS = 3
-    TERMINATE = 4
+    #COMBINE_CIRCUIT = 1
+    MOVE_CIRCUIT = 1
+    SWAP_CIRCUITS = 2
+    TERMINATE = 3
 
 
 class SchedulingEnv(gym.Env):
@@ -88,8 +88,8 @@ class SchedulingEnv(gym.Env):
         match dict_action["action"]:
             case Actions.CUT_CIRCUIT:
                 penalty = self._cut(*dict_action["params"])
-            case Actions.COMBINE_CIRCUIT:
-                self._combine(*dict_action["params"])
+            # case Actions.COMBINE_CIRCUIT:
+            #     self._combine(*dict_action["params"])
             case Actions.MOVE_CIRCUIT:
                 self._move(*dict_action["params"])
             case Actions.SWAP_CIRCUITS:
@@ -211,35 +211,35 @@ class SchedulingEnv(gym.Env):
         self._schedule.machines[machine_id].buckets[bucket_id].jobs += new_jobs
         return 1
 
-    def _combine(self, index1: int, index2: int, *_) -> None:
-        # Combine two circuits into a single larger circuit
-        # remove the two circuits from the machine and add the larger circuit
-        # adds to the bucket of the first circuit
-        (machine_id1, bucket_id1, job_id1) = _find_job(self._schedule, index1)
-        (machine_id2, bucket_id2, job_id2) = _find_job(self._schedule, index2)
-        job_1 = (
-            self._schedule.machines[machine_id1].buckets[bucket_id1].jobs.pop(job_id1)
-        )
-        job_2 = (
-            self._schedule.machines[machine_id2].buckets[bucket_id2].jobs.pop(job_id2)
-        )
-        # TODO keep track of origins / indices properly
-        combined_circuit = CircuitProxy(
-            origin=job_1.origin,
-            processing_time=(
-                job_1.processing_time
-                if job_1.processing_time > job_2.processing_time
-                else job_2.processing_time
-            ),
-            num_qubits=job_1.num_qubits + job_2.num_qubits,
-            uuid=job_1.uuid,
-            indices=job_1.indices + job_2.indices,
-            n_shots=job_1.n_shots if job_1.n_shots > job_2.n_shots else job_2.n_shots,
-        )
+    # def _combine(self, index1: int, index2: int, *_) -> None:
+    #     # Combine two circuits into a single larger circuit
+    #     # remove the two circuits from the machine and add the larger circuit
+    #     # adds to the bucket of the first circuit
+    #     (machine_id1, bucket_id1, job_id1) = _find_job(self._schedule, index1)
+    #     (machine_id2, bucket_id2, job_id2) = _find_job(self._schedule, index2)
+    #     job_1 = (
+    #         self._schedule.machines[machine_id1].buckets[bucket_id1].jobs.pop(job_id1)
+    #     )
+    #     job_2 = (
+    #         self._schedule.machines[machine_id2].buckets[bucket_id2].jobs.pop(job_id2)
+    #     )
+    #     # TODO keep track of origins / indices properly
+    #     combined_circuit = CircuitProxy(
+    #         origin=job_1.origin,
+    #         processing_time=(
+    #             job_1.processing_time
+    #             if job_1.processing_time > job_2.processing_time
+    #             else job_2.processing_time
+    #         ),
+    #         num_qubits=job_1.num_qubits + job_2.num_qubits,
+    #         uuid=job_1.uuid,
+    #         indices=job_1.indices + job_2.indices,
+    #         n_shots=job_1.n_shots if job_1.n_shots > job_2.n_shots else job_2.n_shots,
+    #     )
 
-        self._schedule.machines[machine_id1].buckets[bucket_id1].jobs.append(
-            combined_circuit
-        )
+    #     self._schedule.machines[machine_id1].buckets[bucket_id1].jobs.append(
+    #         combined_circuit
+    #     )
 
     def _move(self, index1: int, _: int, move_to: int) -> None:
         # Move a circuit to a new bucket

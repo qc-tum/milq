@@ -15,9 +15,10 @@ class ActionSpace(Dict):
         n_buckets = sum(
             len(machine.buckets) + 1 for machine in schedule.machines
         )  # +1 for allowing new bucket
+        # 0: cut, 1: move, 2: swap ## removed 1: combine
         super().__init__(
             {
-                "action": Discrete(4),  # 0: cut, 1: combine, 2: move, 3: swap
+                "action": Discrete(3),
                 "params": MultiDiscrete([n_circuits, n_circuits, n_buckets]),
             }
         )
@@ -32,9 +33,7 @@ class ActionSpace(Dict):
         self.spaces["params"] = MultiDiscrete([n_circuits, n_circuits, n_buckets])
 
     def enable_terminate(self) -> None:
-        self.spaces["action"] = Discrete(
-            5
-        )  # 0: cut, 1: combine, 2: move, 3: swap, 4: terminate
+        self.spaces["action"] = Discrete(4)  # 0: cut, 1: move, 2: swap, 3: terminate
 
     def disable_terminate(self) -> None:
-        self.spaces["action"] = Discrete(4)
+        self.spaces["action"] = Discrete(3)
