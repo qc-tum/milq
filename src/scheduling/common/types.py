@@ -16,6 +16,7 @@ class CircuitProxy:
     uuid: UUID
     indices: list[int] | None = None
     n_shots: int = 1024  # Not sure if needed
+    noise: float = 0.0
 
 
 @dataclass
