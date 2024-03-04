@@ -80,7 +80,7 @@ def _task(
     logging.debug("Starting init on... %s", option.__name__)
     partitions = option(circuits, accelerators, **kwargs)
     partitions = _reformat(partitions)
-    jobs: list[CircuitJob] = convert_circuits(circuits, partitions)
+    jobs: list[CircuitJob] = convert_circuits(circuits, accelerators, partitions)
     logging.debug("%s  init done.", option.__name__)
     return Schedule(_bin_schedule(jobs, accelerators), 0.0)
 
