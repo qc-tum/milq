@@ -2,7 +2,6 @@
 
 from functools import reduce
 from operator import mul
-from qiskit import QuantumCircuit
 
 from src.resource_estimation import ResourceEstimator
 
