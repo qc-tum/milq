@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:dde24d8497df16b614866f9f125014808f38edbdfbf71567adf178478e9aadff"
+content_hash = "sha256:de97c571143bc34f59ef810b34dd881dc4e1f39e55a26bbf0eaa6855cc32b6ab"
 
 [[package]]
 name = "absl-py"
@@ -975,6 +975,18 @@ files = [
     {file = "lxml-4.9.3-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:fe4bda6bd4340caa6e5cf95e73f8fea5c4bfc55763dd42f1b50a94c1b4a2fbd4"},
     {file = "lxml-4.9.3-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:f3df3db1d336b9356dd3112eae5f5c2b8b377f3bc826848567f10bfddfee77e9"},
     {file = "lxml-4.9.3.tar.gz", hash = "sha256:48628bd53a426c9eb9bc066a923acaa0878d1e86129fd5359aee99285f4eed9c"},
+]
+
+[[package]]
+name = "mapomatic"
+version = "0.12.0"
+summary = "Mapomatic"
+dependencies = [
+    "qiskit>=0.40",
+    "rustworkx>=0.12.1",
+]
+files = [
+    {file = "mapomatic-0.12.0.tar.gz", hash = "sha256:9ed83b1596632d0c018a873bb0d295cf7e045ebc01ff2deed24360cd36a875fe"},
 ]
 
 [[package]]
@@ -1991,7 +2003,7 @@ files = [
 
 [[package]]
 name = "qiskit-ibm-provider"
-version = "0.7.2"
+version = "0.7.3"
 requires_python = ">=3.8"
 summary = "Qiskit IBM Quantum Provider for accessing the quantum devices and simulators at IBM"
 dependencies = [
@@ -2006,8 +2018,8 @@ dependencies = [
     "websockets>=10.0",
 ]
 files = [
-    {file = "qiskit-ibm-provider-0.7.2.tar.gz", hash = "sha256:7722c2b51437e7efe5f01577981b29b95211abea70bfe284909c6792b1a467cc"},
-    {file = "qiskit_ibm_provider-0.7.2-py3-none-any.whl", hash = "sha256:47b165c9405fb238a881f0e7daa2154a25da53e1ce505d81d7f2be8953767e79"},
+    {file = "qiskit-ibm-provider-0.7.3.tar.gz", hash = "sha256:a6a2e6a1acfd8406756daf027c6208fb2aba3c15b8e1d540dac12b0e2f0b7516"},
+    {file = "qiskit_ibm_provider-0.7.3-py3-none-any.whl", hash = "sha256:b0a79f1ae58bbc63adb02bb13c118c3ed2857fcf3f8b706ec6dbd46bd9d39a2d"},
 ]
 
 [[package]]
