@@ -5,6 +5,7 @@ from qiskit import QuantumCircuit
 from src.common import ScheduledJob
 from src.provider import Accelerator
 from src.tools import assemble_job
+from src.scheduling.common import evaluate_final_solution
 
 from .search import scatter_search
 from ..types import JobResultInfo
@@ -67,5 +68,5 @@ def generate_heuristic_info_schedule(
                         capacity=job.num_qubits,
                     )
                 )
-
+    evaluate_final_solution(schedule, accelerators, circuits)
     return schedule.makespan, combined_jobs
