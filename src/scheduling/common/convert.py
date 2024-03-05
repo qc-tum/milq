@@ -51,7 +51,11 @@ def convert_to_proxy(
         CircuitProxy: The new proxy to the circuit.
     """
     processing_time = estimate_runtime(circuit)
-    noise = sum(accelerator.compute_noise(circuit) for accelerator in accelerators)
+    noise = max(
+        accelerator.compute_noise(circuit)
+        for accelerator in accelerators
+        if accelerator is not None
+    )
     return CircuitProxy(
         origin=circuit,
         processing_time=processing_time,
