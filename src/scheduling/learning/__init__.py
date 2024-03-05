@@ -11,4 +11,4 @@ register(
 )
 
 
-from .train import train_for_settings
+from .train import train_for_settings, run_model
