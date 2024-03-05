@@ -3,7 +3,6 @@
 from uuid import UUID
 import logging
 
-from src.provider import Accelerator
 from src.scheduling.common import Schedule, Machine, is_feasible, evaluate_solution
 
 
@@ -22,7 +21,7 @@ def select_elite_solutions(
     Returns:
         list[Schedule]: The #num_solutions best schedules with lowest makespan.
     """
-    logging.info("Selecting elite solutions...")
+    logging.debug("Selecting elite solutions...")
     if len(population) == 0:
         raise ValueError("Population must not be empty.")
 
@@ -43,8 +42,9 @@ def select_best_solution(population: list[Schedule]) -> Schedule:
     logging.debug("Selecting best solution.")
     for solution in select_elite_solutions(population, len(population)):
         if is_feasible(solution):
+            logging.debug("Feasible solution found.")
             return solution
-    logging.info("No feasible solution found.")
+    logging.debug("No feasible solution found.")
     return population[-1]
 
 
