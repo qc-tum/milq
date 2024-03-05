@@ -34,7 +34,7 @@ def _local_search(population: list[Schedule]) -> list[Schedule]:
             if len(machine.buckets) == 0:
                 continue
             swap_buckets = np.random.randint(1, dtype=bool)
-            number_of_swaps = (
+            number_of_swaps = 5 * (
                 np.random.randint(1, len(machine.buckets))
                 if len(machine.buckets) > 1
                 else 1
@@ -85,7 +85,7 @@ def _diversify(population: list[Schedule]) -> list[Schedule]:
     """Swaps jobs between different machines."""
     local_population = population.copy()
     for schedule in population:
-        number_of_swaps = np.random.randint(1, len(schedule.machines))
+        number_of_swaps = 5 * np.random.randint(1, len(schedule.machines))
         for _ in range(number_of_swaps):
             idx1, idx2 = np.random.choice(len(schedule.machines), 2)
             machine1, machine2 = schedule.machines[idx1], schedule.machines[idx2]

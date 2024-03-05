@@ -136,7 +136,7 @@ def evaluate_solution(schedule: Schedule) -> Schedule:
 
 def _calc_proxy_makespan(
     buckets: list[Bucket],
-    set_up_values: tuple[int, int] = (10, 1000),
+    set_up_values: tuple[int, int] = (1, 10),
 ) -> float:
     # set_up_values: use cheap set up if circuits are from the same cut
     jobs: list[MakespanInfo] = []
