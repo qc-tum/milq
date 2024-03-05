@@ -6,6 +6,7 @@ import logging
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
 
+from src.circuits import generate_subcircuit
 from src.common import IBMQBackend
 from src.resource_estimation import estimate_runtime, estimate_noise
 from src.tools import optimize_circuit_online
@@ -104,6 +105,15 @@ class Accelerator:
         Returns:
             float: The estimated noise of the circuit on the accelerator.
         """
+        if quantum_circuit.num_qubits > self.qubits:
+            sub_quantum_circuit = generate_subcircuit(
+                quantum_circuit, list(range(self.qubits))
+            )
+            return (
+                estimate_noise(sub_quantum_circuit, self.simulator)
+                * quantum_circuit.num_qubits
+                / self.qubits
+            )
         return estimate_noise(quantum_circuit, self.simulator)
 
     @property
