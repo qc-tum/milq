@@ -1,15 +1,14 @@
 """_summary_"""
 
-from src.circuits import create_quantum_only_ghz
-from src.scheduling.common import convert_circuits
-from src.scheduling.common import subcircuit, partion_circuit
+from src.circuits import create_quantum_only_ghz, generate_subcircuit
+from src.scheduling.common import convert_circuits, partion_circuit
 
 
 def test_subcircuit() -> None:
     """_summary_"""
     circuit = create_quantum_only_ghz(5)
     circuit.cz(1, 3)
-    new_subcircuit = subcircuit(circuit, [1, 3])
+    new_subcircuit = generate_subcircuit(circuit, [1, 3])
     assert len(new_subcircuit.data) == 1
     assert new_subcircuit.num_qubits == 2
 

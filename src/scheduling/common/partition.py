@@ -3,9 +3,10 @@
 from functools import reduce
 from operator import mul
 
+from src.circuits import generate_subcircuit
 from src.resource_estimation import ResourceEstimator
 
-from .estimate import estimate_noise_proxy, estimate_runtime_proxy, subcircuit
+from .estimate import estimate_noise_proxy, estimate_runtime_proxy
 from .types import CircuitProxy
 
 
@@ -55,7 +56,7 @@ def partion_circuit(circuit: CircuitProxy, partitions: list[int]) -> list[Circui
         multiplier *= len(additional_proxies)
         samples.append(proxies[-1].n_shots)
         # remove all qubits from the current partition
-        circuit.origin = subcircuit(
+        circuit.origin = generate_subcircuit(
             circuit.origin,
             [idx for idx, value in enumerate(partitions) if value > partition],
         )
