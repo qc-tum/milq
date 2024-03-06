@@ -24,7 +24,7 @@ class Bin:
     capacity: int
     index: int
     qpu: int
-    jobs: list[QuantumCircuit] = field(default_factory=list)
+    jobs: list[CircuitJob] = field(default_factory=list)
     full: bool = False
 
 
