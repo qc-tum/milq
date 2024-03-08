@@ -1,5 +1,7 @@
 """Diversify population by generation new local and global solutions."""
 
+from copy import deepcopy
+
 import numpy as np
 
 from src.scheduling.common.types import Schedule, Bucket
@@ -33,13 +35,13 @@ def _local_search(population: list[Schedule]) -> list[Schedule]:
         for machine in schedule.machines:
             if len(machine.buckets) == 0:
                 continue
-            swap_buckets = np.random.randint(1, dtype=bool)
             number_of_swaps = 5 * (
                 np.random.randint(1, len(machine.buckets))
                 if len(machine.buckets) > 1
                 else 1
             )
             for _ in range(number_of_swaps):
+                swap_buckets = np.random.randint(1, dtype=bool)
                 idx1, idx2 = np.random.choice(len(machine.buckets), 2)
                 if swap_buckets:
                     machine.buckets[idx1], machine.buckets[idx2] = (
@@ -83,8 +85,8 @@ def _swap_jobs(
 
 def _diversify(population: list[Schedule]) -> list[Schedule]:
     """Swaps jobs between different machines."""
-    local_population = population.copy()
-    for schedule in population:
+    local_population = deepcopy(population)
+    for schedule in local_population:
         number_of_swaps = 5 * np.random.randint(1, len(schedule.machines))
         for _ in range(number_of_swaps):
             idx1, idx2 = np.random.choice(len(schedule.machines), 2)
