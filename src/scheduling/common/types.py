@@ -78,6 +78,14 @@ class Schedule:
                 return False
         return True
 
+    def is_feasible(self) -> bool:
+        """Checks if a schedule is feasible."""
+        return all(
+            sum(job.num_qubits for job in bucket.jobs) <= machine.capacity
+            for machine in self.machines
+            for bucket in machine.buckets
+        )
+
 
 @dataclass
 class MakespanInfo:
@@ -87,12 +95,3 @@ class MakespanInfo:
     start_time: float
     completion_time: float
     capacity: int
-
-
-def is_feasible(schedule: Schedule) -> bool:
-    """Checks if a schedule is feasible."""
-    return all(
-        sum(job.num_qubits for job in bucket.jobs) <= machine.capacity
-        for machine in schedule.machines
-        for bucket in machine.buckets
-    )
