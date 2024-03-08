@@ -1,4 +1,4 @@
-"""Modlue for shared scheduling functionality."""
+"""Module for shared scheduling functionality."""
 
 from .binpacking import do_bin_pack, do_bin_pack_proxy
 from .convert import convert_circuits

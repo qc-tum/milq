@@ -12,7 +12,6 @@ from src.scheduling.common import (
     Machine,
     Schedule,
     Bucket,
-    is_feasible,
     evaluate_solution,
     convert_circuits,
     cut_proxies,
@@ -21,7 +20,7 @@ from .action_space import ActionSpace
 
 
 class Actions(Enum):
-    """The posible actions and their corresponding integer values.
+    """The possible actions and their corresponding integer values.
     CUT: 0, COMBINE: 1, MOVE: 2, SWAP: 3, TERMINATE: 4
     """
 
@@ -101,7 +100,7 @@ class SchedulingEnv(gym.Env):
         # Calculate the completion time and noise based on the updated schedule
         # Return the new schedule, completion time, noise, and whether the task is done
         self._action_space.update_actions(self._schedule)
-        if is_feasible(self._schedule):
+        if self._schedule.is_feasible():
             self._action_space.enable_terminate()
         else:
             self._action_space.disable_terminate()
@@ -115,7 +114,7 @@ class SchedulingEnv(gym.Env):
             self._calculate_reward(float(obs["makespan"]), float(obs["noise"]))
             * penalty
         )
-        if terminated and not is_feasible(self._schedule):
+        if terminated and not self._schedule.is_feasible():
             reward = -np.inf
 
         return (

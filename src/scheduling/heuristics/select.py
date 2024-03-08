@@ -3,7 +3,7 @@
 from uuid import UUID
 import logging
 
-from src.scheduling.common import Schedule, Machine, is_feasible, evaluate_solution
+from src.scheduling.common import Schedule, Machine, evaluate_solution
 
 
 def select_elite_solutions(
@@ -41,7 +41,7 @@ def select_best_solution(population: list[Schedule]) -> Schedule:
     """
     logging.debug("Selecting best solution.")
     for solution in select_elite_solutions(population, len(population)):
-        if is_feasible(solution):
+        if solution.is_feasible():
             logging.debug("Feasible solution found.")
             return solution
     logging.debug("No feasible solution found.")
