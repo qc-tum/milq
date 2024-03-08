@@ -21,7 +21,7 @@ from src.scheduling.common import (
 )
 
 
-class Option(Protocol):
+class PartitioningScheme(Protocol):
     """Helper to typehint init options"""
 
     def __call__(
@@ -49,17 +49,18 @@ def initialize_population(
         accelerators (list[Accelerator]): The available accelerators to schedule the circuits on.
 
     Returns:
-        list[Schedule]: Initial scheduel candidates.
+        list[Schedule]: Initial schedule candidates.
     """
 
     schedules = []
     # Azure resource estimator doesn't work correctly with pool
-    # num_cores = max(len(OPTIONS), cpu_count())
+    # num_cores = min(len(OPTIONS), cpu_count())
     # with Pool(processes=1) as pool:
     #     work = partial(_task, circuits=circuits, accelerators=accelerators, **kwargs)
     #     schedules = pool.map(work, OPTIONS)
     for option in OPTIONS:
         logging.info("Starting init on... %s", option.__name__)
+        circuits = sorted(circuits, key=lambda circ: circ.num_qubits, reverse=True)
         schedules.append(
             _task(
                 option,
@@ -72,8 +73,8 @@ def initialize_population(
 
 
 def _task(
-    option: Option,
-    circuits: QuantumCircuit,
+    option: PartitioningScheme,
+    circuits: list[QuantumCircuit],
     accelerators: list[Accelerator],
     **kwargs,
 ) -> Schedule:
@@ -105,7 +106,7 @@ def _greedy_partitioning(
     qpu_sizes = [acc.qubits for acc in accelerators]
     total_qubits = sum(qpu_sizes)
     circuit_sizes = [circ.num_qubits for circ in circuits]
-    for circuit_size in sorted(circuit_sizes, reverse=True):
+    for circuit_size in circuit_sizes:
         if circuit_size > total_qubits:
             partition = qpu_sizes.copy()
             remaining_size = circuit_size - total_qubits
@@ -156,21 +157,10 @@ def _even_partitioning(
     **kwargs,
 ) -> list[list[int]]:
     """Partition circuit in similar sized chunks"""
-    partitions = []
     partition_size = sum(acc.qubits for acc in accelerators) // len(accelerators)
-    circuit_sizes = [circ.num_qubits for circ in circuits]
-    for circuit_size in sorted(circuit_sizes, reverse=True):
-        if circuit_size > partition_size:
-            partition = [partition_size] * (circuit_size // partition_size)
-            if circuit_size % partition_size != 0:
-                partition.append(circuit_size % partition_size)
-            if partition[-1] == 1:
-                partition[-1] = 2
-                partition[-2] -= 1
-            partitions.append(partition)
-        else:
-            partitions.append([circuit_size])
-    return partitions
+    return _fixed_partitioning(
+        circuits, accelerators, partition_size=partition_size, **kwargs
+    )
 
 
 def _informed_partitioning(
@@ -180,11 +170,7 @@ def _informed_partitioning(
     partitions = []
     max_qpu_size = max(acc.qubits for acc in accelerators)
 
-    for circuit in sorted(
-        circuits,
-        key=lambda circ: circ.num_qubits,
-        reverse=True,
-    ):
+    for circuit in circuits:
         counts = _count_cnots(circuit)
         cuts = sorted(_find_cuts(counts, 0, circuit.num_qubits, max_qpu_size))
         if len(cuts) == 0:
@@ -218,13 +204,13 @@ def _find_cuts(
         return []
     possible_cuts = [_calulate_cut(counts, cut) for cut in range(start + 1, end - 2)]
     best_cut = min(possible_cuts, key=lambda cut: cut[1])[0]
-    partitions = (
+    cuts = (
         [best_cut]
         + _find_cuts(counts, start, best_cut, max_qpu_size)
         + _find_cuts(counts, best_cut + 1, end, max_qpu_size)
     )
 
-    return partitions
+    return cuts
 
 
 def _calulate_cut(counts: Counter[tuple[int, int]], cut: int) -> tuple[int, int]:
@@ -245,7 +231,7 @@ def _choice_partitioning(
     partitions = []
     qpu_sizes = [acc.qubits for acc in accelerators]
     circuit_sizes = [circ.num_qubits for circ in circuits]
-    for circuit_size in sorted(circuit_sizes, reverse=True):
+    for circuit_size in circuit_sizes:
         partition = []
         remaining_size = circuit_size
         while remaining_size > 0:
@@ -267,9 +253,10 @@ def _random_partitioning(
     **kwargs,
 ) -> list[list[int]]:
     partitions = []
+    # +1 to because np.randint is [low, high)
     max_qpu_size = max(acc.qubits for acc in accelerators) + 1
     circuit_sizes = [circ.num_qubits for circ in circuits]
-    for circuit_size in sorted(circuit_sizes, reverse=True):
+    for circuit_size in circuit_sizes:
         partition = []
         remaining_size = circuit_size
         if circuit_size <= 3:
@@ -293,19 +280,17 @@ def _fixed_partitioning(
     accelerators: list[Accelerator],
     **kwargs,
 ) -> list[list[int]]:
-    if "partition_size" not in kwargs:
-        partition_size = 10
-    else:
-        partition_size = kwargs["partition_size"]
+    partition_size = kwargs.pop("partition_size", 10)
     partitions = []
     circuit_sizes = [circ.num_qubits for circ in circuits]
-    for circuit_size in sorted(circuit_sizes, reverse=True):
+    for circuit_size in circuit_sizes:
         if circuit_size > partition_size:
             partition = [partition_size] * (circuit_size // partition_size)
             if circuit_size % partition_size != 0:
                 partition.append(circuit_size % partition_size)
             if partition[-1] == 1:
                 partition[-1] = 2
+                assert partition[-2] > 2, "Partition size too small."
                 partition[-2] -= 1
             partitions.append(partition)
         else:

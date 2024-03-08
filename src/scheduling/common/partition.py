@@ -147,18 +147,20 @@ def cut_proxies(
     """Cuts the proxies according to their partitions.
 
     Args:
-        circuits (list[CircuitProxy]): The proxies to cut.
+        circuits (list[CircuitProxy]): The proxies to cut. Has to be sorted descending by num_qubits.
         partitions (list[list[int]]): The partitions to cut the proxies into.
 
     Returns:
         list[CircuitProxy]: The resulting proxies.
     """
     jobs = []
-    for idx, circuit in enumerate(
-        sorted(circuits, key=lambda circ: circ.num_qubits, reverse=True)
+    for partition, circuit in zip(
+        partitions,
+        circuits,
+        strict=True,
     ):
-        if len(partitions[idx]) > 1:
-            jobs += partion_circuit(circuit, partitions[idx])
+        if len(partition) > 1:
+            jobs += partion_circuit(circuit, partition)
         else:
             jobs.append(circuit)
     return jobs

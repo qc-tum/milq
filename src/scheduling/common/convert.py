@@ -30,6 +30,7 @@ def convert_circuits(
     Returns:
         list[CircuitProxy]: The converted circuits with runtime estimate.
     """
+    circuits = sorted(circuits, key=lambda circ: circ.num_qubits, reverse=True)
     if partitions is None:
         return [convert_to_proxy(circuit, accelerators) for circuit in circuits]
     proxies = [convert_to_proxy(circuit, accelerators) for circuit in circuits]
