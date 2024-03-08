@@ -158,8 +158,9 @@ def _even_partitioning(
 ) -> list[list[int]]:
     """Partition circuit in similar sized chunks"""
     partition_size = sum(acc.qubits for acc in accelerators) // len(accelerators)
+    kwargs.update({"partition_size": partition_size})
     return _fixed_partitioning(
-        circuits, accelerators, partition_size=partition_size, **kwargs
+        circuits, accelerators, **kwargs
     )
 
 
