@@ -100,3 +100,6 @@ class MakespanInfo:
     start_time: float
     completion_time: float
     capacity: int
+    priority: int = 1
+    strictness: int = 1
+    preselection: str | None = None
