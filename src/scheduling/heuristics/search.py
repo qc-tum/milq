@@ -46,7 +46,7 @@ def scatter_search(
     kwargs["num_elite_solutions"] = num_elite_solutions
     logging.info("Starting scatter search with %d cores", num_cores)
     if num_cores == 1:
-        return _task(population, accelerators, **kwargs)
+        return _task(population, **kwargs)
     with Pool(processes=num_cores) as pool:
         work = partial(
             _task,
@@ -72,12 +72,16 @@ def _task(
         improved_population = improve_solutions(population)
 
         # ensure we don't add duplicates
-        population = _combine_solutions(population, new_solutions, improved_population)
+        population = _combine_solutions(population, improved_population, new_solutions)
 
         # Intensification
         elite_solutions = select_elite_solutions(population, num_elite_solutions)
         diverse_solutions = select_diverse_solutions(population, num_elite_solutions)
-        population = _combine_solutions(elite_solutions, diverse_solutions)
+        population = _combine_solutions(
+            elite_solutions,
+            diverse_solutions,
+            new_solutions,
+        )
 
         # Update best solution
         current_best_solution = select_best_solution(population)
