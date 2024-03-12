@@ -49,7 +49,8 @@ def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> f
             )
             for circuit in bucket.circuits
         ]
-
+    if len(jobs) == 0:
+        return 0.0
     assigned_jobs = jobs.copy()
     for job in jobs:
         last_completed = max(
@@ -126,7 +127,9 @@ def evaluate_solution(schedule: Schedule) -> Schedule:
     makespans = []
     noises = []
     for machine in schedule.machines:
-        makespans.append(_calc_proxy_makespan(machine.buckets))
+        makespans.append(
+            machine.queue_length + _calc_proxy_makespan(machine.buckets, machine.id)
+        )
         machine.makespan = makespans[-1]
         noises.append(_calc_proxy_noise(machine.buckets))
     schedule.makespan = max(makespans)
@@ -136,6 +139,7 @@ def evaluate_solution(schedule: Schedule) -> Schedule:
 
 def _calc_proxy_makespan(
     buckets: list[Bucket],
+    machine_id: str,
     set_up_values: tuple[int, int] = (1, 10),
 ) -> float:
     # set_up_values: use cheap set up if circuits are from the same cut
@@ -148,6 +152,9 @@ def _calc_proxy_makespan(
                 start_time=idx,
                 completion_time=-1.0,
                 capacity=job.num_qubits,
+                preselection=job.preselection,
+                priority=job.priority,
+                strictness=job.strictness,
             )
             for job in bucket.jobs
         ]
@@ -173,8 +180,19 @@ def _calc_proxy_makespan(
             last_completed.completion_time + job.job.processing_time + set_up_time
         )
 
-    return max(jobs, key=lambda j: j.completion_time).completion_time
+    return _makespan_function(jobs, machine_id)
 
 
 def _calc_proxy_noise(buckets: list[Bucket]) -> float:
     return sum(job.noise for bucket in buckets for job in bucket.jobs)
+
+
+def _makespan_function(
+    jobs: list[MakespanInfo], machine: str, alpha: float = 1.0, beta: float = 1.0
+) -> float:
+    """This function is a placeholder for the makespan function."""
+    makespan = 0.0
+    for job in jobs:
+        makespan += job.completion_time * job.priority * alpha
+        makespan += 0 if job.preselection == machine else job.strictness * beta
+    return makespan
