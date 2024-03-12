@@ -16,6 +16,7 @@ def _generate_batch(max_qubits: int, circuits_per_batch: int) -> list[QuantumCir
     for _ in range(circuits_per_batch):
         size = np.random.randint(1, max_qubits + 1)
         circuit = get_benchmark(benchmark_name="random", level=2, circuit_size=size)
+        circuit.remove_final_measurements(inplace=True)
         batch.append(circuit)
 
     return batch
