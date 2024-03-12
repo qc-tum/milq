@@ -12,8 +12,8 @@ from src.common import (
 )
 from src.tools import cut_circuit
 from src.provider import Accelerator, AcceleratorGroup
-from .generate_schedule import generate_schedule
-from .types import ExecutableProblem, SchedulerType
+from ..generate_schedule import generate_schedule
+from ..types import ExecutableProblem, SchedulerType
 
 
 class Scheduler:
