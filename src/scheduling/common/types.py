@@ -17,6 +17,10 @@ class CircuitProxy:
     indices: list[int] | None = None
     n_shots: int = 1024  # Not sure if needed
     noise: float = 0.0
+    # Classical scheduling information
+    priority: int = 1
+    strictness: int = 1
+    preselection: str | None = None
 
 
 @dataclass
@@ -49,6 +53,7 @@ class Machine:
     id: str
     buckets: list[Bucket]  # Has to be ordered
     makespan: float = 0.0
+    queue_length: float
 
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Machine) or self.id != __value.id:

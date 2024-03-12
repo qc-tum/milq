@@ -69,6 +69,16 @@ class ScheduledJob:
     qpu: int  # Depends on scheduler!
 
 
+@dataclass
+class UserCircuit:
+    """Contains the all parameters specified by the user."""
+    circuit: QuantumCircuit
+    n_shots: int
+    priority: int
+    machine_preference: str | None 
+    strictness: int
+
+
 def job_from_circuit(circuit: QuantumCircuit) -> CircuitJob:
     """Creates a job from a circuit which does not belong to an experiment.
 
