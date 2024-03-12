@@ -58,18 +58,18 @@ def run_heuristic_experiments(
             logging.info("Running benchmark for setting.")
             # Run the baseline model
             with Timer() as t0:
-                problme_circuits = _cut_circuits(benchmark, setting)
+                problem_circuits = _cut_circuits(benchmark, setting)
                 logging.info("Setting up times...")
 
-                p_times = _get_benchmark_processing_times(problme_circuits, setting)
+                p_times = _get_benchmark_processing_times(problem_circuits, setting)
                 s_times = _get_benchmark_setup_times(
-                    problme_circuits,
+                    problem_circuits,
                     setting,
                     default_value=2**5,
                 )
                 logging.info("Setting up problems...")
                 problem = InfoProblem(
-                    base_jobs=problme_circuits,
+                    base_jobs=problem_circuits,
                     accelerators={str(acc.uuid): acc.qubits for acc in setting},
                     big_m=1000,
                     timesteps=t_max,
@@ -118,14 +118,14 @@ def _cut_circuits(
     partitions = _generate_partitions(
         [circuit.num_qubits for circuit in circuits], accelerators
     )
-    logging.info(
+    logging.debug(
         "Partitions: generated: %s",
         " ".join(str(partition) for partition in partitions),
     )
     jobs = []
-    logging.info("Cutting circuits...")
+    logging.debug("Cutting circuits...")
     for idx, circuit in enumerate(circuits):
-        logging.info("Cutting circuit %d", idx)
+        logging.debug("Cutting circuit %d", idx)
         if len(partitions[idx]) > 1:
             experiments, _ = cut_circuit(circuit, partitions[idx])
             jobs += [
