@@ -1,12 +1,15 @@
 """Data objects for Experiments and Circuit objects.
 Also contains functions to convert between them.
 """
+
 from dataclasses import dataclass, field
 from uuid import UUID, uuid4
 
 from circuit_knitting.cutting.qpd import WeightType
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import PauliList
+
+from src.tools import assemble_circuit
 
 
 @dataclass
@@ -42,6 +45,17 @@ class CircuitJob:
 
 
 @dataclass
+class UserCircuit:
+    """Contains the all parameters specified by the user."""
+
+    circuit: QuantumCircuit
+    n_shots: int
+    priority: int
+    machine_preference: str | None
+    strictness: int
+
+
+@dataclass
 class CombinedJob:
     """Data class for combined circuit object.
     Order of the lists has to be correct for all!
@@ -58,6 +72,10 @@ class CombinedJob:
     result_counts: dict[str, int] | None = None
     uuids: list[UUID] = field(default_factory=list)
 
+    def append(self, job: UserCircuit):
+        # TODO fix this
+        self.circuit = assemble_circuit([self.circuit, job.circuit])
+
 
 @dataclass
 class ScheduledJob:
@@ -67,16 +85,6 @@ class ScheduledJob:
 
     job: CombinedJob  # Probably don't need | CircuitJob
     qpu: int  # Depends on scheduler!
-
-
-@dataclass
-class UserCircuit:
-    """Contains the all parameters specified by the user."""
-    circuit: QuantumCircuit
-    n_shots: int
-    priority: int
-    machine_preference: str | None 
-    strictness: int
 
 
 def job_from_circuit(circuit: QuantumCircuit) -> CircuitJob:

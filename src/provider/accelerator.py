@@ -1,12 +1,14 @@
 """Wrapper for IBMs backend simulator."""
 
+from collections import deque
 from uuid import UUID, uuid4
 import logging
 
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
 
-from src.common import IBMQBackend
+from src.circuits import generate_subcircuit
+from src.common import IBMQBackend, CombinedJob
 from src.resource_estimation import estimate_runtime, estimate_noise
 from src.tools import generate_subcircuit, optimize_circuit_online
 
@@ -23,6 +25,7 @@ class Accelerator:
         self._shot_time = shot_time
         self._reconfiguration_time = reconfiguration_time
         self._uuid = uuid4()
+        self.queue: deque[CombinedJob] = deque([])
 
     @staticmethod
     def _time_conversion(
