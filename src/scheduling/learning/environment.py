@@ -189,7 +189,7 @@ class SchedulingEnv(gym.Env):
                 for bucket in machine.buckets
             ]
             for machine in self._schedule.machines
-        }
+        } + {"schedule": self._schedule}
 
     def _calculate_reward(self, completion_time: float, expected_noise: float) -> float:
         # Calculate the reward based on the completion time and expected noise
