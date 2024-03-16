@@ -12,7 +12,7 @@ from src.scheduling import (
     STimes,
     generate_schedule,
 )
-from utils.helpers import Timer
+from src.utils.helpers import Timer
 
 
 def _generate_batch(max_qubits: int, circuits_per_batch: int) -> list[QuantumCircuit]:
