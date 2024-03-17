@@ -7,6 +7,7 @@ import gymnasium as gym
 from qiskit import QuantumCircuit
 import numpy as np
 
+from src.common import UserCircuit
 from src.provider import Accelerator
 from src.scheduling.common import (
     Machine,
@@ -41,7 +42,7 @@ class SchedulingEnv(gym.Env):
     def __init__(
         self,
         accelerators: list[Accelerator | None],
-        circuits: list[QuantumCircuit],  # TODO generate CircuitJob from QuantumCircuit
+        circuits: list[QuantumCircuit | UserCircuit],
         max_steps: int = 1000,  # max number of steps in an episode
         penalty: float = 5.0,  # penalty for invalid cuts
         noise_weight: float = 10.0,  # weight of noise in reward
@@ -51,7 +52,7 @@ class SchedulingEnv(gym.Env):
         self.steps = 0
         self.max_steps = max_steps
         self.accelerators = accelerators
-        self.circuits: list[QuantumCircuit] = circuits
+        self.circuits: list[QuantumCircuit | UserCircuit] = circuits
         self.noise_weight = noise_weight
 
         self._schedule = Schedule(
@@ -67,7 +68,14 @@ class SchedulingEnv(gym.Env):
         )  # Initialize with empty schedules for each device
         for circuit in self.circuits:
             proxy = convert_circuits([circuit], accelerators)[0]
-            choice = np.random.choice(len(self._schedule.machines))
+            choice = next(
+                (
+                    idx
+                    for idx, machine in enumerate(self._schedule.machines)
+                    if machine.id == proxy.preselection
+                ),
+                0,
+            )
             self._schedule.machines[choice].buckets.append(Bucket([proxy]))
         # Define the action and observation spaces
         self._action_space = ActionSpace(circuits, self._schedule)
