@@ -54,6 +54,11 @@ class UserCircuit:
     machine_preference: str | None
     strictness: int
 
+    @property
+    def num_qubits(self) -> int:
+        """Returns the number of qubits of the circuit."""
+        return self.circuit.num_qubits
+
 
 @dataclass
 class CombinedJob:
