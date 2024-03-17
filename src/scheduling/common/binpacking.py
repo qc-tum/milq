@@ -73,7 +73,9 @@ def _find_fitting_bin(job: CircuitJob, bins: list[Bin]) -> int | None:
 
 
 def do_bin_pack_proxy(
-    jobs: list[CircuitProxy], accelerator_capacities: list[int]
+    jobs: list[CircuitProxy],
+    accelerators: list[int],
+    use_preferences: bool = False,
 ) -> list[Bin]:
     """Perform first-fit decreasing bin packing on the given jobs.
 
@@ -82,31 +84,35 @@ def do_bin_pack_proxy(
     Args:
         jobs (list[CircuitProxy]): The list of jobs to bin pack.
         accelerator_capacities (list[int]): The list of accelerator capacities.
+        use_preferences (bool, optional): Use hardware preference from proxy. 
+            Defaults to False.
 
     Returns:
         list[Bin]: A list of bins with the packed jobs.
             Bin qpu attribute is the index of the accelerator in the list.
     """
     open_bins = [
-        Bin(index=0, capacity=qpu, qpu=idx)
-        for idx, qpu in enumerate(accelerator_capacities)
+        Bin(index=0, capacity=qpu.qubits, qpu=idx, uuid_string=str(qpu.uuid))
+        for idx, qpu in enumerate(accelerators)
     ]
     closed_bins = []
     index = 1
     for job in jobs:
         # Find the index of a fitting bin
-        bin_idx = _find_fitting_bin_proxy(job, open_bins)
+        bin_idx = _find_fitting_bin_proxy(job, open_bins, use_preferences)
 
         if bin_idx is None:
             # Open new bins
             new_bins = [
-                Bin(index=index, capacity=qpu, qpu=idx)
-                for idx, qpu in enumerate(accelerator_capacities)
+                Bin(
+                    index=index, capacity=qpu.qubits, qpu=idx, uuid_string=str(qpu.uuid)
+                )
+                for idx, qpu in enumerate(accelerators)
             ]
             index += 1
 
             # Search for a fitting bin among the new ones
-            bin_idx = _find_fitting_bin_proxy(job, new_bins)
+            bin_idx = _find_fitting_bin_proxy(job, new_bins, use_preferences)
             assert bin_idx is not None, "Job doesn't fit onto any qpu"
             bin_idx += len(open_bins)
             open_bins += new_bins
@@ -129,7 +135,13 @@ def do_bin_pack_proxy(
     return closed_bins
 
 
-def _find_fitting_bin_proxy(job: CircuitProxy, bins: list[Bin]) -> int | None:
+def _find_fitting_bin_proxy(
+    job: CircuitProxy, bins: list[Bin], use_preferences: bool = False
+) -> int | None:
+    if use_preferences:
+        for idx, b in enumerate(bins):
+            if b.capacity >= job.num_qubits and job.preselection == b.uuid_string:
+                return idx
     for idx, b in enumerate(bins):
         if b.capacity >= job.num_qubits:
             return idx

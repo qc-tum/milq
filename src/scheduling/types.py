@@ -26,6 +26,7 @@ class Bin:
     qpu: int
     jobs: list[CircuitJob] = field(default_factory=list)
     full: bool = False
+    uuid_string: str = ""
 
 
 @dataclass
