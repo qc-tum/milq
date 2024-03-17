@@ -12,3 +12,4 @@ register(
 
 
 from .train import train_for_settings, run_model
+from .generate_schedule import generate_rl_info_schedule as generate_rl_schedule
