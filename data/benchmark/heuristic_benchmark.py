@@ -20,6 +20,7 @@ from src.scheduling import (
 from src.scheduling.heuristics import (
     generate_heuristic_info_schedule as heuristic_schedule,
 )
+from src.scheduling.learning import generate_rl_schedule
 
 from src.tools import cut_circuit
 from src.utils.helpers import Timer
@@ -79,14 +80,12 @@ def run_heuristic_experiments(
                 makespan, jobs, _ = generate_schedule(problem, SchedulerType.BASELINE)
             result["baseline"] = Result(makespan, jobs, t0.elapsed)
             logging.info("Baseline model done: Makespan: %d.", makespan)
-            # Run the simple model
-            # if makespan > t_max:
-            #     continue
+            # Run the reinforcement learning  model
 
-            # with Timer() as t1:
-            #     makespan, jobs, _ = generate_schedule(problem, SchedulerType.SIMPLE)
-            # result["simple"] = Result(makespan, jobs, t1.elapsed)
-            # logging.info("Simple model done: Makespan: %d.", makespan)
+            with Timer() as t1:
+                makespan, jobs = generate_rl_schedule(benchmark, setting)
+            result["RL"] = Result(makespan, jobs, t1.elapsed)
+            logging.info("RL model done: Makespan: %d.", makespan)
             # Run the heurstic model
             with Timer() as t2:
                 # TODO convert ScheduledJob to JobResultInfo
