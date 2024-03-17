@@ -2,7 +2,7 @@
 
 from qiskit import QuantumCircuit
 
-from src.common import ScheduledJob
+from src.common import ScheduledJob, UserCircuit
 from src.provider import Accelerator
 from src.tools import assemble_job
 from src.scheduling.common import evaluate_final_solution
@@ -47,7 +47,7 @@ def generate_heuristic_exec_schedule(
 
 
 def generate_heuristic_info_schedule(
-    circuits: list[QuantumCircuit],
+    circuits: list[QuantumCircuit | UserCircuit],
     accelerators: list[Accelerator],
     **kwargs,
 ) -> tuple[float, list[JobResultInfo]]:

@@ -21,7 +21,7 @@ from .select import (
 
 
 def scatter_search(
-    circuits: list[QuantumCircuit],
+    circuits: list[QuantumCircuit | UserCircuit],
     accelerators: list[Accelerator],
     num_iterations: int = 100,
     num_elite_solutions: int = 10,
@@ -30,7 +30,7 @@ def scatter_search(
     """Scatter search heuristic for scheduling problems.
 
     Args:
-        circuits (list[QuantumCircuit]): Batch of circuits to schedule.
+        circuits (list[QuantumCircuit | UserCircuit]): Batch of circuits to schedule.
         accelerators (list[Accelerator]): List of accelerators to schedule on.
         num_iterations (int, optional): Number of search iterations. Defaults to 100.
         num_elite_solutions (int, optional): Max number of solutions to keep each round.

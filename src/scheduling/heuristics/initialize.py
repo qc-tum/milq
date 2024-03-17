@@ -9,7 +9,7 @@ import logging
 from qiskit import QuantumCircuit
 import numpy as np
 
-from src.common import CircuitJob
+from src.common import CircuitJob, UserCircuit
 from src.provider import Accelerator
 from src.scheduling.common import (
     Schedule,
@@ -30,7 +30,9 @@ class PartitioningScheme(Protocol):
 
 
 def initialize_population(
-    circuits: list[QuantumCircuit], accelerators: list[Accelerator], **kwargs
+    circuits: list[QuantumCircuit | UserCircuit],
+    accelerators: list[Accelerator],
+    **kwargs,
 ) -> list[Schedule]:
     """Initializes a population of schedules for the given circuits and accelerators.
 
@@ -45,7 +47,7 @@ def initialize_population(
     - fixed_partitioning: Partitions the circuits in chunks of a fixed size.
 
     Args:
-        circuits (list[QuantumCircuit]): The initial batch of circuits to schedule.
+        circuits (list[QuantumCircuit | UserCircuit]): The initial batch of circuits to schedule.
         accelerators (list[Accelerator]): The available accelerators to schedule the circuits on.
 
     Returns:
@@ -58,6 +60,7 @@ def initialize_population(
     # with Pool(processes=1) as pool:
     #     work = partial(_task, circuits=circuits, accelerators=accelerators, **kwargs)
     #     schedules = pool.map(work, OPTIONS)
+
     for option in OPTIONS:
         logging.info("Starting init on... %s", option.__name__)
         circuits = sorted(circuits, key=lambda circ: circ.num_qubits, reverse=True)
@@ -74,12 +77,16 @@ def initialize_population(
 
 def _task(
     option: PartitioningScheme,
-    circuits: list[QuantumCircuit],
+    circuits: list[QuantumCircuit | UserCircuit],
     accelerators: list[Accelerator],
     **kwargs,
 ) -> Schedule:
     logging.debug("Starting init on... %s", option.__name__)
-    partitions = option(circuits, accelerators, **kwargs)
+    quantum_circuits = [
+        circuit if isinstance(circuit, QuantumCircuit) else circuit.circuit
+        for circuit in circuits
+    ]
+    partitions = option(quantum_circuits, accelerators, **kwargs)
     partitions = _reformat(partitions)
     jobs: list[CircuitJob] = convert_circuits(circuits, accelerators, partitions)
     logging.debug("%s  init done.", option.__name__)
@@ -159,9 +166,7 @@ def _even_partitioning(
     """Partition circuit in similar sized chunks"""
     partition_size = sum(acc.qubits for acc in accelerators) // len(accelerators)
     kwargs.update({"partition_size": partition_size})
-    return _fixed_partitioning(
-        circuits, accelerators, **kwargs
-    )
+    return _fixed_partitioning(circuits, accelerators, **kwargs)
 
 
 def _informed_partitioning(
