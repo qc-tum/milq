@@ -2,6 +2,7 @@
 
 from qiskit import QuantumCircuit
 
+from src.common import UserCircuit
 from src.provider import Accelerator
 from src.scheduling.common import evaluate_final_solution
 
@@ -10,12 +11,14 @@ from ..types import JobResultInfo
 
 
 def generate_rl_info_schedule(
-    circuits: list[QuantumCircuit], accelerators: list[Accelerator], **kwargs
+    circuits: list[QuantumCircuit | UserCircuit],
+    accelerators: list[Accelerator],
+    **kwargs,
 ) -> tuple[float, list[JobResultInfo]]:
     """Generates a schedule for the given jobs and accelerators using a rl agent.
 
     Args:
-         circuits (list[QuantumCircuit]): List of circuits (jobs) to schedule.
+         circuits (list[QuantumCircuit | UserCircuit]): List of circuits (jobs) to schedule.
         accelerators (list[Accelerator]): List of accelerators to schedule on.
 
     Returns:

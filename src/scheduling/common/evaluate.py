@@ -5,13 +5,16 @@ import logging
 
 from qiskit import QuantumCircuit
 
+from src.common import UserCircuit
 from src.tools import cut_according_to_partition
 from src.provider import Accelerator
 from src.scheduling.common.types import Schedule, Bucket, MakespanInfo, CircuitProxy
 
 
 def evaluate_final_solution(
-    schedule: Schedule, accelerators: list[Accelerator], circuits: list[QuantumCircuit]
+    schedule: Schedule,
+    accelerators: list[Accelerator],
+    circuits: list[QuantumCircuit | UserCircuit],
 ) -> Schedule:
     """Calculates and updates the makespan of a schedule.
 
@@ -20,13 +23,17 @@ def evaluate_final_solution(
     Args:
         schedule (Schedule): A schedule to evaluate.
         accelerators (list[Accelerator]): The list of accelerators to schedule on.
-        circuits (list[QuantumCircuit]): The orginal list of circuits to schedule.
+        circuits (list[QuantumCircuit | UserCircuit]): The orginal list of circuits to schedule.
 
     Returns:
         Schedule: The schedule with updated makespan and machine makespans.
     """
     logging.debug("Evaluating makespan...")
     makespans = []
+    circuits = [
+        circuit if isinstance(circuit, QuantumCircuit) else circuit.circuit
+        for circuit in circuits
+    ]
     _cut_according_to_schedule(schedule, circuits)
     for machine in schedule.machines:
         accelerator = next(acc for acc in accelerators if str(acc.uuid) == machine.id)
