@@ -1,7 +1,5 @@
 """Module for estimating the runtime of a quantum circuit using the resource estimator."""
 
-from copy import deepcopy
-
 from qiskit import QuantumCircuit
 from .convert import convert_to_qir
 from .query import query_resource_estimator
@@ -17,9 +15,12 @@ def estimate_runtime(circuit: QuantumCircuit, error_budget: float = 0.05) -> flo
     Returns:
         float: The estimated runtime of the circuit in nano seconds.
     """
-    quantum_circuit = deepcopy(circuit)
-    quantum_circuit.remove_final_measurements()
-    quantum_circuit.t(0)
+    quantum_circuit = circuit.remove_final_measurements(inplace=False)
+    assert quantum_circuit is not None
+
+    # Workaround because Azure Estimator does not work with circuits of only Clifford gates
+    quantum_circuit.t(0) 
+
     bytecode = convert_to_qir(quantum_circuit)
     try:
         result = query_resource_estimator(bytecode, error_budget=error_budget)
