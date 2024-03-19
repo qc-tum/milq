@@ -14,3 +14,4 @@ from .reconstructing import (
     reconstruct_experiments_from_circuits,
     reconstruct_expvals,
 )
+from .subcircuit import generate_subcircuit

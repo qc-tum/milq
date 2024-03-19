@@ -1,6 +1,6 @@
 """Proxy resource estimation."""
 
-from src.circuits import generate_subcircuit
+from src.tools import generate_subcircuit
 from .types import CircuitProxy
 
 

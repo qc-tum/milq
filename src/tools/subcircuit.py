@@ -1,4 +1,4 @@
-"""G"""
+"""Generate subcircuits from a quantum circuit."""
 
 from bisect import bisect_left
 

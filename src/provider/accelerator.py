@@ -6,10 +6,9 @@ import logging
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
 
-from src.circuits import generate_subcircuit
 from src.common import IBMQBackend
 from src.resource_estimation import estimate_runtime, estimate_noise
-from src.tools import optimize_circuit_online
+from src.tools import generate_subcircuit, optimize_circuit_online
 
 
 class Accelerator:

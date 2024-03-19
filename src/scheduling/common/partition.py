@@ -3,7 +3,7 @@
 from functools import reduce
 from operator import mul
 
-from src.circuits import generate_subcircuit
+from src.tools import generate_subcircuit
 from src.resource_estimation import ResourceEstimator
 
 from .estimate import estimate_noise_proxy, estimate_runtime_proxy
