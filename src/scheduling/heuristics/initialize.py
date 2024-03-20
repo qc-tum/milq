@@ -367,6 +367,7 @@ def _bin_schedule(
                 capacity=acc.qubits,
                 id=str(acc.uuid),
                 buckets=[],
+                queue_length=len(acc.queue),
             )
         )
 

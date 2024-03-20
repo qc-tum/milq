@@ -59,7 +59,12 @@ class SchedulingEnv(gym.Env):
         self._schedule = Schedule(
             [
                 (
-                    Machine(accelerator.qubits, str(accelerator.uuid), [], np.inf)
+                    Machine(
+                        accelerator.qubits,
+                        str(accelerator.uuid),
+                        [],
+                        len(accelerator.queue),
+                    )
                     if accelerator is not None
                     else Machine(0, "None", [], 0)
                 )
@@ -162,7 +167,12 @@ class SchedulingEnv(gym.Env):
         schedule = Schedule(
             [
                 (
-                    Machine(accelerator.qubits, str(accelerator.uuid), [], np.inf)
+                    Machine(
+                        accelerator.qubits,
+                        str(accelerator.uuid),
+                        [],
+                        len(accelerator.queue),
+                    )
                     if accelerator is not None
                     else Machine(0, "None", [], 0)
                 )
