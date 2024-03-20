@@ -1,8 +1,6 @@
 """_summary_"""
 
 from collections import Counter
-from functools import partial
-from multiprocessing import Pool, cpu_count
 from typing import Protocol
 import logging
 
@@ -10,6 +8,7 @@ from qiskit import QuantumCircuit
 import numpy as np
 
 from src.common import CircuitJob, UserCircuit
+from src.resource_estimation import ResourceEstimator, GroupingMethod
 from src.provider import Accelerator
 from src.scheduling.common import (
     Schedule,
@@ -19,6 +18,7 @@ from src.scheduling.common import (
     convert_circuits,
     do_bin_pack_proxy as do_bin_pack,
 )
+from src.tools import generate_subcircuit
 
 
 class PartitioningScheme(Protocol):
@@ -55,12 +55,7 @@ def initialize_population(
     """
 
     schedules = []
-    # Azure resource estimator doesn't work correctly with pool
-    # num_cores = min(len(OPTIONS), cpu_count())
-    # with Pool(processes=1) as pool:
-    #     work = partial(_task, circuits=circuits, accelerators=accelerators, **kwargs)
-    #     schedules = pool.map(work, OPTIONS)
-
+    # Azure resource estimator might not work correctly with pool
     for option in OPTIONS:
         logging.info("Starting init on... %s", option.__name__)
         circuits = sorted(circuits, key=lambda circ: circ.num_qubits, reverse=True)
@@ -72,6 +67,8 @@ def initialize_population(
                 **kwargs,
             )
         )
+    for method in GroupingMethod:
+        schedules.append(_cut_task(method, circuits, accelerators))
     return schedules
 
 
@@ -101,6 +98,22 @@ def _reformat(partitions: list[list[int]]) -> list[list[int]]:
             new_partition += [idx] * part
         new_partitions.append(new_partition)
     return new_partitions
+
+
+def _cut_task(
+    method: GroupingMethod,
+    circuits: list[QuantumCircuit | UserCircuit],
+    accelerators: list[Accelerator],
+) -> Schedule:
+    logging.debug("Starting init on... %s", method.value())
+    quantum_circuits = [
+        circuit if isinstance(circuit, QuantumCircuit) else circuit.circuit
+        for circuit in circuits
+    ]
+    partitions = _better_partitioning(quantum_circuits, accelerators, method)
+    jobs: list[CircuitJob] = convert_circuits(circuits, accelerators, partitions)
+    logging.debug("%s  init done.", method.value())
+    return Schedule(_bin_schedule(jobs, accelerators), 0.0)
 
 
 def _greedy_partitioning(
@@ -227,6 +240,44 @@ def _calulate_cut(counts: Counter[tuple[int, int]], cut: int) -> tuple[int, int]
         count for (first, second), count in counts.items() if second <= cut < first
     )
     return cut, left + right
+
+
+def _better_partitioning(
+    circuits: list[QuantumCircuit],
+    accelerators: list[Accelerator],
+    grouping_method: GroupingMethod,
+) -> list[list[int]]:
+    """Finds cuts by using ResourceEstimator.resource_optimal"""
+    partitions = []
+    qpu_sizes = [acc.qubits for acc in accelerators]
+    for circuit in circuits:
+        resource_estimator = ResourceEstimator(circuit)
+        partition = []
+        if circuit.num_qubits <= max(qpu_sizes):
+            partitions.append([0] * circuit.num_qubits)
+            continue
+        while circuit.num_qubits > max(qpu_sizes):
+            _, partition1, partition2 = resource_estimator.resource_optimal(
+                epsilon=0.1,
+                delta=0.1,
+                size=np.random.choice(qpu_sizes),
+                method=grouping_method,
+            )
+            partition.append(partition1)
+            if len(partition2) <= max(qpu_sizes):
+                if len(partition2) == 1:
+                    partition2.append(partition[-1].pop())
+                partition.append(partition2)
+                break
+            circuit = generate_subcircuit(circuit, partition2)
+            resource_estimator = ResourceEstimator(circuit)
+        new_partition = [0] * circuit.num_qubits
+        for idx, part in enumerate(partition):
+            for qubit in part:
+                new_partition[qubit] = idx
+        partitions.append(new_partition)
+
+    return partitions
 
 
 def _choice_partitioning(
