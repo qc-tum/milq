@@ -6,6 +6,7 @@
 """
 
 from .assembling import assemble_circuit, assemble_job
+from .combine import combine
 from .cutting import cut_circuit, cut_according_to_partition
 from .mapping import map_circuit
 from .optimizing import optimize_circuit_offline, optimize_circuit_online

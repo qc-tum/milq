@@ -5,6 +5,7 @@ from uuid import UUID
 
 from src.common import UserCircuit
 from src.provider import Accelerator
+from src.tools import combine
 from ..types import SchedulerType
 
 
@@ -70,7 +71,7 @@ class AdvancedScheduler:
                         job.circuit.num_qubits + circuit.circuit.num_qubits
                         <= acc.qubits
                     ):
-                        job.append(circuit)
+                        combine(job, circuit)
                         return
             self._queue.append(circuit)
 

@@ -9,8 +9,6 @@ from circuit_knitting.cutting.qpd import WeightType
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import PauliList
 
-from src.tools import assemble_circuit
-
 
 @dataclass
 class Experiment:
@@ -76,32 +74,6 @@ class CombinedJob:
     partition_lables: list[str] = field(default_factory=list)
     result_counts: dict[str, int] | None = None
     uuids: list[UUID] = field(default_factory=list)
-
-    def append(self, user_circuit: UserCircuit) -> None:
-        # TODO fix this
-        """Appends a single circuit job to self.
-
-        Args:
-            user_circuit (CircuitJob): The new circuit job
-
-        Returns:
-            CombinedJob: The combined job
-        """
-        circuit_job = job_from_circuit(user_circuit.circuit)
-        self.indices.append(circuit_job.index)
-        self.coefficients.append(circuit_job.coefficient)
-        self.mapping.append(
-            slice(
-                self.mapping[-1].stop,
-                self.mapping[-1].stop + circuit_job.circuit.num_qubits,
-            )
-        )
-        self.observable = self.observable.expand(circuit_job.observable)
-        self.partition_lables.append(circuit_job.partition_label)
-        self.uuids.append(circuit_job.uuid)
-        self.cregs.append(circuit_job.cregs)
-        self.circuit = assemble_circuit([self.circuit, circuit_job.circuit])
-        return self
 
 
 @dataclass
