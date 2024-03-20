@@ -13,6 +13,7 @@ from src.scheduling.common import (
     Machine,
     Schedule,
     Bucket,
+    CircuitProxy,
     evaluate_solution,
     convert_circuits,
     cut_proxies,
@@ -74,7 +75,7 @@ class SchedulingEnv(gym.Env):
                     for idx, machine in enumerate(self._schedule.machines)
                     if machine.id == proxy.preselection
                 ),
-                0,
+                np.random.choice(len(self._schedule.machines)),
             )
             self._schedule.machines[choice].buckets.append(Bucket([proxy]))
         # Define the action and observation spaces
@@ -169,9 +170,17 @@ class SchedulingEnv(gym.Env):
             ],
             np.inf,
         )
-        for circuit in self.circuits:
-            choice = np.random.choice(len(schedule.machines))
-            schedule.machines[choice].buckets.append(Bucket([circuit]))
+        for proxy in self.circuits:
+            assert isinstance(proxy, CircuitProxy)
+            choice = next(
+                (
+                    idx
+                    for idx, machine in enumerate(self._schedule.machines)
+                    if machine.id == proxy.preselection
+                ),
+                np.random.choice(len(schedule.machines)),
+            )
+            schedule.machines[choice].buckets.append(Bucket([proxy]))
 
         obs = self._get_observation()
         info = self._get_info()
