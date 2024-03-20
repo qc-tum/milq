@@ -1,7 +1,7 @@
 """Test the resource estimation."""
 
 from src.circuits import create_quantum_only_ghz
-from src.resource_estimation import ResourceEstimator
+from src.resource_estimation import ResourceEstimator, GroupingMethod
 
 
 def test_resource_estimator() -> None:
@@ -13,7 +13,7 @@ def test_resource_estimator() -> None:
     estimator = ResourceEstimator(circuit)
     partition = [0] * 5 + [1] * 5
     resource = estimator.resource(
-        binary=partition, epsilon=0.1, delta=0.1, method="simple"
+        binary=partition, epsilon=0.1, delta=0.1, method=GroupingMethod.SIMPLE
     )
-    assert resource.n_circuit_pairs * 2 == 12
-    assert resource.n_samples // (2 * resource.n_circuit_pairs) == 898
+    assert resource.n_circuits * 2 == 12
+    assert resource.n_samples // (2 * resource.n_circuits) == 898

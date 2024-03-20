@@ -4,7 +4,7 @@ from functools import reduce
 from operator import mul
 
 from src.tools import generate_subcircuit
-from src.resource_estimation import ResourceEstimator
+from src.resource_estimation import ResourceEstimator, GroupingMethod
 
 from .estimate import estimate_noise_proxy, estimate_runtime_proxy
 from .types import CircuitProxy
@@ -75,11 +75,11 @@ def _bipartition(
     """Bipartitions the circut, giving back both parts, not to be cut further."""
     estimator = ResourceEstimator(circuit.origin)
     resource = estimator.resource(
-        binary=binary_partition, epsilon=0.1, delta=0.1, method="simple"
+        binary=binary_partition, epsilon=0.1, delta=0.1, method=GroupingMethod.SIMPLE
     )
-    n_shots = resource.n_samples // (2 * resource.n_circuit_pairs)
+    n_shots = resource.n_samples // (2 * resource.n_circuits)
     proxies = []
-    for _ in range(resource.n_circuit_pairs):
+    for _ in range(resource.n_circuits):
         indices_1 = [idx for idx, value in enumerate(binary_partition) if value == 0]
         proxy_part_1 = CircuitProxy(
             origin=circuit.origin,
@@ -117,15 +117,15 @@ def _partition(
         index (int): Current index of the partition to contruct the subcircuit.
 
     Returns:
-        list[CircuitProxy]: The n_circuit_pairs proxies for the subcircuit after cutting.
+        list[CircuitProxy]: The n_circuits proxies for the subcircuit after cutting.
     """
     estimator = ResourceEstimator(circuit.origin)
     resource = estimator.resource(
-        binary=binary_partition, epsilon=0.1, delta=0.1, method="simple"
+        binary=binary_partition, epsilon=0.1, delta=0.1, method=GroupingMethod.SIMPLE
     )
-    n_shots = resource.n_samples // (2 * resource.n_circuit_pairs)
+    n_shots = resource.n_samples // (2 * resource.n_circuits)
     proxies = []
-    for _ in range(resource.n_circuit_pairs):
+    for _ in range(resource.n_circuits):
         indices = [idx for idx, value in enumerate(all_partitions) if value == index]
         proxy = CircuitProxy(
             origin=circuit.origin,
@@ -147,7 +147,8 @@ def cut_proxies(
     """Cuts the proxies according to their partitions.
 
     Args:
-        circuits (list[CircuitProxy]): The proxies to cut. Has to be sorted descending by num_qubits.
+        circuits (list[CircuitProxy]): The proxies to cut.
+            Has to be sorted descending by num_qubits.
         partitions (list[list[int]]): The partitions to cut the proxies into.
 
     Returns:
