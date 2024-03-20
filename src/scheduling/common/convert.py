@@ -83,3 +83,4 @@ def convert_to_proxy(
     proxy.preselection = (
         circuit.machine_preference if preference is None else preference
     )
+    return proxy
