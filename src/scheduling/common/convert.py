@@ -73,7 +73,9 @@ def convert_to_proxy(
         n_shots=n_shots,
         noise=noise,
     )
-    preference = predict_device(tmp_circuit, [str(acc.uuid) for acc in accelerators])
+    preference = predict_device(
+        tmp_circuit, [str(acc.uuid) for acc in accelerators if acc is not None]
+    )
     if isinstance(circuit, QuantumCircuit):
         proxy.preselection = processing_time
         return proxy
