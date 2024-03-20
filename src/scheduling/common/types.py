@@ -53,7 +53,7 @@ class Machine:
     id: str
     buckets: list[Bucket]  # Has to be ordered
     makespan: float = 0.0
-    queue_length: float
+    queue_length: float = 0.0
 
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Machine) or self.id != __value.id:
