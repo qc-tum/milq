@@ -7,6 +7,7 @@ import logging
 from qiskit import QuantumCircuit
 import tqdm
 
+from src.common import UserCircuit
 from src.provider import Accelerator
 
 from src.scheduling.common.types import Schedule
