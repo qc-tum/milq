@@ -6,7 +6,7 @@ from mqt.bench import get_benchmark
 from qiskit import QuantumCircuit
 import numpy as np
 
-from src.common import jobs_from_experiment
+from src.common import jobs_from_experiment, UserCircuit
 from src.provider import Accelerator
 from src.scheduling import (
     Benchmark,
@@ -26,14 +26,23 @@ from src.tools import cut_circuit
 from src.utils.helpers import Timer
 
 
-def _generate_batch(max_qubits: int, circuits_per_batch: int) -> list[QuantumCircuit]:
+def _generate_batch(
+    max_qubits: int, circuits_per_batch: int, accelerators: list[Accelerator]
+) -> list[UserCircuit]:
     # Generate a random circuit
     batch = []
     for _ in range(circuits_per_batch):
         size = np.random.randint(2, max_qubits + 1)
         circuit = get_benchmark(benchmark_name="ghz", level=1, circuit_size=size)
         circuit.remove_final_measurements(inplace=True)
-        batch.append(circuit)
+        user_circuit = UserCircuit(
+            circuit,
+            size,
+            np.random.randint(1, 10),
+            str(accelerators[np.random.randint(len(accelerators))].uuid),
+            np.random.randint(1, 3),
+        )
+        batch.append(user_circuit)
 
     return batch
 
@@ -50,16 +59,18 @@ def run_heuristic_experiments(
         logging.info("New Setting started...")
         max_size = sum(s.qubits for s in setting)
         benchmarks = [
-            _generate_batch(max_size, circuits_per_batch) for _ in range(num_batches)
+            _generate_batch(max_size, circuits_per_batch, setting)
+            for _ in range(num_batches)
         ]
-        benchmark_results: list[Result] = []
+        benchmark_results: list[dict[str, Result]] = []
         for benchmark in benchmarks:
             result: dict[str, Result] = {}
 
             logging.info("Running benchmark for setting.")
             # Run the baseline model
             with Timer() as t0:
-                problem_circuits = _cut_circuits(benchmark, setting)
+                circuits = [circuit.circuit for circuit in benchmark]
+                problem_circuits = _cut_circuits(circuits, setting)
                 logging.info("Setting up times...")
 
                 p_times = _get_benchmark_processing_times(problem_circuits, setting)
