@@ -4,7 +4,7 @@ import pytest
 
 from src.scheduling.heuristics import generate_heuristic_info_schedule
 
-from src.circuits import create_quantum_only_ghz
+from tests.helpers import create_quantum_only_ghz
 from src.common import IBMQBackend
 from src.provider import Accelerator
 

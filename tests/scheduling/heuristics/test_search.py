@@ -3,9 +3,8 @@
 from src.scheduling.heuristics.search import _combine_solutions
 from src.scheduling.common.types import Bucket, Machine, Schedule
 
-
-from src.circuits import create_quantum_only_ghz
 from src.common import job_from_circuit
+from tests.helpers import create_quantum_only_ghz
 
 
 def test_combine_solutions() -> None:

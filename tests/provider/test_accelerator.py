@@ -2,9 +2,9 @@
 
 from pytest import approx
 
-from src.circuits import create_ghz
 from src.provider import Accelerator, IBMQBackend
 from src.tools import optimize_circuit_offline
+from tests.helpers import create_ghz
 
 
 def test_accelerator_run() -> None:

@@ -1,7 +1,7 @@
 """Test the resource estimation."""
 
-from src.circuits import create_quantum_only_ghz
 from src.resource_estimation import ResourceEstimator, GroupingMethod
+from tests.helpers import create_quantum_only_ghz
 
 
 def test_resource_estimator() -> None:

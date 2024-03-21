@@ -1,5 +1,4 @@
 """"""
-from src.circuits import create_ghz, create_quantum_only_ghz
 from src.common import jobs_from_experiment, IBMQBackend
 from src.tools import (
     assemble_circuit,
@@ -7,6 +6,7 @@ from src.tools import (
     cut_circuit,
     optimize_circuit_offline,
 )
+from tests.helpers import create_ghz, create_quantum_only_ghz
 
 
 def test_assemble_circuit() -> None:

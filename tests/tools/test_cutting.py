@@ -1,6 +1,6 @@
 """"""
-from src.circuits import create_quantum_only_ghz
 from src.tools import cut_circuit
+from tests.helpers import create_quantum_only_ghz
 
 
 def test_cut_circuit() -> None:

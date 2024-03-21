@@ -5,10 +5,10 @@ and reconstructing the results.
 """
 from pytest import approx
 
-from src.circuits import create_quantum_only_ghz
 from src.common import IBMQBackend
 from src.provider import Accelerator, AcceleratorGroup
 from src.tools import cut_circuit, optimize_circuit_offline, reconstruct_expvals
+from tests.helpers import create_quantum_only_ghz
 
 
 def test_tools() -> None:

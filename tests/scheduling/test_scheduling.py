@@ -1,11 +1,11 @@
 """_summary_"""
 from unittest.mock import MagicMock, patch
 
-from src.circuits import create_ghz, create_quantum_only_ghz
 from src.common import CombinedJob, IBMQBackend
 from src.provider import Accelerator
 from src.scheduling import Scheduler
 from src.tools import optimize_circuit_offline
+from tests.helpers import create_ghz, create_quantum_only_ghz
 
 
 def test_generate_schedule() -> None:

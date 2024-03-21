@@ -3,8 +3,8 @@ import pytest
 from qiskit import transpile
 from qiskit.transpiler.exceptions import TranspilerError
 
-from src.circuits import create_ghz
 from src.provider import Accelerator, AcceleratorGroup, IBMQBackend
+from tests.helpers import create_ghz
 
 
 # @pytest.mark.skip(

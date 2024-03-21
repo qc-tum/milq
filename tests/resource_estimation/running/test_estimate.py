@@ -4,9 +4,8 @@ from os import environ
 
 import pytest
 
-
-from src.circuits import create_quantum_only_ghz
 from src.resource_estimation import estimate_runtime
+from tests.helpers import create_quantum_only_ghz
 
 
 def test_estimate_runtime() -> None:

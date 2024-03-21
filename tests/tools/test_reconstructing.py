@@ -1,7 +1,7 @@
 """_summary"""
+
 from pytest import approx
 
-from src.circuits import create_quantum_only_ghz
 from src.common import jobs_from_experiment, IBMQBackend
 from src.provider import Accelerator
 from src.tools import (
@@ -12,6 +12,7 @@ from src.tools import (
     reconstruct_experiments_from_circuits,
     reconstruct_expvals,
 )
+from tests.helpers import create_quantum_only_ghz
 
 
 def test_reconstruct_expvals() -> None:

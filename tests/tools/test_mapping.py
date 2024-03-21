@@ -1,7 +1,7 @@
 """"""
-from src.circuits import create_ghz
 from src.provider import Accelerator, IBMQBackend
 from src.tools import map_circuit
+from tests.helpers import create_ghz
 
 
 def test_map_circuit() -> None:
