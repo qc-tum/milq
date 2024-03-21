@@ -105,14 +105,14 @@ def _cut_task(
     circuits: list[QuantumCircuit | UserCircuit],
     accelerators: list[Accelerator],
 ) -> Schedule:
-    logging.debug("Starting init on... %s", method.value())
+    logging.debug("Starting init on... %s", method.value)
     quantum_circuits = [
         circuit if isinstance(circuit, QuantumCircuit) else circuit.circuit
         for circuit in circuits
     ]
     partitions = _better_partitioning(quantum_circuits, accelerators, method)
     jobs: list[CircuitJob] = convert_circuits(circuits, accelerators, partitions)
-    logging.debug("%s  init done.", method.value())
+    logging.debug("%s  init done.", method.value)
     return Schedule(_bin_schedule(jobs, accelerators), 0.0)
 
 

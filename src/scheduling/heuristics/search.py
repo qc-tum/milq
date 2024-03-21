@@ -42,18 +42,21 @@ def scatter_search(
     """
     # TODO maybe decrease num_elite_solutions/diversificaiton over time? (similar to SA)
     num_cores = kwargs.get("num_cores", cpu_count())
-    population = initialize_population(circuits, accelerators, **kwargs)
+    populations = [
+        initialize_population(circuits, accelerators, **kwargs)
+        for _ in range(num_cores)
+    ]
     kwargs["num_iterations"] = num_iterations // num_cores
     kwargs["num_elite_solutions"] = num_elite_solutions
     logging.info("Starting scatter search with %d cores", num_cores)
     if num_cores == 1:
-        return _task(population, **kwargs)
+        return _task(populations[0], **kwargs)
     with Pool(processes=num_cores) as pool:
         work = partial(
             _task,
             **kwargs,
         )
-        solutions = pool.map(work, [population for _ in range(num_cores)])
+        solutions = pool.map(work, populations)
 
     return select_best_solution(solutions)
 
