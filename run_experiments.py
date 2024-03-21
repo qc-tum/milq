@@ -6,7 +6,7 @@ from dataclasses import is_dataclass, asdict
 from typing import Any
 import json
 
-# import numpy as np
+import numpy as np
 
 from src.provider import Accelerator, IBMQBackend
 
@@ -26,7 +26,7 @@ class DataclassJSONEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-# np.random.seed(42)
+np.random.seed(42)
 
 # Define the maximum circuit size
 # MAX_SIZE = 25
@@ -91,6 +91,9 @@ def run_heuristic() -> None:
 
 
 if __name__ == "__main__":
+    for setting in ACC_SETTINGS:
+        for acc in setting:
+            acc.queue.extend([0] * np.random.randint(0, 10))
     logging.basicConfig(level=logging.INFO)
     logging.getLogger("qiskit").setLevel(logging.WARNING)
     logging.getLogger("circuit_knitting").setLevel(logging.WARNING)
