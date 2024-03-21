@@ -73,16 +73,21 @@ def convert_to_proxy(
         n_shots=n_shots,
         noise=noise,
     )
-    preference = predict_device(
-        tmp_circuit, [str(acc.uuid) for acc in accelerators if acc is not None]
-    )
+
     if isinstance(circuit, QuantumCircuit):
-        proxy.preselection = processing_time
+        preference = predict_device(
+            tmp_circuit, [str(acc.uuid) for acc in accelerators if acc is not None]
+        )
+        proxy.preselection = preference
         return proxy
 
     proxy.priority = circuit.priority
     proxy.strictness = circuit.strictness
     proxy.preselection = (
-        circuit.machine_preference if preference is None else preference
+        circuit.machine_preference
+        if circuit.machine_preference is not None
+        else predict_device(
+            tmp_circuit, [str(acc.uuid) for acc in accelerators if acc is not None]
+        )
     )
     return proxy
