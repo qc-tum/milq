@@ -4,7 +4,7 @@ from functools import reduce
 from operator import mul
 
 from src.tools import generate_subcircuit
-from src.resource_estimation import ResourceEstimator, GroupingMethod
+from src.resource_estimation import ResourceEstimator
 
 from .estimate import estimate_noise_proxy, estimate_runtime_proxy
 from .types import CircuitProxy
@@ -75,9 +75,7 @@ def _bipartition(
     """Bipartitions the circut, giving back both parts, not to be cut further."""
     estimator = ResourceEstimator(circuit.origin)
     # TODO find grouping method once its supported by knitting toolbox
-    resource = estimator.resource(
-        binary=binary_partition, epsilon=0.1, delta=0.1, method=GroupingMethod.SIMPLE
-    )
+    resource = estimator.resource(binary=binary_partition, epsilon=0.1, delta=0.1)
     n_shots = resource.n_samples // (2 * resource.n_circuits)
     proxies = []
     for _ in range(resource.n_circuits):
@@ -122,9 +120,7 @@ def _partition(
     """
     estimator = ResourceEstimator(circuit.origin)
     # TODO find grouping method once its supported by knitting toolbox
-    resource = estimator.resource(
-        binary=binary_partition, epsilon=0.1, delta=0.1, method=GroupingMethod.SIMPLE
-    )
+    resource = estimator.resource(binary=binary_partition, epsilon=0.1, delta=0.1)
     n_shots = resource.n_samples // (2 * resource.n_circuits)
     proxies = []
     for _ in range(resource.n_circuits):
