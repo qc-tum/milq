@@ -1,3 +1,3 @@
 [submodule "src/resource_estimation/cutting"]
 	path = src/resource_estimation/cutting
-	url = git@gitlab.cc-asp.fraunhofer.de:quast/resourceestimator-cutting-scheduling.git
+	url = git@gitlab.cc-asp.fraunhofer.de:quast/resource-estimator-single-instance-marking.git
