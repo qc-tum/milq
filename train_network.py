@@ -6,18 +6,28 @@ from mqt.bench import get_benchmark
 from qiskit import QuantumCircuit
 import numpy as np
 
+from src.common import UserCircuit
 from src.provider import Accelerator, IBMQBackend
 from src.scheduling.learning import train_for_settings
 
 
-def _generate_batch(max_qubits: int, circuits_per_batch: int) -> list[QuantumCircuit]:
+def _generate_batch(
+    max_qubits: int, circuits_per_batch: int, accelerators: list[Accelerator]
+) -> list[UserCircuit]:
     # Generate a random circuit
     batch = []
     for _ in range(circuits_per_batch):
-        size = np.random.randint(1, max_qubits + 1)
+        size = np.random.randint(2, max_qubits + 1)
         circuit = get_benchmark(benchmark_name="random", level=2, circuit_size=size)
         circuit.remove_final_measurements(inplace=True)
-        batch.append(circuit)
+        user_circuit = UserCircuit(
+            circuit,
+            size,
+            np.random.randint(1, 10),
+            str(accelerators[np.random.randint(len(accelerators))].uuid),
+            np.random.randint(1, 3),
+        )
+        batch.append(user_circuit)
 
     return batch
 
@@ -43,12 +53,21 @@ MAX_QUBITS = 25
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
+    for setting in ACCELERATORS:
+        for acc in setting:
+            if acc is not None:
+                acc.queue.extend([0] * np.random.randint(0, 10))
     logging.getLogger("qiskit").setLevel(logging.WARNING)
     logging.getLogger("circuit_knitting").setLevel(logging.WARNING)
     logging.getLogger("stevedore").setLevel(logging.WARNING)
     logging.getLogger("azure").setLevel(logging.WARNING)
     settings = [
-        {"accelerators": accs, "circuits": _generate_batch(MAX_QUBITS, CIRC_PER_BATCH)}
+        {
+            "accelerators": accs,
+            "circuits": _generate_batch(
+                MAX_QUBITS, CIRC_PER_BATCH, [acc for acc in accs if acc is not None]
+            ),
+        }
         for accs in ACCELERATORS
     ]
     train_for_settings(settings)
