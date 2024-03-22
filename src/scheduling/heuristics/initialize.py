@@ -8,7 +8,7 @@ from qiskit import QuantumCircuit
 import numpy as np
 
 from src.common import CircuitJob, UserCircuit
-from src.resource_estimation import ResourceEstimator, GroupingMethod
+from src.resource_estimation import ResourceEstimator
 from src.provider import Accelerator
 from src.scheduling.common import (
     Schedule,
@@ -59,6 +59,7 @@ def initialize_population(
     for option in OPTIONS:
         logging.info("Starting init on... %s", option.__name__)
         circuits = sorted(circuits, key=lambda circ: circ.num_qubits, reverse=True)
+        logging.warning("#Problem Circuits %d", len(circuits))
         schedules.append(
             _task(
                 option,
@@ -67,8 +68,8 @@ def initialize_population(
                 **kwargs,
             )
         )
-    for method in GroupingMethod:
-        schedules.append(_cut_task(method, circuits, accelerators))
+
+    schedules.append(_cut_task(circuits, accelerators))
     return schedules
 
 
@@ -101,18 +102,15 @@ def _reformat(partitions: list[list[int]]) -> list[list[int]]:
 
 
 def _cut_task(
-    method: GroupingMethod,
     circuits: list[QuantumCircuit | UserCircuit],
     accelerators: list[Accelerator],
 ) -> Schedule:
-    logging.debug("Starting init on... %s", method.value)
     quantum_circuits = [
         circuit if isinstance(circuit, QuantumCircuit) else circuit.circuit
         for circuit in circuits
     ]
-    partitions = _better_partitioning(quantum_circuits, accelerators, method)
+    partitions = _better_partitioning(quantum_circuits, accelerators)
     jobs: list[CircuitJob] = convert_circuits(circuits, accelerators, partitions)
-    logging.debug("%s  init done.", method.value)
     return Schedule(_bin_schedule(jobs, accelerators), 0.0)
 
 
@@ -128,7 +126,7 @@ def _greedy_partitioning(
     circuit_sizes = [circ.num_qubits for circ in circuits]
     for circuit_size in circuit_sizes:
         if circuit_size > total_qubits:
-            partition = qpu_sizes.copy()
+            partition = qpu_sizes
             remaining_size = circuit_size - total_qubits
             while remaining_size > total_qubits:
                 partition += qpu_sizes
@@ -153,7 +151,7 @@ def _greedy_partitioning(
 
 def _partition_big_to_small(size: int, qpu_sizes: list[int]) -> list[int]:
     partition = []
-    for qpu_size in qpu_sizes:
+    for qpu_size in sorted(qpu_sizes, reverse=True):
         take_qubits = min(size, qpu_size)
         if size - take_qubits == 1:
             # We can't have a partition of size 1
@@ -245,7 +243,7 @@ def _calulate_cut(counts: Counter[tuple[int, int]], cut: int) -> tuple[int, int]
 def _better_partitioning(
     circuits: list[QuantumCircuit],
     accelerators: list[Accelerator],
-    grouping_method: GroupingMethod,
+    **kwargs,
 ) -> list[list[int]]:
     """Finds cuts by using ResourceEstimator.resource_optimal"""
     partitions = []
@@ -258,10 +256,7 @@ def _better_partitioning(
             continue
         while circuit.num_qubits > max(qpu_sizes):
             _, partition1, partition2 = resource_estimator.resource_optimal(
-                epsilon=0.1,
-                delta=0.1,
-                size=np.random.choice(qpu_sizes),
-                method=grouping_method,
+                epsilon=0.1, delta=0.1, size=np.random.choice(qpu_sizes)
             )
             partition.append(partition1)
             if len(partition2) <= max(qpu_sizes):
