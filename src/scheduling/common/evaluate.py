@@ -71,8 +71,6 @@ def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> f
             + accelerator.compute_processing_time(job.job)
             + accelerator.compute_setup_time(last_completed.job, job.job)
         )
-    if len(jobs) == 0:
-        return 0.0
     return max(jobs, key=lambda j: j.completion_time).completion_time
 
 
@@ -116,7 +114,12 @@ def _cut_according_to_schedule(
             )
             # TODO: check if this is inplace
             if new_circuit is None:
-                helper.bucket.jobs.pop(helper.idx)
+                try:
+                    helper.bucket.jobs.pop(helper.idx)
+                except Exception as e:
+                    # TODO find out why this happens
+                    logging.error(e)
+
             else:
                 helper.bucket.circuits.append(new_circuits[new_circuit])
 
