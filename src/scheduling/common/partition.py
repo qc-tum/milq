@@ -76,9 +76,9 @@ def _bipartition(
     estimator = ResourceEstimator(circuit.origin)
     # TODO find grouping method once its supported by knitting toolbox
     resource = estimator.resource(binary=binary_partition, epsilon=0.1, delta=0.1)
-    n_shots = resource.n_samples // (2 * resource.n_circuits)
+    n_shots = resource.n_samples // resource.n_circuits
     proxies = []
-    for _ in range(resource.n_circuits):
+    for _ in range(resource.n_circuits // 2):
         indices_1 = [idx for idx, value in enumerate(binary_partition) if value == 0]
         proxy_part_1 = CircuitProxy(
             origin=circuit.origin,
@@ -121,7 +121,7 @@ def _partition(
     estimator = ResourceEstimator(circuit.origin)
     # TODO find grouping method once its supported by knitting toolbox
     resource = estimator.resource(binary=binary_partition, epsilon=0.1, delta=0.1)
-    n_shots = resource.n_samples // (2 * resource.n_circuits)
+    n_shots = resource.n_samples // resource.n_circuits
     proxies = []
     for _ in range(resource.n_circuits):
         indices = [idx for idx, value in enumerate(all_partitions) if value == index]
