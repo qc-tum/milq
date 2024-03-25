@@ -30,10 +30,6 @@ def evaluate_final_solution(
     """
     logging.debug("Evaluating makespan...")
     makespans = []
-    circuits = [
-        circuit if isinstance(circuit, QuantumCircuit) else circuit.circuit
-        for circuit in circuits
-    ]
     _cut_according_to_schedule(schedule, circuits)
     for machine in schedule.machines:
         accelerator = next(acc for acc in accelerators if str(acc.uuid) == machine.id)
@@ -85,9 +81,7 @@ class BucketHelper:
     new_circuit: QuantumCircuit | None = None
 
 
-def _cut_according_to_schedule(
-    schedule: Schedule, circuits: list[QuantumCircuit]
-) -> None:
+def _cut_according_to_schedule(schedule: Schedule, circuits: list[UserCircuit]) -> None:
     """Cuts the circuits according to the schedule."""
     for circuit in circuits:
         helpers: list[BucketHelper] = []
@@ -96,32 +90,25 @@ def _cut_according_to_schedule(
                 for job_index, job in enumerate(bucket.jobs):
                     if isinstance(job, QuantumCircuit):
                         continue
-                    if job.origin == circuit:
+                    if job.uuid == circuit.name:
                         helpers.append(BucketHelper(bucket, job, job_index))
         partition = [0] * circuit.num_qubits
         for idx, helper in enumerate(helpers):
             for i in helper.job.indices:
                 partition[i] = idx
-        new_circuits = cut_according_to_partition(circuit, partition)
+        new_circuits = cut_according_to_partition(circuit.circuit, partition)
         for idx, helper in enumerate(helpers):
             new_circuit = next(
                 (
-                    idx
-                    for idx, c in enumerate(new_circuits)
-                    if c.num_qubits == helper.job.num_qubits
+                    circ
+                    for circ in new_circuits
+                    if circ.num_qubits == helper.job.num_qubits
                 ),
                 None,
             )
-            # TODO: check if this is inplace
-            if new_circuit is None:
-                try:
-                    helper.bucket.jobs.pop(helper.idx)
-                except Exception as e:
-                    # TODO find out why this happens
-                    logging.error(e)
 
-            else:
-                helper.bucket.circuits.append(new_circuits[new_circuit])
+            if new_circuit is not None:
+                helper.bucket.circuits.append(new_circuit)
 
 
 def evaluate_solution(schedule: Schedule) -> Schedule:
@@ -165,6 +152,7 @@ def _calc_proxy_makespan(
                 preselection=job.preselection,
                 priority=job.priority,
                 strictness=job.strictness,
+                n_shots=job.n_shots,
             )
             for job in bucket.jobs
         ]
