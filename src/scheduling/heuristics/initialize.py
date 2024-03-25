@@ -353,7 +353,9 @@ def _fixed_partitioning(
 def _bin_schedule(
     jobs: list[CircuitProxy], accelerators: list[Accelerator]
 ) -> list[Machine]:
-    closed_bins = do_bin_pack(jobs, accelerators)
+    closed_bins = do_bin_pack(
+        sorted(jobs, key=lambda job: job.num_qubits, reverse=True), accelerators
+    )
     # Build combined jobs from bins
     machines = []
     for acc in accelerators:
