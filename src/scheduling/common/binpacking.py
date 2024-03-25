@@ -1,6 +1,7 @@
 """Actual bin packing algorithm."""
 
 from src.common import CircuitJob
+from src.provider import Accelerator
 
 from .types import CircuitProxy
 from ..types import Bin
@@ -74,7 +75,7 @@ def _find_fitting_bin(job: CircuitJob, bins: list[Bin]) -> int | None:
 
 def do_bin_pack_proxy(
     jobs: list[CircuitProxy],
-    accelerators: list[int],
+    accelerators: list[Accelerator],
     use_preferences: bool = False,
 ) -> list[Bin]:
     """Perform first-fit decreasing bin packing on the given jobs.
@@ -83,7 +84,7 @@ def do_bin_pack_proxy(
 
     Args:
         jobs (list[CircuitProxy]): The list of jobs to bin pack.
-        accelerator_capacities (list[int]): The list of accelerator capacities.
+        accelerator (list[Accelerator]): The list of accelerators.
         use_preferences (bool, optional): Use hardware preference from proxy. 
             Defaults to False.
 
