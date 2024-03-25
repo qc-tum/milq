@@ -1,5 +1,6 @@
 """Evaluation and selection of solutions."""
 
+from copy import deepcopy
 from uuid import UUID
 import logging
 
@@ -24,10 +25,10 @@ def select_elite_solutions(
     logging.debug("Selecting elite solutions...")
     if len(population) == 0:
         raise ValueError("Population must not be empty.")
-
-    population = [evaluate_solution(schedule) for schedule in population]
+    elite_population = deepcopy(population)
+    elite_population = [evaluate_solution(schedule) for schedule in elite_population]
     logging.debug("Evaluation done.")
-    return sorted(population, key=lambda x: x.makespan)[:num_solutions]
+    return sorted(elite_population, key=lambda x: x.makespan)[:num_solutions]
 
 
 def select_best_solution(population: list[Schedule]) -> Schedule:
