@@ -19,7 +19,7 @@ def estimate_runtime(circuit: QuantumCircuit, error_budget: float = 0.05) -> flo
     assert quantum_circuit is not None
 
     # Workaround because Azure Estimator does not work with circuits of only Clifford gates
-    quantum_circuit.t(0) 
+    quantum_circuit.t(0)
 
     bytecode = convert_to_qir(quantum_circuit)
     try:

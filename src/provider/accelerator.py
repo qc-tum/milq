@@ -27,7 +27,7 @@ class Accelerator:
         self.queue: deque[CombinedJob] = deque([])
 
     @staticmethod
-    def _time_conversion(
+    def time_conversion(
         time: float, unit: str, target_unit: str = "us", dt: float | None = None
     ) -> float:
         """Converts a time from one unit to another.
@@ -75,7 +75,7 @@ class Accelerator:
         time_in_ns = estimate_runtime(circuit)
 
         logging.debug("Done.")
-        return Accelerator._time_conversion(time_in_ns, "ns", target_unit="us")
+        return Accelerator.time_conversion(time_in_ns, "ns", target_unit="us")
 
     def compute_setup_time(
         self, circuit_from: QuantumCircuit | None, circuit_to: QuantumCircuit | None
@@ -92,7 +92,7 @@ class Accelerator:
         """
         logging.debug("Computing setup time for circuit...")
         if circuit_from is None:
-            return self._reconfiguration_time
+            return 0
         if circuit_to is None:
             return self._reconfiguration_time
         return self._reconfiguration_time
