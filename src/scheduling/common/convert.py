@@ -7,6 +7,7 @@ from qiskit import QuantumCircuit
 from src.common import UserCircuit
 from src.provider import Accelerator
 from src.resource_estimation import estimate_runtime, predict_device
+from utils.helpers import time_conversion
 
 from .partition import cut_proxies
 from .types import CircuitProxy
@@ -59,7 +60,7 @@ def convert_to_proxy(
     if isinstance(circuit, UserCircuit):
         tmp_circuit = circuit.circuit
     processing_time = estimate_runtime(tmp_circuit)
-    processing_time = Accelerator.time_conversion(
+    processing_time = time_conversion(
         processing_time, "ns", target_unit="us"
     )
     noise = max(
