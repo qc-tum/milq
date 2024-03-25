@@ -96,10 +96,11 @@ class Schedule:
 class MakespanInfo:
     """Dataclass to track job completion times for makespan calc"""
 
-    job: QuantumCircuit | None
+    job: CircuitProxy | None
     start_time: float
     completion_time: float
     capacity: int
     priority: int = 1
     strictness: int = 1
     preselection: str | None = None
+    n_shots: int = 1  # Not sure if needed
