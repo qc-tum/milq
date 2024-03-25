@@ -6,6 +6,9 @@ def predict_device(
     cicuit: QuantumCircuit, available_devices: list[str] | None = None
 ) -> str | None:
     """Predicts the device for a given circuit.
+    
+    FIXME: Doesn't work with single-qubit circuits. This if fixed with mqt-bench 
+    v1.1.0 which is however incompatible with the most recent mqt-predictor (v2.0.0).
 
     Args:
         cicuit (QuantumCircuit): The circuit to predict the device for.
