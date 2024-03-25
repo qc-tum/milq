@@ -28,13 +28,18 @@ def improve_solutions(population: list[Schedule]) -> list[Schedule]:
         # Remove bucket from worst machine
         for job in bucket.jobs:
             for machine in sorted(schedule.machines, key=lambda m: m.makespan):
-                if machine == worst_machine or len(machine.buckets) == 0:
-                    continue
+                if len(machine.buckets) == 0:
+                    # If the machine has no buckets, just add it
+                    machine.buckets.append(bucket)
+                    break
                 # Find the bucket with the biggest remaining capacity
                 smallest_bucket = min(
                     machine.buckets,
                     key=lambda b: sum(job.num_qubits for job in b.jobs),
                 )
                 smallest_bucket.jobs.append(job)
+            else:
+                continue
+            break
 
     return population
