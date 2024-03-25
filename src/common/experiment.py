@@ -51,6 +51,7 @@ class UserCircuit:
     priority: int
     machine_preference: str | None
     strictness: int
+    name: UUID = uuid4()
 
     @property
     def num_qubits(self) -> int:

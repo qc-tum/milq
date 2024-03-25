@@ -59,6 +59,9 @@ def convert_to_proxy(
     if isinstance(circuit, UserCircuit):
         tmp_circuit = circuit.circuit
     processing_time = estimate_runtime(tmp_circuit)
+    processing_time = Accelerator.time_conversion(
+        processing_time, "ns", target_unit="us"
+    )
     noise = max(
         accelerator.compute_noise(tmp_circuit)
         for accelerator in accelerators
@@ -69,7 +72,7 @@ def convert_to_proxy(
         processing_time=processing_time,
         num_qubits=tmp_circuit.num_qubits,
         indices=list(range(tmp_circuit.num_qubits)),
-        uuid=uuid4(),
+        uuid=circuit.name,
         n_shots=n_shots,
         noise=noise,
     )
