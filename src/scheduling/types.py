@@ -1,4 +1,5 @@
 """Helper Classes for Scheduling Tasks."""
+
 from dataclasses import dataclass, field
 from enum import auto, Enum
 
@@ -69,6 +70,8 @@ class Result:
     makespan: float
     jobs: list[JobResultInfo]
     time: float
+    metric: float = 0
+    noise: float = 0
 
 
 # Typedef
