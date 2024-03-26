@@ -21,4 +21,7 @@ def estimate_noise(circuit: QuantumCircuit, simulator: AerSimulator) -> float:
     scores = evaluate_layouts(small_circuit, layouts, simulator)
     if len(scores) == 0:
         return 0.1  # High Value unfortunately evaluate layouts is a bit buggy
-    return scores[0][1]
+    
+    # TODO: return max noise as worst case estimate?
+    (_, noise) = scores[0]
+    return noise

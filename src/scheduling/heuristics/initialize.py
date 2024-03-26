@@ -207,8 +207,9 @@ def _count_cnots(circuit: QuantumCircuit) -> Counter[tuple[int, int]]:
     counter: Counter[tuple[int, int]] = Counter()
     for instruction in circuit.data:
         if instruction.operation.name == "cx":
-            first_qubit = circuit.find_bit(instruction.qubits[0]).index
-            second_qubit = circuit.find_bit(instruction.qubits[1]).index
+            [control, target] = instruction.qubits
+            first_qubit = circuit.find_bit(control).index
+            second_qubit = circuit.find_bit(target).index
             if abs(first_qubit - second_qubit) <= 1:
                 counter[(first_qubit, second_qubit)] += 1
     return counter

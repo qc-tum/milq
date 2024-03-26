@@ -16,13 +16,14 @@ def generate_subcircuit(circuit: QuantumCircuit, indices: list[int]) -> QuantumC
         QuantumCircuit: Subcircuit of size len(indices).
     """
     quantum_circuit = QuantumCircuit(len(indices))
-    for gate in circuit.data:
-        if all(circuit.find_bit(qubit).index in indices for qubit in gate[1]):
+    for instruction in circuit.data:
+        [op, qubits, _] = instruction
+        if all(circuit.find_bit(qubit).index in indices for qubit in qubits):
             quantum_circuit.append(
-                gate[0],
+                op,
                 [
                     bisect_left(indices, circuit.find_bit(qubit).index)
-                    for qubit in gate[1]
+                    for qubit in qubits
                 ],
             )
     return quantum_circuit

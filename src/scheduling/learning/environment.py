@@ -73,7 +73,7 @@ class SchedulingEnv(gym.Env):
             np.inf,
         )  # Initialize with empty schedules for each device
         for circuit in self.circuits:
-            proxy = convert_circuits([circuit], accelerators)[0]
+            [proxy] = convert_circuits([circuit], accelerators)
             choice = next(
                 (
                     idx
@@ -181,7 +181,7 @@ class SchedulingEnv(gym.Env):
             np.inf,
         )
         for circuit in self.circuits:
-            proxy = convert_circuits([circuit], self.accelerators)[0]
+            [proxy] = convert_circuits([circuit], self.accelerators)
             choice = next(
                 (
                     idx
