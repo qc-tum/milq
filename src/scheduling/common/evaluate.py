@@ -15,7 +15,7 @@ def evaluate_final_solution(
     schedule: Schedule,
     accelerators: list[Accelerator],
     circuits: list[QuantumCircuit | UserCircuit],
-) -> Schedule:
+) -> tuple[float, float, float]:
     """Calculates and updates the makespan of a schedule.
 
     Uses the values provided by the accelerators to calculate the makespan.
@@ -26,20 +26,26 @@ def evaluate_final_solution(
         circuits (list[QuantumCircuit | UserCircuit]): The orginal list of circuits to schedule.
 
     Returns:
-        Schedule: The schedule with updated makespan and machine makespans.
+        tuple[float, float, float]: The makespan, custom metric, and noise.
     """
     logging.debug("Evaluating makespan...")
-    makespans = []
+    metrics, makespans, noises = [], [], []
     _cut_according_to_schedule(schedule, circuits)
     for machine in schedule.machines:
         accelerator = next(acc for acc in accelerators if str(acc.uuid) == machine.id)
-        makespans.append(_calc_machine_makespan(machine.buckets, accelerator))
+        makespan, metric = _calc_machine_makespan(machine.buckets, accelerator)
+        makespans.append(makespan)
+        metrics.append(metric)
+        noises.append(_calc_noise(machine.buckets, accelerator))
         machine.makespan = makespans[-1]
+
     schedule.makespan = max(makespans)
-    return schedule
+    return makespan, max(metrics), sum(noises)
 
 
-def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> float:
+def _calc_machine_makespan(
+    buckets: list[Bucket], accelerator: Accelerator
+) -> tuple[float, float]:
     jobs: list[MakespanInfo] = []
     for idx, bucket in enumerate(buckets):
         # assumption: jobs take the longer of both circuits to execute and to set up
@@ -49,8 +55,11 @@ def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> f
                 start_time=idx,
                 completion_time=-1.0,
                 capacity=circuit.num_qubits,
+                preselection=job.preselection,
+                priority=job.priority,
+                strictness=job.strictness,
             )
-            for circuit in bucket.circuits
+            for circuit, job in zip(bucket.circuits, bucket.jobs)
         ]
     if len(jobs) == 0:
         return 0.0
@@ -67,7 +76,9 @@ def _calc_machine_makespan(buckets: list[Bucket], accelerator: Accelerator) -> f
             + accelerator.compute_processing_time(job.job)
             + accelerator.compute_setup_time(last_completed.job, job.job)
         )
-    return max(jobs, key=lambda j: j.completion_time).completion_time
+    return max(
+        jobs, key=lambda j: j.completion_time
+    ).completion_time, makespan_function(jobs, str(accelerator.uuid))
 
 
 @dataclass
@@ -178,17 +189,24 @@ def _calc_proxy_makespan(
             last_completed.completion_time + job.job.processing_time + set_up_time
         )
 
-    return _makespan_function(jobs, machine_id)
+    return makespan_function(jobs, machine_id)
 
 
 def _calc_proxy_noise(buckets: list[Bucket]) -> float:
     return sum(job.noise for bucket in buckets for job in bucket.jobs)
 
 
-def _makespan_function(
+def _calc_noise(buckets: list[Bucket], accelerator: Accelerator) -> float:
+    noises = []
+    for bucket in buckets:
+        noises.append(sum(accelerator.compute_noise(circ) for circ in bucket.circuits))
+    return sum(noises)
+
+
+def makespan_function(
     jobs: list[MakespanInfo], machine: str, alpha: float = 1.0, beta: float = 1.0
 ) -> float:
-    """This function is a placeholder for the makespan function."""
+    """Calsulcates for the makespan function."""
     makespan = 0.0
     for job in jobs:
         makespan += job.completion_time * job.priority * alpha
