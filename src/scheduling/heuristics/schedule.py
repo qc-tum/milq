@@ -50,7 +50,7 @@ def generate_heuristic_info_schedule(
     circuits: list[QuantumCircuit | UserCircuit],
     accelerators: list[Accelerator],
     **kwargs,
-) -> tuple[float, list[JobResultInfo]]:
+) -> tuple[tuple[float, float, float], list[JobResultInfo]]:
     """tmp workaround"""
     schedule = scatter_search(circuits, accelerators, **kwargs)
     combined_jobs = []
@@ -68,5 +68,5 @@ def generate_heuristic_info_schedule(
                         capacity=job.num_qubits,
                     )
                 )
-    evaluate_final_solution(schedule, accelerators, circuits)
-    return schedule.makespan, combined_jobs
+    result = evaluate_final_solution(schedule, accelerators, circuits)
+    return result, combined_jobs
