@@ -51,7 +51,7 @@ def generate_bin_info_schedule(
                 continue
             combined_jobs.append(
                 JobResultInfo(
-                    name=str(job.uuid),
+                    name=job.circuit.name,
                     machine=list(accelerators.keys())[_bin.qpu],
                     start_time=_bin.index,
                     completion_time=-1.0,
