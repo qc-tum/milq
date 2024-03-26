@@ -3,7 +3,6 @@
 import logging
 
 from mqt.bench import get_benchmark
-from qiskit import QuantumCircuit
 import numpy as np
 
 from src.common import UserCircuit
@@ -35,7 +34,7 @@ def _generate_batch(
 # Define different settings for training
 
 
-ACCELERATORS = [
+ACCELERATORS: list[list[Accelerator | None]] = [
     [
         Accelerator(IBMQBackend.BELEM, shot_time=5, reconfiguration_time=12),
         Accelerator(IBMQBackend.NAIROBI, shot_time=7, reconfiguration_time=12),
@@ -52,7 +51,13 @@ CIRC_PER_BATCH = 5
 MAX_QUBITS = 25
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(
+        level=logging.INFO,
+        filename="train.log",
+        filemode="w",
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        encoding="utf-8",
+    )
     for setting in ACCELERATORS:
         for acc in setting:
             if acc is not None:
@@ -70,4 +75,5 @@ if __name__ == "__main__":
         }
         for accs in ACCELERATORS
     ]
-    train_for_settings(settings)
+    train_for_settings(settings, 10**5)
+    logging.info("Training done.")
