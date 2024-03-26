@@ -14,7 +14,7 @@ def generate_rl_info_schedule(
     circuits: list[QuantumCircuit | UserCircuit],
     accelerators: list[Accelerator],
     **kwargs,
-) -> tuple[float, list[JobResultInfo]]:
+) -> tuple[tuple[float, float, float], list[JobResultInfo]]:
     """Generates a schedule for the given jobs and accelerators using a rl agent.
 
     Args:
@@ -22,8 +22,9 @@ def generate_rl_info_schedule(
         accelerators (list[Accelerator]): List of accelerators to schedule on.
 
     Returns:
-        tuple[float, list[JobResultInfo]]: The list of jobs with their assigned machine and
-            the makespan of the schedule.
+        tuple[tuple[float, float, float] list[JobResultInfo]]: 
+            The list of jobs with their assigned machine and
+            the makespan, score and noise of the schedule.
     """
     setting = {"accelerators": accelerators, "circuits": circuits}
     schedule = run_model(setting)
@@ -42,5 +43,5 @@ def generate_rl_info_schedule(
                         capacity=job.num_qubits,
                     )
                 )
-    evaluate_final_solution(schedule, accelerators, circuits)
-    return schedule.makespan, combined_jobs
+    result = evaluate_final_solution(schedule, accelerators, circuits)
+    return result, combined_jobs
